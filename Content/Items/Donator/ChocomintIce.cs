@@ -23,11 +23,10 @@ namespace Coralite.Content.Items.Donator
 
         public override void SetDefaults()
         {
-            Item.SetWeaponValues(26, 4);
+            Item.SetWeaponValues(27, 4);
             Item.useTime = 24;
             Item.useAnimation = 24;
             Item.maxStack = 1;
-            Item.mana = 25;
 
             Item.useTurn = false;
             Item.noMelee = true;
@@ -40,6 +39,7 @@ namespace Coralite.Content.Items.Donator
             Item.rare = RarityType<ChocomintIceRarity>();
             Item.DamageType = DamageClass.Summon;
             Item.useStyle = ItemUseStyleID.HoldUp;
+
             CoraliteGlobalItem.SetColdDamage(Item);
         }
 

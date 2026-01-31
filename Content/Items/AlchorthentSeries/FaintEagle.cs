@@ -55,11 +55,6 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
         public override void SpecialAttack(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            if (!player.CheckMana(1, true, true))
-                return;
-
-            player.manaRegenDelay = 40;
-
             Projectile.NewProjectile(source, player.Center, Vector2.Zero, ModContent.ProjectileType<FaintEagleHeldProj>(), damage, knockback, player.whoAmI, 1);
         }
 
@@ -115,7 +110,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
     /// </summary>
     public class FaintEagleProj : BaseAlchorthentMinion<FaintEagleBuff>
     {
-        public const int MaxFlameEnergy = 30;
+        public const int MaxFlameEnergy = 35;
 
         /// <summary> 总帧数 </summary>
         public const int TotalFrame = 47;
@@ -1686,7 +1681,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
                  , DustID.Torch, UnitToMouseV * Main.rand.NextFloat(1, 5), Scale: Main.rand.NextFloat(0.8f, 1.2f));
             d.noGravity = true;
 
-            if (Timer > 12)
+            if (Timer > 15)
             {
                 if (Projectile.soundDelay == 0)
                 {
@@ -1697,15 +1692,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
                 //生成火焰弹幕
                 if (Timer % 4 == 0)
                 {
-                    if (!Owner.CheckMana(1, true, true))
-                    {
-                        Timer = -30;
-                        return;
-                    }
-
-                    Owner.manaRegenDelay = 40;
-
-                    Projectile.NewProjectileFromThis<FaintEagleFire>(Projectile.Center + UnitToMouseV * 30, UnitToMouseV.RotateByRandom(-0.05f, 0.05f) * Main.rand.NextFloat(8, 11.5f), (int)(Projectile.damage * 0.43f), Projectile.knockBack, Main.rand.Next(3), Main.rand.Next(2));
+                    Projectile.NewProjectileFromThis<FaintEagleFire>(Projectile.Center + UnitToMouseV * 30, UnitToMouseV.RotateByRandom(-0.05f, 0.05f) * Main.rand.NextFloat(8, 11.5f), (int)(Projectile.damage * 0.35f), Projectile.knockBack, Main.rand.Next(3), Main.rand.Next(2));
                 }
             }
         }
@@ -1906,7 +1893,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
         public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
         {
             if (Projectile.damage > 2)
-                Projectile.damage--;
+                Projectile.damage -= 2;
         }
 
         public override bool PreDraw(ref Color lightColor)

@@ -14,24 +14,20 @@ namespace Coralite.Content.Items.RedJades
 
         public override void SetDefaults()
         {
-            Item.width = Item.height = 40;
-            Item.damage = 16;
+            Item.SetWeaponValues(16, 4f);
             Item.useTime = 35;
             Item.useAnimation = 18;
-            Item.knockBack = 4f;
             Item.maxStack = 1;
-            Item.mana = 25;
+            Item.DamageType = DamageClass.Summon;
 
             Item.useTurn = false;
             Item.noMelee = true;
             Item.noUseGraphic = false;
             Item.autoReuse = false;
-
             Item.shoot = ModContent.ProjectileType<RedBink>();
             Item.UseSound = CoraliteSoundID.Bow_Item5;
-            Item.value = Item.sellPrice(0, 0, 40, 0);
-            Item.rare = ItemRarityID.Green;
-            Item.DamageType = DamageClass.Summon;
+
+            Item.SetShopValues(Terraria.Enums.ItemRarityColor.Green2, Item.sellPrice(0, 0, 40, 0));
             Item.useStyle = ItemUseStyleID.HoldUp;
         }
 

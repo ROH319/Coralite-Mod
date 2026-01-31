@@ -15,13 +15,11 @@ namespace Coralite.Content.Items.Icicle
 
         public override void SetDefaults()
         {
-            Item.width = Item.height = 40;
-            Item.damage = 20;
+            Item.SetWeaponValues(22, 4f);
+
             Item.useTime = 24;
             Item.useAnimation = 24;
-            Item.knockBack = 4f;
             Item.maxStack = 1;
-            Item.mana = 25;
 
             Item.useTurn = false;
             Item.noMelee = true;
@@ -30,8 +28,8 @@ namespace Coralite.Content.Items.Icicle
 
             Item.shoot = ModContent.ProjectileType<IcicleThorn>();
             Item.UseSound = CoraliteSoundID.SummonStaff_Item44;
-            Item.value = Item.sellPrice(0, 0, 40, 0);
-            Item.rare = ItemRarityID.Green;
+            Item.SetShopValues(Terraria.Enums.ItemRarityColor.Green2, Item.sellPrice(0, 1));
+
             Item.DamageType = DamageClass.Summon;
             Item.useStyle = ItemUseStyleID.Swing;
 
@@ -52,23 +50,20 @@ namespace Coralite.Content.Items.Icicle
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            if (Main.myPlayer == player.whoAmI)
+            if (rightClick)
             {
-                if (rightClick)
+                foreach (var proj in Main.projectile.Where(p => p.active && p.friendly && p.type == Item.shoot && p.owner == player.whoAmI))
                 {
-                    foreach (var proj in Main.projectile.Where(p => p.active && p.friendly && p.type == Item.shoot && p.owner == player.whoAmI))
-                    {
-                        IcicleThorn pro = (IcicleThorn)proj.ModProjectile;
-                        pro.rightClick = true;
-                        if (pro.State == 1 || pro.State == 0)
-                            pro.ResetStates();
-                    }
-                    return false;
+                    IcicleThorn pro = (IcicleThorn)proj.ModProjectile;
+                    pro.rightClick = true;
+                    if (pro.State == 1 || pro.State == 0)
+                        pro.ResetStates();
                 }
-
-                var projectile = Projectile.NewProjectileDirect(source, Main.MouseWorld, velocity, type, damage, knockback, Main.myPlayer);
-                projectile.originalDamage = Item.damage;
+                return false;
             }
+
+            var projectile = Projectile.NewProjectileDirect(source, Main.MouseWorld, velocity, type, damage, knockback, Main.myPlayer);
+            projectile.originalDamage = Item.damage;
 
             return false;
         }

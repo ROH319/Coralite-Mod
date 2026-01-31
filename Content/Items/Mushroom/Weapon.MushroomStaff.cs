@@ -20,7 +20,6 @@ namespace Coralite.Content.Items.Mushroom
             Item.reuseDelay = 25;
             Item.useStyle = ItemUseStyleID.Swing;
             Item.DamageType = DamageClass.Summon;
-            Item.mana = 20;
             Item.knockBack = 3;
 
             Item.value = Item.sellPrice(0, 0, 1, 0);
@@ -70,9 +69,9 @@ namespace Coralite.Content.Items.Mushroom
         /// </summary>
         public override void AddRecipes()
         {
-            Recipe recipe = CreateRecipe();
-            recipe.AddIngredient(ItemID.Mushroom, 10);
-            recipe.Register();
+            //Recipe recipe = CreateRecipe();
+            //recipe.AddIngredient(ItemID.Mushroom, 10);
+            //recipe.Register();
         }
     }
 }

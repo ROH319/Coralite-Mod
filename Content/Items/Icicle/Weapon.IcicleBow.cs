@@ -34,9 +34,7 @@ namespace Coralite.Content.Items.Icicle
         public override void HoldItem(Player player)
         {
             if (player.TryGetModPlayer(out CoralitePlayer cp))
-            {
                 cp.AddDash(this);
-            }
         }
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)

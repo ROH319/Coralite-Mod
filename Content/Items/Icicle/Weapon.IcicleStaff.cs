@@ -13,35 +13,23 @@ namespace Coralite.Content.Items.Icicle
 
         public override void SetDefaults()
         {
-            Item.width = Item.height = 40;
-            Item.damage = 28;
-            Item.useTime = 14;
-            Item.useAnimation = 14;
-            Item.knockBack = 3f;
+            Item.DefaultToMagicWeapon(ProjectileType<IcicleStaffHeldProj>(), 14, 0, true);
+            Item.SetWeaponValues(29, 3f);
             Item.mana = 16;
-            Item.crit = 0;
-            Item.reuseDelay = 0;
 
             Item.useStyle = ItemUseStyleID.Rapier;
-            Item.DamageType = DamageClass.Magic;
-            Item.value = Item.sellPrice(0, 1, 0, 0);
-            Item.rare = ItemRarityID.Green;
-            Item.shoot = ProjectileType<IcicleStaffHeldProj>();
+            Item.SetShopValues(Terraria.Enums.ItemRarityColor.Green2, Item.sellPrice(0, 1));
 
             Item.useTurn = false;
             Item.noUseGraphic = true;
-            Item.noMelee = true;
             Item.autoReuse = true;
             CoraliteGlobalItem.SetColdDamage(Item);
         }
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            if (Main.myPlayer == player.whoAmI)
-            {
-                Projectile.NewProjectile(source, player.Center, Vector2.Zero, type, damage, knockback, player.whoAmI);
-                Helpers.Helper.PlayPitched("Icicle/IcicleStaff", 0.2f, 0f, player.Center);
-            }
+            Projectile.NewProjectile(source, player.Center, Vector2.Zero, type, damage, knockback, player.whoAmI);
+            Helpers.Helper.PlayPitched("Icicle/IcicleStaff", 0.2f, 0f, player.Center);
             return false;
         }
 

@@ -13,7 +13,6 @@ namespace Coralite.Content.Items.Nightmare
 
         public override void SetDefaults()
         {
-            Item.width = Item.height = 40;
             Item.damage = 126;
             Item.useTime = 15;
             Item.useAnimation = 15;
@@ -21,7 +20,6 @@ namespace Coralite.Content.Items.Nightmare
             Item.useStyle = ItemUseStyleID.HoldUp;
             Item.holdStyle = ItemHoldStyleID.HoldLamp;
             Item.DamageType = DamageClass.Summon;
-            Item.mana = 15;
             Item.knockBack = 3;
 
             Item.value = Item.sellPrice(0, 30, 0, 0);

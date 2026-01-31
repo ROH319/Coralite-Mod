@@ -19,7 +19,7 @@ namespace Coralite.Content.Items.FlyingShields
             Item.shoot = ModContent.ProjectileType<NoctiflairProj>();
             Item.knockBack = 3;
             Item.shootSpeed = 17;
-            Item.damage = 183;
+            Item.damage = 205;
         }
 
         public override void AddRecipes()

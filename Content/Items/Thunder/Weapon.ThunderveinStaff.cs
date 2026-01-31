@@ -17,11 +17,10 @@ namespace Coralite.Content.Items.Thunder
 
         public override void SetDefaults()
         {
-            Item.damage = 55;
+            Item.SetWeaponValues(58, 4f);
+
             Item.useTime = Item.useAnimation = 24;
-            Item.knockBack = 4f;
             Item.maxStack = 1;
-            Item.mana = 25;
 
             Item.useTurn = false;
             Item.noMelee = true;
@@ -30,8 +29,7 @@ namespace Coralite.Content.Items.Thunder
 
             Item.shoot = ProjectileType<ThunderMinion>();
             Item.UseSound = CoraliteSoundID.SummonStaff_Item44;
-            Item.value = Item.sellPrice(0, 1, 50, 0);
-            Item.rare = ItemRarityID.Yellow;
+            Item.SetShopValues(Terraria.Enums.ItemRarityColor.Yellow8, Item.sellPrice(0, 3));
             Item.DamageType = DamageClass.Summon;
             Item.useStyle = ItemUseStyleID.Swing;
         }

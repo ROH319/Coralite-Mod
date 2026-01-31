@@ -647,12 +647,15 @@ namespace Coralite.Content.Items.LandOfTheLustrousSeries
 
         public void DrawAdditive(SpriteBatch spriteBatch)
         {
-            MiscShaderData miscShaderData = GameShaders.Misc["MagicMissile"];
-            miscShaderData.UseSaturation(-2.8f);
-            miscShaderData.UseOpacity(2f);
-            miscShaderData.Apply();
-            _vertexStrip.PrepareStripWithProceduralPadding(Projectile.oldPos, Projectile.oldRot, StripColors, StripWidth, -Main.screenPosition + (Projectile.Size / 2));
-            _vertexStrip.DrawTrail();
+            if (_vertexStrip!= null)
+            {
+                MiscShaderData miscShaderData = GameShaders.Misc["MagicMissile"];
+                miscShaderData.UseSaturation(-2.8f);
+                miscShaderData.UseOpacity(2f);
+                miscShaderData.Apply();
+                _vertexStrip.PrepareStripWithProceduralPadding(Projectile.oldPos, Projectile.oldRot, StripColors, StripWidth, -Main.screenPosition + (Projectile.Size / 2));
+                _vertexStrip.DrawTrail();
+            }
 
             Texture2D mainTex = TextureAssets.Extra[ExtrasID.AncientLight].Value;
             var pos = Projectile.Center - Main.screenPosition;

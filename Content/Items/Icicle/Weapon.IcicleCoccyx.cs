@@ -33,7 +33,6 @@ namespace Coralite.Content.Items.Icicle
 
         public override void SetDefaults()
         {
-            Item.width = Item.height = 40;
             Item.damage = 24;
             Item.useTime = 15;
             Item.useAnimation = 15;
@@ -55,18 +54,13 @@ namespace Coralite.Content.Items.Icicle
         public override void HoldItem(Player player)
         {
             if (player.TryGetModPlayer(out CoralitePlayer cp))
-            {
                 cp.AddDash(this);
-            }
         }
 
         public override bool AltFunctionUse(Player player) => true;
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            if (Main.myPlayer != player.whoAmI)
-                return false;
-
             if (player.altFunctionUse == 2)
             {
                 Projectile.NewProjectile(source, player.Center, Vector2.Zero, type, (int)(damage * 0.75f), knockback, player.whoAmI, player.itemTimeMax);

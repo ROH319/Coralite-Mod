@@ -26,7 +26,6 @@ namespace Coralite.Content.Items.Corruption
 
         public override void SetDefaults()
         {
-            Item.width = Item.height = 40;
             Item.damage = 30;
             Item.useTime = 22;
             Item.useAnimation = 22;
@@ -48,9 +47,6 @@ namespace Coralite.Content.Items.Corruption
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            if (Main.myPlayer != player.whoAmI)
-                return false;
-
             if (player.altFunctionUse == ItemAlternativeFunctionID.ActivatedAndUsed)
             {
                 //检测扎在NPC身上的投矛的数量，并让投矛消失，之后射出2倍数量的小投矛

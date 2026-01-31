@@ -31,7 +31,7 @@ namespace Coralite.Content.WorldGeneration
             //if (Main.myPlayer == player.whoAmI)
             //{
             //    float rot = (Main.MouseWorld - player.Center).ToRotation();
-            //Projectile.NewProjectile(source, player.Center, Vector2.Zero, ModContent.ProjectileType<TurbulenceSpawnProj>(), 0, 0, player.whoAmI);
+            Projectile.NewProjectile(source, player.Center, Vector2.Zero, ModContent.ProjectileType<TestProj>(), 0, 0, player.whoAmI);
 
             //}
             return false;
@@ -44,9 +44,9 @@ namespace Coralite.Content.WorldGeneration
 
         public override bool CanUseItem(Player player)
         {
-            LanternNight.GenuineLanterns = true;
-            LanternNight.ManualLanterns = true;
-            SkyManager.Instance.Activate("Lantern", default(Vector2));
+            //LanternNight.GenuineLanterns = true;
+            //LanternNight.ManualLanterns = true;
+            //SkyManager.Instance.Activate("Lantern", default(Vector2));
 
             //if (player.altFunctionUse == 2)
             //{
@@ -429,6 +429,11 @@ namespace Coralite.Content.WorldGeneration
 
             return;
         }
+    }
+
+    public class TestProj:ModProjectile
+    {
+        public override string Texture => AssetDirectory.Assets+Name;
     }
 
     public class ActionAshGrass : GenAction

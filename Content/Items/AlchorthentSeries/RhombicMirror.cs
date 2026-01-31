@@ -54,11 +54,6 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
         public override void SpecialAttack(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            if (!player.CheckMana(30, true, true))
-                return;
-
-            player.manaRegenDelay = 40;
-
             Projectile.NewProjectile(source, player.Center, Vector2.Zero, ModContent.ProjectileType<CorruptionMirror>(), damage, knockback, player.whoAmI);
         }
 

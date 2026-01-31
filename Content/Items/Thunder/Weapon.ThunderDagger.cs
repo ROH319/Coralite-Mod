@@ -48,22 +48,19 @@ namespace Coralite.Content.Items.Thunder
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            if (Main.myPlayer == player.whoAmI)
-            {
-                if (useCount > 2)
-                    useCount = 0;
+            if (useCount > 2)
+                useCount = 0;
 
-                switch (useCount)
-                {
-                    default:
-                    case 0:
-                    case 1:
-                        Projectile.NewProjectile(source, player.Center, Vector2.Zero, ProjectileType<ThunderDaggerSlash>(), damage, knockback, player.whoAmI, useCount);
-                        break;
-                    case 2:
-                        Projectile.NewProjectile(source, player.Center, Vector2.Zero, ProjectileType<ThunderDaggerSlash>(), (int)(damage * 1.25f), knockback, player.whoAmI, useCount);
-                        break;
-                }
+            switch (useCount)
+            {
+                default:
+                case 0:
+                case 1:
+                    Projectile.NewProjectile(source, player.Center, Vector2.Zero, ProjectileType<ThunderDaggerSlash>(), damage, knockback, player.whoAmI, useCount);
+                    break;
+                case 2:
+                    Projectile.NewProjectile(source, player.Center, Vector2.Zero, ProjectileType<ThunderDaggerSlash>(), (int)(damage * 1.25f), knockback, player.whoAmI, useCount);
+                    break;
             }
 
             Projectile.NewProjectile(source, player.Center, velocity, type, damage, knockback, player.whoAmI);
