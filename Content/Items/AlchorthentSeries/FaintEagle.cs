@@ -373,7 +373,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
             Vector2 aimPos = GetIdlePos(index, total);
 
             /*
-             * 距离大于3000直接传送
+             * 距离大于2000直接传送
              * 
              * 普通：蹦蹦跳跳回归
              * 每次跳跃开始时检测和玩家间的距离，如果和之前的距离相比没有减小那么就增加计数器

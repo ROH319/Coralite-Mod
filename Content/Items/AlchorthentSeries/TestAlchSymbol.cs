@@ -23,7 +23,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
             temp.SetFlowAdd(4);
             temp.SetLineColor(Color.Transparent);
 
-            line = RhombicMirror.NewCorruptAlchSymbol();
+            line = RhombicMirror.NewCopperAlchSymbol();
 
             //line.SetScale(16);
             line.SetLineWidth(20);

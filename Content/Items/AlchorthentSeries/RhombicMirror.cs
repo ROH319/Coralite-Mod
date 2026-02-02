@@ -1,5 +1,7 @@
 ﻿using Coralite.Content.Dusts;
+using Coralite.Content.Items.Materials;
 using Coralite.Content.Particles;
+using Coralite.Content.Tiles.RedJades;
 using Coralite.Core;
 using Coralite.Core.Configs;
 using Coralite.Core.Prefabs.Particles;
@@ -12,6 +14,7 @@ using System;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
+using static Coralite.Content.Items.AlchorthentSeries.FaintEagleProj;
 
 namespace Coralite.Content.Items.AlchorthentSeries
 {
@@ -35,7 +38,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
         public override void Summon(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            //Projectile.NewProjectile(source, player.Center + new Vector2(player.direction * 20, 0), new Vector2(player.direction * 4, -8), type, damage, knockback, player.whoAmI, 1);
+            Projectile.NewProjectile(source, player.Center, Vector2.Zero, type, damage, knockback, player.whoAmI);
 
             Projectile.NewProjectile(source, player.Center, Vector2.Zero, ModContent.ProjectileType<RhombicMirrorHeldProj>(), damage, knockback, player.whoAmI, 0);
 
@@ -47,7 +50,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
         public override void MinionAim(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            PRTLoader.NewParticle<TestAlchSymbol>(Main.MouseWorld, Vector2.Zero, RhombicMirror.ShineCorruptionColor);
+            PRTLoader.NewParticle<TestAlchSymbol>(Main.MouseWorld, Vector2.Zero, ShineCorruptionColor);
 
             //Projectile.NewProjectile(source, player.Center, Vector2.Zero, ModContent.ProjectileType<FaintEagleHeldProj>(), damage, knockback, player.whoAmI, 0);
         }
@@ -59,31 +62,31 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
         public override void AddRecipes()
         {
-            //CreateRecipe()
-            //    .AddIngredient(ItemID.CopperBar, 12)
-            //    .AddIngredient<MagicalPowder>(3)
-            //    .AddIngredient(ItemID.VilePowder, 12)
-            //    .AddTile<MagicCraftStation>()
-            //    .Register();
-            //CreateRecipe()
-            //    .AddIngredient(ItemID.CopperBar, 12)
-            //    .AddIngredient<MagicalPowder>(3)
-            //    .AddIngredient(ItemID.ViciousPowder, 12)
-            //    .AddTile<MagicCraftStation>()
-            //    .Register();
+            CreateRecipe()
+                .AddIngredient(ItemID.CopperBar, 12)
+                .AddIngredient<MagicalPowder>(3)
+                .AddIngredient(ItemID.VilePowder, 12)
+                .AddTile<MagicCraftStation>()
+                .Register();
+            CreateRecipe()
+                .AddIngredient(ItemID.CopperBar, 12)
+                .AddIngredient<MagicalPowder>(3)
+                .AddIngredient(ItemID.ViciousPowder, 12)
+                .AddTile<MagicCraftStation>()
+                .Register();
 
-            //CreateRecipe()
-            //    .AddIngredient(ItemID.TinBar, 12)
-            //    .AddIngredient<MagicalPowder>(3)
-            //    .AddIngredient(ItemID.VilePowder, 12)
-            //    .AddTile<MagicCraftStation>()
-            //    .Register();
-            //CreateRecipe()
-            //    .AddIngredient(ItemID.TinBar, 12)
-            //    .AddIngredient<MagicalPowder>(3)
-            //    .AddIngredient(ItemID.ViciousPowder, 12)
-            //    .AddTile<MagicCraftStation>()
-            //    .Register();
+            CreateRecipe()
+                .AddIngredient(ItemID.TinBar, 12)
+                .AddIngredient<MagicalPowder>(3)
+                .AddIngredient(ItemID.VilePowder, 12)
+                .AddTile<MagicCraftStation>()
+                .Register();
+            CreateRecipe()
+                .AddIngredient(ItemID.TinBar, 12)
+                .AddIngredient<MagicalPowder>(3)
+                .AddIngredient(ItemID.ViciousPowder, 12)
+                .AddTile<MagicCraftStation>()
+                .Register();
         }
 
         public static LineDrawer NewCorruptAlchSymbol()
@@ -99,6 +102,16 @@ namespace Coralite.Content.Items.AlchorthentSeries
                  //对号的两个箭头
                  new LineDrawer.StraightLine(new Vector2(0.5f, -0.7f), new Vector2(0.9f, -1),linwWidthScale:0.7f),
                  new LineDrawer.StraightLine(new Vector2(1f, -0.5f), new Vector2(0.9f, -1),linwWidthScale:0.7f),
+                 ]);
+        }
+
+        public static LineDrawer NewCopperAlchSymbol()
+        {
+            return new LineDrawer([
+                 new LineDrawer.WarpLine(new Vector2(0,1.004f),36
+                    ,f => (MathHelper.PiOver2+f*(MathHelper.TwoPi+0.1f)).ToRotationVector2(),linwWidthScale:1.4f),
+                 new LineDrawer.StraightLine(new Vector2(0, 0.9f), new Vector2(0, 2.2f),AlchorthentAssets.OneSideBigLine,linwWidthScale:0.9f),
+                 new LineDrawer.StraightLine(new Vector2(-0.6f, 1.6f), new Vector2(0.6f, 1.6f)),
                  ]);
         }
     }
@@ -201,17 +214,26 @@ namespace Coralite.Content.Items.AlchorthentSeries
         /// 攻击次数
         /// </summary>
         public short attackCount;
+        public float xScaleDirection = 1;
         public float xScale = 1;
         /// <summary> 控制身体部件距离中心点的长度 </summary>
         public float bodyPartLength = 0;
         /// <summary> 是否绘制身体部件 </summary>
         public bool canDrawBodyPart = false;
+        /// <summary> 身体部件距离中心点的长度 </summary>
+        public float bodyPartOffset;
+        public float alpha=0;
+
         /// <summary>
         /// 攻击状态
         /// </summary>
         public AttackTypes Corrupted { get; set; }
 
         const int totalFrameY = 37;
+        const float Scale = 0.75f;
+
+        const int TeleportDistance = 2000;
+
 
         /// <summary>
         /// 攻击状态，决定攻击方式
@@ -252,6 +274,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
             Projectile.minion = true;
             Projectile.minionSlots = 1;
             Projectile.width = Projectile.height = 46;
+            Projectile.scale = Scale;
             Projectile.decidesManualFallThrough = true;
             Projectile.localNPCHitCooldown = 10;
         }
@@ -260,17 +283,130 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
         public override void Initialize()
         {
-
+            
         }
 
         public override void AIMoves()
         {
+            switch (State)
+            {
+                default:
+                    break;
+                case (byte)AIStates.OnSummon:
+                    OnSummon();
+                    break;
+                case (byte)AIStates.BackToOwner:
+                    BackToOwner();
+                    break;
+            }
 
+            Timer++;
+
+            //float length = MathF.Abs(Main.MouseWorld.X - Projectile.Center.X) ;
+
+            //if (length > 16 * 5)
+            //{
+            //    xScale =1- Math.Clamp((length -  16 * 5) / (16 * 10), 0, 0.4f);
+            //}
+            //else
+            //    xScale = 1;
         }
 
         public void OnSummon()
         {
+            const float startRot = MathHelper.TwoPi + MathHelper.PiOver2;
+            const float startScale = 0.4f;
 
+            if (Timer == 0)
+            {
+                Projectile.scale = startScale;
+                Projectile.rotation = startRot;
+            }
+
+            /*
+             * 在玩家身后旋转着出现
+             * 并且逐渐变大
+             */
+
+            float factor = Timer / 45f;
+
+            Projectile.Center = Owner.MountedCenter + new Vector2(0, Owner.gfxOffY)
+                + (Owner.direction > 0 ? (MathHelper.Pi + 0.95f) : -0.95f).ToRotationVector2() * (18+Helper.SqrtEase(factor) * 60);
+
+            alpha = Helper.X2Ease(factor);
+            Projectile.rotation = startRot * (1 - Helper.BezierEase(factor));
+            Projectile.scale = Helper.Lerp(startScale, Scale, factor);
+
+            if (Timer > 45)
+                SwitchState(AIStates.BackToOwner);
+        }
+
+        public void BackToOwner()
+        {
+            Helper.GetMyGroupIndexAndFillBlackList(Projectile, out int index, out int total);
+            Vector2 aimPos = GetIdlePos(index, total);
+
+            /*
+             * 旋转后朝向目标位置移动
+             * 
+             * 记录与目标点位置，如果未能缩短距离那么就停下重新选取方向
+             * 速度会随着玩家速度增加而增加
+             */
+
+            Projectile.tileCollide = false;
+            float distanceToAimPos = Vector2.Distance(aimPos, Projectile.Center);
+
+            if (distanceToAimPos > TeleportDistance || Timer > 60 * 16)
+            {
+                Teleport(aimPos);
+                SwitchState(AIStates.Idle);
+
+                return;
+            }
+        }
+
+        /// <summary>
+        /// 传送到目标位置，生成炼金术符号
+        /// </summary>
+        /// <param name="teleportPos"></param>
+        public void Teleport(Vector2 teleportPos)
+        {
+            Projectile.velocity *= 0;
+            Projectile.rotation = 0;
+            Projectile.Center = teleportPos;
+            //Recorder = 0;
+
+            PRTLoader.NewParticle<AlchSymbolFire>(Projectile.Center, Vector2.Zero, new Color(203, 66, 66));
+        }
+
+        public override Vector2 GetIdlePos(int selfIndex, int totalCount)
+        {
+            Vector2 basePos = Owner.MountedCenter + new Vector2(0, -16 * 8);
+            if (selfIndex == 0)//第一个直接到目标位置
+                return basePos;
+
+            if (selfIndex <= 3)//第2~7个呈六边形环绕
+            {
+                return basePos + ((selfIndex - 1) * MathHelper.TwoPi / 3 - MathHelper.PiOver2).ToRotationVector2() * 36;
+            }
+
+            if (selfIndex <= 6)//第2~7个呈六边形环绕
+            {
+                return basePos + ((selfIndex - 4) * MathHelper.TwoPi / 3 - MathHelper.PiOver2 + MathHelper.Pi / 3).ToRotationVector2() * 36;
+            }
+
+            //其余的圆圈形环绕
+            int restCount = totalCount - 6;
+            float length = 58 + (totalCount - 7) * 10;
+            return basePos + ((selfIndex - 7) * MathHelper.TwoPi / restCount - MathHelper.PiOver2).ToRotationVector2() * length;
+        }
+
+        private void SwitchState(AIStates targetState)
+        {
+            State = (byte)targetState;
+
+            Timer = 0;
+            alpha = 1;
         }
 
         #endregion
@@ -279,15 +415,76 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
         public override bool PreDraw(ref Color lightColor)
         {
-            if (canDrawBodyPart)
-                DrawBodyuParts(lightColor);
+            Vector2 dir = (Projectile.rotation + (xScaleDirection > 0 ? 0 : MathHelper.Pi)).ToRotationVector2();
+            float xScaleFactor = Math.Clamp(1 - (xScale - 0.5f) / 0.5f, 0, 1);
+            dir *= xScaleFactor;
+            //仅在刚生成的时候使用的透明度
+            lightColor *= alpha;
 
+            if (canDrawBodyPart)
+                DrawBodyParts(lightColor, xScaleFactor, dir);
+
+            DrawSelf(lightColor, dir);
             return false;
         }
 
-        public void DrawBodyuParts(Color lightcolor)
+        public void DrawBodyParts(Color lightColor, float xScaleFactor, Vector2 dir)
         {
+            const float PiOver3 = MathHelper.Pi / 3;
+            Color darkColor = lightColor * 0.7f;
+            darkColor.A = lightColor.A;
 
+            Vector2 offset = dir * 2;
+            Texture2D part1 = RhombicMirrorProjPart1.Value;
+
+            //绘制头
+            DrawLayer(part1, 0, 4, (Projectile.rotation + MathHelper.PiOver2).ToRotationVector2() * bodyPartOffset, darkColor);
+            DrawLayer(part1, 0, 4, (Projectile.rotation + MathHelper.PiOver2).ToRotationVector2() * bodyPartOffset+offset, lightColor);
+
+            //绘制以把
+            DrawLayer(part1, 1, 4, (Projectile.rotation - MathHelper.PiOver2).ToRotationVector2() * bodyPartOffset, darkColor);
+            DrawLayer(part1, 1, 4, (Projectile.rotation - MathHelper.PiOver2).ToRotationVector2() * bodyPartOffset + offset, lightColor);
+
+            float angleOffset = xScaleFactor * MathHelper.PiOver4 / 2;
+
+            //绘制右边后腿
+            DrawLayer(part1, 2, 4, (Projectile.rotation - PiOver3 * 2 + angleOffset).ToRotationVector2() * bodyPartOffset, darkColor);
+            DrawLayer(part1, 2, 4, (Projectile.rotation - PiOver3 * 2 + angleOffset).ToRotationVector2() * bodyPartOffset + offset, lightColor);
+
+            //绘制左边后腿
+            DrawLayer(part1, 3, 4, (Projectile.rotation - PiOver3 - angleOffset).ToRotationVector2() * bodyPartOffset, darkColor);
+            DrawLayer(part1, 3, 4, (Projectile.rotation - PiOver3 - angleOffset).ToRotationVector2() * bodyPartOffset + offset, lightColor);
+
+            Texture2D part2 = RhombicMirrorProjPart2.Value;
+
+            //绘制右边前腿
+            DrawLayer(part2, 0, 2, (Projectile.rotation + PiOver3 + angleOffset).ToRotationVector2() * bodyPartOffset, darkColor);
+            DrawLayer(part2, 0, 2, (Projectile.rotation + PiOver3 + angleOffset).ToRotationVector2() * bodyPartOffset + offset, lightColor);
+
+            //绘制左边前腿
+            DrawLayer(part2, 1, 2, (Projectile.rotation + PiOver3 * 2 - angleOffset).ToRotationVector2() * bodyPartOffset, darkColor);
+            DrawLayer(part2, 1, 2, (Projectile.rotation + PiOver3 * 2 - angleOffset).ToRotationVector2() * bodyPartOffset + offset, lightColor);
+        }
+
+        public void DrawSelf(Color lightColor, Vector2 dir)
+        {
+            Color darkColor = lightColor * 0.7f;
+            darkColor.A = lightColor.A;
+
+            Vector2 offset = dir ;
+            Texture2D tex = Projectile.GetTexture();
+
+            //绘制底层
+            DrawLayer(tex, 0, 2, Vector2.Zero, darkColor);
+            DrawLayer(tex, 0, 2, offset, darkColor);
+            DrawLayer(tex, 0, 2, offset * 2, darkColor);
+            DrawLayer(tex, 0, 2, offset * 3, lightColor);
+            DrawLayer(tex, 0, 2, offset * 4, lightColor);
+
+            //绘制顶层
+            DrawLayer(tex, 1, 2, offset * 5, darkColor);
+            DrawLayer(tex, 1, 2, offset * 6, darkColor);
+            DrawLayer(tex, 1, 2, offset * 7, lightColor);
         }
 
         /// <summary>
@@ -298,10 +495,10 @@ namespace Coralite.Content.Items.AlchorthentSeries
         /// <param name="totalXFrame"></param>
         /// <param name="posOffset"></param>
         /// <param name="color"></param>
-        public void DrawLayer(Texture2D tex, int xFrame, int totalXFrame,Vector2 posOffset,Color color)
+        public void DrawLayer(Texture2D tex, int xFrame, int totalXFrame, Vector2 posOffset, Color color)
         {
-            var frameBox = tex.Frame(totalXFrame, totalXFrame, xFrame, Projectile.frame);
-            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition + posOffset,frameBox, color,Projectile.rotation, frameBox.Size()/2,new Vector2(xScale,1)*Projectile.scale,0,0);
+            var frameBox = tex.Frame(totalXFrame, totalFrameY, xFrame, Projectile.frame);
+            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition + posOffset, frameBox, color, Projectile.rotation, frameBox.Size() / 2, new Vector2(xScale, 1) * Projectile.scale, 0, 0);
         }
 
         #endregion
@@ -373,6 +570,9 @@ namespace Coralite.Content.Items.AlchorthentSeries
                     break;
                 case 1://飞出
                     {
+                        if (Vector2.Distance(Projectile.Center, Owner.Center) > 1600)
+                            SwitchToBreak();
+
                         Shoot();
                         if (Recorder > 0)
                             Recorder--;
