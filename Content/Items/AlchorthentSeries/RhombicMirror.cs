@@ -11,10 +11,10 @@ using InnoVault.GameContent.BaseEntity;
 using InnoVault.PRT;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.IO;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
-using static Coralite.Content.Items.AlchorthentSeries.FaintEagleProj;
 
 namespace Coralite.Content.Items.AlchorthentSeries
 {
@@ -210,6 +210,10 @@ namespace Coralite.Content.Items.AlchorthentSeries
         /// <summary> 右下前腿，左下前腿 </summary>
         public static ATex RhombicMirrorProjPart2 { get; set; }
 
+        public ref float Recorder => ref Projectile.ai[1];
+        public ref float Recorder2 => ref Projectile.ai[2];
+        public ref float Recorder3 => ref Projectile.localAI[1];
+
         /// <summary>
         /// 攻击次数
         /// </summary>
@@ -220,9 +224,8 @@ namespace Coralite.Content.Items.AlchorthentSeries
         public float bodyPartLength = 0;
         /// <summary> 是否绘制身体部件 </summary>
         public bool canDrawBodyPart = false;
-        /// <summary> 身体部件距离中心点的长度 </summary>
-        public float bodyPartOffset;
-        public float alpha=0;
+        public float bodyPartRotation;
+        public float alpha = 0;
 
         /// <summary>
         /// 攻击状态
@@ -334,11 +337,15 @@ namespace Coralite.Content.Items.AlchorthentSeries
                 + (Owner.direction > 0 ? (MathHelper.Pi + 0.95f) : -0.95f).ToRotationVector2() * (18+Helper.SqrtEase(factor) * 60);
 
             alpha = Helper.X2Ease(factor);
+            bodyPartRotation = MathHelper.PiOver2;
             Projectile.rotation = startRot * (1 - Helper.BezierEase(factor));
             Projectile.scale = Helper.Lerp(startScale, Scale, factor);
 
             if (Timer > 45)
+            {
+                Projectile.velocity = (Projectile.Center - Owner.Center).SafeNormalize(Vector2.Zero) * 7;
                 SwitchState(AIStates.BackToOwner);
+            }
         }
 
         public void BackToOwner()
@@ -363,6 +370,49 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
                 return;
             }
+
+            switch (Recorder)
+            {
+                default:
+                case 0://旋转
+                    {
+                        Projectile.velocity *= 0.7f;
+
+                        const int rotTime = 30;
+                        float factor = Recorder2 / rotTime;
+
+                        canDrawBodyPart = true;
+                        bodyPartLength = Helper.HeavyEase(factor) * 28;
+                        bodyPartRotation = bodyPartRotation.AngleLerp((aimPos - Projectile.Center).ToRotation(), 0.2f);
+
+                        int dir = aimPos.X > Projectile.Center.X ? 1 : -1;
+
+                        Projectile.rotation += dir * factor * 0.35f;
+                        Recorder2++;
+                        if (Recorder2 > rotTime)
+                        {
+                            Recorder++;
+                            Recorder2 = 0;
+                            Recorder3 = (aimPos - Projectile.Center).Length();//记录距离
+
+                            Projectile.velocity = (aimPos - Projectile.Center).SafeNormalize(Vector2.Zero) * 10;
+                        }
+                    }
+                    break;
+                case 1://向目标运动
+                    {
+                        bodyPartRotation = MathHelper.PiOver2;
+                        Projectile.rotation = 0;
+                        bodyPartLength = 28;
+                        Projectile.velocity = Vector2.Zero;
+
+                        if (Projectile.frame < 17)
+                        {
+                            Projectile.UpdateFrameNormally(4, 22);
+                        }
+                    }
+                    break;
+            }
         }
 
         /// <summary>
@@ -374,9 +424,9 @@ namespace Coralite.Content.Items.AlchorthentSeries
             Projectile.velocity *= 0;
             Projectile.rotation = 0;
             Projectile.Center = teleportPos;
-            //Recorder = 0;
+            Recorder = Recorder2 = Recorder3 = 0;
 
-            PRTLoader.NewParticle<AlchSymbolFire>(Projectile.Center, Vector2.Zero, new Color(203, 66, 66));
+            //PRTLoader.NewParticle<AlchSymbolFire>(Projectile.Center, Vector2.Zero, new Color(203, 66, 66));
         }
 
         public override Vector2 GetIdlePos(int selfIndex, int totalCount)
@@ -438,32 +488,35 @@ namespace Coralite.Content.Items.AlchorthentSeries
             Texture2D part1 = RhombicMirrorProjPart1.Value;
 
             //绘制头
-            DrawLayer(part1, 0, 4, (Projectile.rotation + MathHelper.PiOver2).ToRotationVector2() * bodyPartOffset, darkColor);
-            DrawLayer(part1, 0, 4, (Projectile.rotation + MathHelper.PiOver2).ToRotationVector2() * bodyPartOffset+offset, lightColor);
+            DrawBodyPart(part1, 0, 4, bodyPartRotation.ToRotationVector2() * bodyPartLength, offset, darkColor,lightColor);
 
             //绘制以把
-            DrawLayer(part1, 1, 4, (Projectile.rotation - MathHelper.PiOver2).ToRotationVector2() * bodyPartOffset, darkColor);
-            DrawLayer(part1, 1, 4, (Projectile.rotation - MathHelper.PiOver2).ToRotationVector2() * bodyPartOffset + offset, lightColor);
+            DrawBodyPart(part1, 1, 4, (bodyPartRotation - MathHelper.Pi).ToRotationVector2() * bodyPartLength, offset, darkColor, lightColor);
 
-            float angleOffset = xScaleFactor * MathHelper.PiOver4 / 2;
+            float angleOffset = 0.3f+xScaleFactor * MathHelper.PiOver4 / 2;
 
             //绘制右边后腿
-            DrawLayer(part1, 2, 4, (Projectile.rotation - PiOver3 * 2 + angleOffset).ToRotationVector2() * bodyPartOffset, darkColor);
-            DrawLayer(part1, 2, 4, (Projectile.rotation - PiOver3 * 2 + angleOffset).ToRotationVector2() * bodyPartOffset + offset, lightColor);
+            DrawBodyPart(part1, 2, 4, (bodyPartRotation - PiOver3 * 2 - angleOffset/2).ToRotationVector2() * bodyPartLength, offset, darkColor, lightColor);
 
             //绘制左边后腿
-            DrawLayer(part1, 3, 4, (Projectile.rotation - PiOver3 - angleOffset).ToRotationVector2() * bodyPartOffset, darkColor);
-            DrawLayer(part1, 3, 4, (Projectile.rotation - PiOver3 - angleOffset).ToRotationVector2() * bodyPartOffset + offset, lightColor);
+            DrawBodyPart(part1, 3, 4, (bodyPartRotation + PiOver3 * 2 + angleOffset/2).ToRotationVector2() * bodyPartLength, offset, darkColor, lightColor);
 
             Texture2D part2 = RhombicMirrorProjPart2.Value;
 
             //绘制右边前腿
-            DrawLayer(part2, 0, 2, (Projectile.rotation + PiOver3 + angleOffset).ToRotationVector2() * bodyPartOffset, darkColor);
-            DrawLayer(part2, 0, 2, (Projectile.rotation + PiOver3 + angleOffset).ToRotationVector2() * bodyPartOffset + offset, lightColor);
+            DrawBodyPart(part2, 0, 2, (bodyPartRotation - PiOver3 + angleOffset).ToRotationVector2() * bodyPartLength, offset, darkColor, lightColor);
 
             //绘制左边前腿
-            DrawLayer(part2, 1, 2, (Projectile.rotation + PiOver3 * 2 - angleOffset).ToRotationVector2() * bodyPartOffset, darkColor);
-            DrawLayer(part2, 1, 2, (Projectile.rotation + PiOver3 * 2 - angleOffset).ToRotationVector2() * bodyPartOffset + offset, lightColor);
+            DrawBodyPart(part2, 1, 2, (bodyPartRotation + PiOver3  - angleOffset).ToRotationVector2() * bodyPartLength, offset, darkColor, lightColor);
+        }
+
+        public void DrawBodyPart(Texture2D tex, int xFrame, int totalXFrame, Vector2 posOffset,Vector2 offset, Color darkColor, Color lightColor)
+        {
+            float rot = bodyPartRotation - MathHelper.PiOver2;
+            DrawLayer(tex, xFrame, totalXFrame, posOffset, darkColor, rot);
+            DrawLayer(tex, xFrame, totalXFrame, posOffset + offset, darkColor, rot);
+            DrawLayer(tex, xFrame, totalXFrame, posOffset + offset*2, lightColor, rot);
+            DrawLayer(tex, xFrame, totalXFrame, posOffset + offset*3, lightColor, rot);
         }
 
         public void DrawSelf(Color lightColor, Vector2 dir)
@@ -495,10 +548,10 @@ namespace Coralite.Content.Items.AlchorthentSeries
         /// <param name="totalXFrame"></param>
         /// <param name="posOffset"></param>
         /// <param name="color"></param>
-        public void DrawLayer(Texture2D tex, int xFrame, int totalXFrame, Vector2 posOffset, Color color)
+        public void DrawLayer(Texture2D tex, int xFrame, int totalXFrame, Vector2 posOffset, Color color, float? rotation = null)
         {
             var frameBox = tex.Frame(totalXFrame, totalFrameY, xFrame, Projectile.frame);
-            Main.spriteBatch.Draw(tex, Projectile.Center - Main.screenPosition + posOffset, frameBox, color, Projectile.rotation, frameBox.Size() / 2, new Vector2(xScale, 1) * Projectile.scale, 0, 0);
+            Main.EntitySpriteDraw(tex, Projectile.Center - Main.screenPosition + posOffset, frameBox, color, rotation ?? Projectile.rotation, frameBox.Size() / 2, new Vector2(xScale, 1) * Projectile.scale, 0, 0);
         }
 
         #endregion

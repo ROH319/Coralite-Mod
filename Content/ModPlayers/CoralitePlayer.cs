@@ -63,6 +63,10 @@ namespace Coralite.Content.ModPlayers
         public int GreatRiverSnailSoulCD;
         /// <summary> 绝对专注 </summary>
         public int Concertration;
+
+        /// <summary> 幽灵巨石头套计时器 </summary>
+        public byte SpectreBoulderTimer;
+
         #endregion
 
         /// <summary>
@@ -132,6 +136,8 @@ namespace Coralite.Content.ModPlayers
 
             if (CrystallineSkyIslandEffect > 0)
                 CrystallineSkyIslandEffect--;
+            if (SpectreBoulderTimer > 0)
+                SpectreBoulderTimer--;
 
             pirateKingSoul = 0;
             if (pirateKingSoulCD > 0)
@@ -666,6 +672,13 @@ namespace Coralite.Content.ModPlayers
             if (HasEffect(nameof(FlaskOfRedJadeBuff)) && proj.DamageType == DamageClass.Melee && Main.rand.NextBool(4))
                 Projectile.NewProjectile(Player.GetSource_FromThis(), target.Center, Vector2.Zero,
                     ProjectileType<RedJadeBoom>(), (proj.damage * 0.75f) > 80 ? 80 : (int)(proj.damage * 0.75f), 0, Player.whoAmI);
+
+            if (HasEffect(nameof(Items.Misc_Equip.SpectreBoulder)) && proj.DamageType.CountsAsClass(DamageClass.Magic) && proj.damage > 10 &&!target.immortal&&!target.SpawnedFromStatue&& SpectreBoulderTimer == 0)
+            {
+                SpectreBoulderTimer = 25;
+                Projectile.NewProjectile(Player.GetSource_FromThis(), Player.Center, Helper.NextVec2Dir() * 10,
+                    ProjectileType<Items.Misc_Equip.SpectreBoulderProj>(), proj.damage, 8, Player.whoAmI);
+            }
 
             if (proj.type == ProjectileID.CandyCorn && HasEffect(nameof(Items.Misc_Equip.Butter)))
             {

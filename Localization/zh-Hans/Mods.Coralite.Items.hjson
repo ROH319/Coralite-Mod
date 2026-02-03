@@ -6682,3 +6682,17 @@ RhombicMirror: {
 		按特殊攻击键丢出腐蚀镜
 		'''
 }
+
+SpectreBoulder: {
+	ArmorBonus:
+		'''
+		造成魔法伤害时生成幽灵奇石追击敌人
+		命中敌人后回归并治愈玩家
+		'''
+	DisplayName: 幽灵头壳
+	Tooltip:
+		'''
+		最大魔力增加20
+		魔法伤害和魔法暴击率各提高5%
+		'''
+}

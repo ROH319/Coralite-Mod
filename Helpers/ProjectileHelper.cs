@@ -252,7 +252,7 @@ namespace Coralite.Helpers
         /// <param name="proj"></param>
         /// <param name="frameCountMax"></param>
         /// <param name="frameMax"></param>
-        public static void UpdateFrameNormally(this Projectile proj, int frameCountMax, int frameMax, bool pingpong = false)
+        public static void UpdateFrameNormally(this Projectile proj, int frameCountMax, int frameMax, bool pingpong = false,int resetTo=0)
         {
             if (pingpong)
             {
@@ -282,10 +282,30 @@ namespace Coralite.Helpers
             {
                 proj.frameCounter = 0;
                 if (++proj.frame > frameMax)
-                    proj.frame = 0;
+                    proj.frame = resetTo;
             }
         }
 
+        /// <summary>
+        /// 渐进追踪
+        /// </summary>
+        /// <param name="Projectile"></param>
+        /// <param name="aimPos"></param>
+        /// <param name="chaseSpeed"></param>
+        /// <param name="numerator"></param>
+        /// <param name="denominator"></param>
+        public static void ChaseGradually(this Projectile Projectile, Vector2 aimPos, float chaseSpeed, float numerator, float denominator)
+        {
+            Vector2 center = Projectile.Center;
+            Vector2 dir = aimPos - center;
+            float length = dir.Length();
+            //if (length < 100f)
+            //    chaseSpeed = 35f;
+
+            length = chaseSpeed / length;
+            dir *= length;
+            Projectile.velocity = ((Projectile.velocity * numerator) + dir) / denominator;
+        }
 
         /// <summary>
         /// 使用一个变量来获取对应npc数组中的NPC
@@ -600,6 +620,41 @@ namespace Coralite.Helpers
             for (int i = start; i < howMany; i += step)
                 Main.spriteBatch.Draw(mainTex, projectile.oldPos[i] + toCenter - Main.screenPosition, null,
                     drawColor * (maxAlpha - (i * alphaStep)), projectile.oldRot[i] + extraRot, mainTex.Size() / 2, scale == -1 ? projectile.scale : scale, 0, 0);
+        }
+
+        public static void DrawShadowTrailsSpriteEffect(this Projectile projectile, Color drawColor, float maxAlpha, float alphaStep, int start, int howMany, int step, float extraRot = 0, float scale = -1, SpriteEffects effect = SpriteEffects.None)
+        {
+            Texture2D mainTex = TextureAssets.Projectile[projectile.type].Value;
+            Vector2 toCenter = new(projectile.width / 2, projectile.height / 2);
+
+            for (int i = start; i < howMany; i += step)
+                Main.spriteBatch.Draw(mainTex, projectile.oldPos[i] + toCenter - Main.screenPosition, null,
+                    drawColor * (maxAlpha - (i * alphaStep)), projectile.oldRot[i] + extraRot, mainTex.Size() / 2, scale == -1 ? projectile.scale : scale, effect, 0);
+        }
+
+        /// <summary>
+        /// 使用特殊帧矩形写法
+        /// </summary>
+        /// <param name="projectile"></param>
+        /// <param name="drawColor"></param>
+        /// <param name="maxAlpha"></param>
+        /// <param name="alphaStep"></param>
+        /// <param name="start"></param>
+        /// <param name="howMany"></param>
+        /// <param name="step"></param>
+        /// <param name="frameBox"></param>
+        /// <param name="extraRot"></param>
+        /// <param name="scale"></param>
+        /// <param name="effect"></param>
+        public static void DrawShadowTrailsSpriteEffect(this Projectile projectile, Color drawColor, float maxAlpha, float alphaStep, int start, int howMany, int step, Rectangle frameBox, float extraRot = 0, float scale = -1, SpriteEffects effect = SpriteEffects.None)
+        {
+            Texture2D mainTex = projectile.GetTexture();
+            Vector2 toCenter = new(projectile.width / 2, projectile.height / 2);
+            Rectangle r = mainTex.Frame(frameBox.Width, frameBox.Height, frameBox.X, frameBox.Y);
+
+            for (int i = start; i < howMany; i += step)
+                Main.spriteBatch.Draw(mainTex, projectile.oldPos[i] + toCenter - Main.screenPosition, r,
+                    drawColor * (maxAlpha - (i * alphaStep)), projectile.oldRot[i] + extraRot, r.Size() / 2, scale == -1 ? projectile.scale : scale, effect, 0);
         }
 
         public static void DrawShadowTrails(this Projectile projectile, Color drawColor, float maxAlpha, float alphaStep, int start, int howMany, int step, float scaleStep, float extraRot = 0, float scale = -1)

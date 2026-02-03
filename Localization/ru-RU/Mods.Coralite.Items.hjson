@@ -6552,3 +6552,9 @@ RhombicMirror: {
 	// DisplayName: Rhombic Mirror
 	// Tooltip: ""
 }
+
+SpectreBoulder: {
+	// ArmorBonus: Mods.Coralite.Items.SpectreBoulder.ArmorBonus
+	// DisplayName: Spectre Boulder
+	// Tooltip: ""
+}
