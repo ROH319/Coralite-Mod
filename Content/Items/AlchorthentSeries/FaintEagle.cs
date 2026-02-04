@@ -966,25 +966,6 @@ namespace Coralite.Content.Items.AlchorthentSeries
             return new Vector2(0, -1 * tinEffectScale) * factor;
         }
 
-        public bool FindEnemy()
-        {
-            Target = Helper.MinionFindTarget(Projectile, skipBossCheck:true,maxChaseLength: 800);
-
-            if (!Target.GetNPCOwner(out NPC target, () => Target = -1))//目前没有敌人，找一下
-                return false;
-
-            //有敌人，检测敌人是否能再次被攻击
-            if (!target.CanBeChasedBy()
-                || Vector2.Distance(Projectile.Center, target.Center) > 800
-                || !Projectile.CanHitWithOwnBody(target))//无法造成伤害
-            {
-                Target = -1;
-                return false;
-            }
-
-            return true;
-        }
-
         /// <summary>
         /// 落地时调用，向两侧生成落地粒子
         /// </summary>

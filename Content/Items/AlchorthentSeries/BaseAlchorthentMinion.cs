@@ -1,5 +1,6 @@
 ﻿using Coralite.Core;
 using Coralite.Core.Loaders;
+using Coralite.Helpers;
 using Microsoft.CodeAnalysis;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -202,6 +203,25 @@ namespace Coralite.Content.Items.AlchorthentSeries
                         Projectile.velocity.Y -= acc * accmulOnTurn;
                 }
             }
+        }
+
+        public bool FindEnemy(int maxChaseLength = 800)
+        {
+            Target = Helper.MinionFindTarget(Projectile, skipBossCheck: true, maxChaseLength: maxChaseLength);
+
+            if (!Target.GetNPCOwner(out NPC target, () => Target = -1))//目前没有敌人，找一下
+                return false;
+
+            //有敌人，检测敌人是否能再次被攻击
+            if (!target.CanBeChasedBy()
+                || Vector2.Distance(Projectile.Center, target.Center) > maxChaseLength
+                || !Projectile.CanHitWithOwnBody(target))//无法造成伤害
+            {
+                Target = -1;
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>

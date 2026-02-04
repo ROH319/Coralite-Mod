@@ -1,6 +1,7 @@
 ﻿using Coralite.Content.Dusts;
 using Coralite.Content.Items.Materials;
 using Coralite.Content.Particles;
+using Coralite.Content.Prefixes.FairyWeaponPrefixes;
 using Coralite.Content.Tiles.RedJades;
 using Coralite.Core;
 using Coralite.Core.Configs;
@@ -225,6 +226,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
         /// <summary> 是否绘制身体部件 </summary>
         public bool canDrawBodyPart = false;
         public float bodyPartRotation;
+        public float bodyPartExtraRotation;
         public float alpha = 0;
 
         /// <summary>
@@ -233,7 +235,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
         public AttackTypes Corrupted { get; set; }
 
         const int totalFrameY = 37;
-        const float Scale = 0.75f;
+        const float Scale = 0.7f;
 
         const int TeleportDistance = 2000;
 
@@ -261,8 +263,6 @@ namespace Coralite.Content.Items.AlchorthentSeries
             Idle,
             /// <summary> 特殊待机动作1 </summary>
             IdleMove1,
-            /// <summary> 特殊待机动作2 </summary>
-            IdleMove2,
             /// <summary> 射光束 </summary>
             Shoot,
             /// <summary> 经过一定攻击后变得腐化 </summary>
@@ -282,13 +282,15 @@ namespace Coralite.Content.Items.AlchorthentSeries
             Projectile.localNPCHitCooldown = 10;
         }
 
+        public override bool? CanDamage() => false;
+
         #region AI
 
         public override void Initialize()
         {
             
         }
-
+         
         public override void AIMoves()
         {
             switch (State)
@@ -300,6 +302,17 @@ namespace Coralite.Content.Items.AlchorthentSeries
                     break;
                 case (byte)AIStates.BackToOwner:
                     BackToOwner();
+                    break;
+                case (byte)AIStates.Idle:
+                    //寻敌，找到敌怪就进入攻击状态
+                    if (Timer > 20 && Main.rand.NextBool(12))
+                        if (FindEnemy())
+                        {
+                            SwitchState(AIStates.Shoot);
+                            break;
+                        }
+
+                    Idle();
                     break;
             }
 
@@ -371,6 +384,8 @@ namespace Coralite.Content.Items.AlchorthentSeries
                 return;
             }
 
+            int dir = aimPos.X > Projectile.Center.X ? 1 : -1;
+
             switch (Recorder)
             {
                 default:
@@ -382,12 +397,11 @@ namespace Coralite.Content.Items.AlchorthentSeries
                         float factor = Recorder2 / rotTime;
 
                         canDrawBodyPart = true;
-                        bodyPartLength = Helper.HeavyEase(factor) * 28;
+                        bodyPartLength = Helper.HeavyEase(factor) * 24;
                         bodyPartRotation = bodyPartRotation.AngleLerp((aimPos - Projectile.Center).ToRotation(), 0.2f);
 
-                        int dir = aimPos.X > Projectile.Center.X ? 1 : -1;
 
-                        Projectile.rotation += dir * factor * 0.35f;
+                        Projectile.rotation += dir * factor * 0.2f;
                         Recorder2++;
                         if (Recorder2 > rotTime)
                         {
@@ -395,23 +409,88 @@ namespace Coralite.Content.Items.AlchorthentSeries
                             Recorder2 = 0;
                             Recorder3 = (aimPos - Projectile.Center).Length();//记录距离
 
-                            Projectile.velocity = (aimPos - Projectile.Center).SafeNormalize(Vector2.Zero) * 10;
+                            Projectile.velocity = (aimPos - Projectile.Center).SafeNormalize(Vector2.Zero) * 20;
                         }
                     }
                     break;
                 case 1://向目标运动
                     {
-                        bodyPartRotation = MathHelper.PiOver2;
-                        Projectile.rotation = 0;
-                        bodyPartLength = 28;
-                        Projectile.velocity = Vector2.Zero;
+                        const int resetTime= 60 * 3;
+                        Recorder2++;
 
-                        if (Projectile.frame < 17)
+                        float speed = Owner.velocity.Length() + 5;
+                        if (speed < 13)
+                            speed = 13;
+
+                        bodyPartExtraRotation = MathF.Sin(Recorder2 * 0.2f) * 0.4f;
+                        bodyPartRotation = bodyPartRotation.AngleLerp(Projectile.velocity.ToRotation(), 0.25f);
+                        Projectile.ChaseGradually(aimPos, speed, 39, 40);
+                        if (Recorder2 > resetTime - 30)
                         {
-                            Projectile.UpdateFrameNormally(4, 22);
+                            bodyPartLength *= 0.97f;
+                            Projectile.rotation += dir * 0.2f * (1 - (Recorder2 - resetTime) / 30);
                         }
+                        else
+                            Projectile.rotation += dir * 0.2f;
+
+                        float distance = Vector2.Distance(Projectile.Center, aimPos);
+                        if (distance > Recorder3 + 16 * 5
+                            || Recorder2 > resetTime)//被甩开5格以上就重新旋转然后追踪
+                        {
+                            Recorder = 0;
+                            Recorder2 = 0;
+                            Recorder3 = 0;
+                        }
+
+
+                        if (distance < speed +5)
+                            SwitchState(AIStates.Idle);
+
+                        //bodyPartRotation = MathHelper.PiOver2;
+                        //Projectile.rotation = 0;
+                        //bodyPartLength = 28;
+                        //Projectile.velocity = Vector2.Zero;
+
+                        //if (Projectile.frame < 17)
+                        //{
+                        //    Projectile.UpdateFrameNormally(4, 22);
+                        //}
                     }
                     break;
+            }
+        }
+
+        public void Idle()
+        {
+            //简简单单钉死在目标位置
+            Helper.GetMyGroupIndexAndFillBlackList(Projectile, out int index, out int total);
+            Projectile.Center = GetIdlePos(index, total) + new Vector2(0, Owner.gfxOffY);
+            Projectile.velocity = Vector2.Zero;
+
+            Recorder2++;
+            if (Recorder2 < 30)
+            {
+                Projectile.rotation = Projectile.rotation.AngleLerp(0, 0.1f);
+                bodyPartLength *= 0.9f;
+            }
+            else if (Recorder2 == 30)
+            {
+                canDrawBodyPart = false;
+                Projectile.rotation = 0;
+            }
+            else
+            {
+                float realTimer = (Recorder2 - 30) % 120;
+                if (realTimer < 20)//旋转
+                {
+                    Projectile.rotation += (MathHelper.Pi / 3 + 0.3f) / 20;
+                }
+                else if (realTimer < 40)
+                {
+
+                }
+                else if (realTimer < 50)
+                    Projectile.rotation -= 0.3f / 10;
             }
         }
 
@@ -431,29 +510,33 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
         public override Vector2 GetIdlePos(int selfIndex, int totalCount)
         {
-            Vector2 basePos = Owner.MountedCenter + new Vector2(0, -16 * 8);
+            Vector2 basePos = Owner.MountedCenter + new Vector2(0, -16 * 4);
             if (selfIndex == 0)//第一个直接到目标位置
                 return basePos;
 
             if (selfIndex <= 3)//第2~7个呈六边形环绕
             {
-                return basePos + ((selfIndex - 1) * MathHelper.TwoPi / 3 - MathHelper.PiOver2).ToRotationVector2() * 36;
+                return basePos + ((selfIndex - 1) * MathHelper.TwoPi / 3 - MathHelper.PiOver2).ToRotationVector2() * 42;
             }
 
             if (selfIndex <= 6)//第2~7个呈六边形环绕
             {
-                return basePos + ((selfIndex - 4) * MathHelper.TwoPi / 3 - MathHelper.PiOver2 + MathHelper.Pi / 3).ToRotationVector2() * 36;
+                return basePos + ((selfIndex - 4) * MathHelper.TwoPi / 3 - MathHelper.PiOver2 + MathHelper.Pi / 3).ToRotationVector2() * 42;
             }
 
             //其余的圆圈形环绕
             int restCount = totalCount - 6;
-            float length = 58 + (totalCount - 7) * 10;
+            float length = 70 + (totalCount - 7) * 15;
             return basePos + ((selfIndex - 7) * MathHelper.TwoPi / restCount - MathHelper.PiOver2).ToRotationVector2() * length;
         }
 
         private void SwitchState(AIStates targetState)
         {
             State = (byte)targetState;
+
+            Recorder = 0;
+            Recorder2 = 0;
+            Recorder3 = 0;
 
             Timer = 0;
             alpha = 1;
@@ -493,26 +576,26 @@ namespace Coralite.Content.Items.AlchorthentSeries
             //绘制以把
             DrawBodyPart(part1, 1, 4, (bodyPartRotation - MathHelper.Pi).ToRotationVector2() * bodyPartLength, offset, darkColor, lightColor);
 
-            float angleOffset = 0.3f+xScaleFactor * MathHelper.PiOver4 / 2;
+            float angleOffset = 0.3f + xScaleFactor * MathHelper.PiOver4 / 2;
 
             //绘制右边后腿
-            DrawBodyPart(part1, 2, 4, (bodyPartRotation - PiOver3 * 2 - angleOffset/2).ToRotationVector2() * bodyPartLength, offset, darkColor, lightColor);
+            DrawBodyPart(part1, 2, 4, (bodyPartRotation - PiOver3 * 2 - angleOffset / 2).ToRotationVector2() * bodyPartLength, offset, darkColor, lightColor, bodyPartExtraRotation / 2);
 
             //绘制左边后腿
-            DrawBodyPart(part1, 3, 4, (bodyPartRotation + PiOver3 * 2 + angleOffset/2).ToRotationVector2() * bodyPartLength, offset, darkColor, lightColor);
+            DrawBodyPart(part1, 3, 4, (bodyPartRotation + PiOver3 * 2 + angleOffset / 2).ToRotationVector2() * bodyPartLength, offset, darkColor, lightColor, -bodyPartExtraRotation / 2);
 
             Texture2D part2 = RhombicMirrorProjPart2.Value;
 
             //绘制右边前腿
-            DrawBodyPart(part2, 0, 2, (bodyPartRotation - PiOver3 + angleOffset).ToRotationVector2() * bodyPartLength, offset, darkColor, lightColor);
+            DrawBodyPart(part2, 0, 2, (bodyPartRotation - PiOver3 + angleOffset).ToRotationVector2() * bodyPartLength, offset, darkColor, lightColor, bodyPartExtraRotation);
 
             //绘制左边前腿
-            DrawBodyPart(part2, 1, 2, (bodyPartRotation + PiOver3  - angleOffset).ToRotationVector2() * bodyPartLength, offset, darkColor, lightColor);
+            DrawBodyPart(part2, 1, 2, (bodyPartRotation + PiOver3  - angleOffset).ToRotationVector2() * bodyPartLength, offset, darkColor, lightColor, -bodyPartExtraRotation);
         }
 
-        public void DrawBodyPart(Texture2D tex, int xFrame, int totalXFrame, Vector2 posOffset,Vector2 offset, Color darkColor, Color lightColor)
+        public void DrawBodyPart(Texture2D tex, int xFrame, int totalXFrame, Vector2 posOffset,Vector2 offset, Color darkColor, Color lightColor,float exRot=0)
         {
-            float rot = bodyPartRotation - MathHelper.PiOver2;
+            float rot = bodyPartRotation - MathHelper.PiOver2+exRot;
             DrawLayer(tex, xFrame, totalXFrame, posOffset, darkColor, rot);
             DrawLayer(tex, xFrame, totalXFrame, posOffset + offset, darkColor, rot);
             DrawLayer(tex, xFrame, totalXFrame, posOffset + offset*2, lightColor, rot);
