@@ -214,6 +214,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
         public ref float Recorder => ref Projectile.ai[1];
         public ref float Recorder2 => ref Projectile.ai[2];
         public ref float Recorder3 => ref Projectile.localAI[1];
+        public ref float Recorder4 => ref Projectile.localAI[2];
 
         /// <summary>
         /// 攻击次数
@@ -313,6 +314,23 @@ namespace Coralite.Content.Items.AlchorthentSeries
                         }
 
                     Idle();
+                    break;
+                case (byte)AIStates.IdleMove1:
+                    if (Timer > 20 && Main.rand.NextBool(12))
+                        if (FindEnemy())
+                        {
+                            SwitchState(AIStates.Shoot);
+                            break;
+                        }
+
+                    break;
+                case (byte)AIStates.Shoot:
+                    if (!Target.GetNPCOwner(out NPC owner, () => Target = -1))
+                    {
+                        SwitchState(AIStates.Shoot);
+                        break;
+                    }
+
                     break;
             }
 
@@ -424,7 +442,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
                         bodyPartExtraRotation = MathF.Sin(Recorder2 * 0.2f) * 0.4f;
                         bodyPartRotation = bodyPartRotation.AngleLerp(Projectile.velocity.ToRotation(), 0.25f);
-                        Projectile.ChaseGradually(aimPos, speed, 39, 40);
+                        Projectile.ChaseGradually(aimPos, speed, 29, 30);
                         if (Recorder2 > resetTime - 30)
                         {
                             bodyPartLength *= 0.97f;
@@ -462,36 +480,94 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
         public void Idle()
         {
-            //简简单单钉死在目标位置
+            
             Helper.GetMyGroupIndexAndFillBlackList(Projectile, out int index, out int total);
-            Projectile.Center = GetIdlePos(index, total) + new Vector2(0, Owner.gfxOffY);
-            Projectile.velocity = Vector2.Zero;
+            Vector2 aimPos = GetIdlePos(index, total) + new Vector2(0, Owner.gfxOffY);
 
-            Recorder2++;
-            if (Recorder2 < 30)
-            {
-                Projectile.rotation = Projectile.rotation.AngleLerp(0, 0.1f);
-                bodyPartLength *= 0.9f;
-            }
-            else if (Recorder2 == 30)
-            {
-                canDrawBodyPart = false;
-                Projectile.rotation = 0;
-            }
-            else
-            {
-                float realTimer = (Recorder2 - 30) % 120;
-                if (realTimer < 20)//旋转
-                {
-                    Projectile.rotation += (MathHelper.Pi / 3 + 0.3f) / 20;
-                }
-                else if (realTimer < 40)
-                {
+            float distanceToAimPos = Vector2.Distance(aimPos, Projectile.Center);
 
-                }
-                else if (realTimer < 50)
-                    Projectile.rotation -= 0.3f / 10;
+            if (distanceToAimPos > TeleportDistance)
+            {
+                Teleport(aimPos);
+                SwitchState(AIStates.Idle);
+
+                return;
             }
+
+            switch (Recorder)
+            {
+                default:
+                case 0://距离近的时候，向目标点缓动
+                    {
+                        if (distanceToAimPos > 45 + Owner.velocity.Length()&&Recorder2>45)
+                        {
+                            Recorder = 1;
+                            Recorder2 = 0;
+                            Projectile.velocity = (Projectile.whoAmI * MathHelper.Pi / 3).ToRotationVector2() * 4;
+                            return;
+                        }
+
+                        //根据计时器和自身索引调整缓动速率，做差异化，体现机械感
+                        float lerpF = (Recorder2+Projectile.whoAmI*5) % 30 < 15 ? 0.4f : 0.2f;
+                        Projectile.Center = Vector2.SmoothStep(Projectile.Center, aimPos, lerpF);
+                        Projectile.velocity *= 0.5f;
+
+                        //旋转，通过转过头再转回来加上停顿来搞点机械感
+                        Recorder2++;
+                        if (Recorder2 < 30)
+                        {
+                            Projectile.rotation = Projectile.rotation.AngleLerp(0, 0.1f);
+                            bodyPartLength *= 0.9f;
+                        }
+                        else if (Recorder2 == 30)
+                        {
+                            canDrawBodyPart = false;
+                            Projectile.rotation = 0;
+                        }
+                        else
+                        {
+                            float realTimer = (Recorder2 - 30) % 120;
+                            if (realTimer < 20)//旋转
+                            {
+                                Projectile.rotation += (MathHelper.Pi / 3 + 0.3f) / 20;
+                            }
+                            else if (realTimer < 40)
+                            {
+
+                            }
+                            else if (realTimer < 50)
+                                Projectile.rotation -= 0.3f / 10;
+                        }
+                    }
+                    break;
+                case 1://追踪
+                    {
+                        float speed = Owner.velocity.Length() + 10;
+                        if (speed < 13)
+                            speed = 13;
+
+                        Recorder2++;
+                        if (Recorder2 > 60)
+                            speed += (Recorder2 - 60) / 4;
+
+                        int dir = aimPos.X > Projectile.Center.X ? 1 : -1;
+
+                        Projectile.ChaseGradually(aimPos, speed, 29, 30);
+                        if (Recorder2 % 10 == 0)//每隔一段时间纠正速度方向
+                            Projectile.velocity = Projectile.velocity.ToRotation().AngleLerp((aimPos - Projectile.Center).ToRotation(), 0.4f).ToRotationVector2() * Projectile.velocity.Length();
+
+                        Projectile.rotation += dir * Projectile.velocity.Length() / 75;
+
+                        if (distanceToAimPos < 30)
+                        {
+                            Recorder = 0;
+                            Recorder2 = 0;
+                            return;
+                        }
+                    }
+                    break;
+            }
+
         }
 
         /// <summary>

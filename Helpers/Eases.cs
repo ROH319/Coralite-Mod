@@ -22,6 +22,22 @@ namespace Coralite.Helpers
         }
 
         /// <summary>
+        /// 有一个手柄的贝塞尔曲线，手柄在起始位置
+        /// </summary>
+        /// <param name="factor"></param>
+        /// <param name="startPos"></param>
+        /// <param name="endPos"></param>
+        /// <param name="startHandle"></param>
+        /// <returns></returns>
+        public static Vector2 OneHandleBezierEase(float factor, Vector2 startPos, Vector2 endPos, Vector2 startHandle)
+        {
+            Vector2 P11 = Vector2.Lerp(startPos, startHandle, factor);
+            Vector2 P12 = Vector2.Lerp(startHandle, endPos, factor);
+
+            return Vector2.Lerp(P11, P12, factor);
+        }
+
+        /// <summary>
         /// 有两个手柄的贝塞尔曲线，需要lerp 6次，谨慎使用
         /// </summary>
         /// <param name="factor"></param>
