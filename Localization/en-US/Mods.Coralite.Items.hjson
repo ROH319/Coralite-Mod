@@ -6525,3 +6525,47 @@ SpectreBoulder: {
 	DisplayName: Spectre Boulder
 	Tooltip: ""
 }
+
+SteelAxe: {
+	DisplayName: Steel Axe
+	Tooltip: ""
+}
+
+SteelPickaxe: {
+	DisplayName: Steel Pickaxe
+	Tooltip: ""
+}
+
+SteelBucketHead: {
+	ArmorBonus: Mods.Coralite.Items.SteelBucketHead.ArmorBonus
+	DisplayName: Steel Bucket Head
+	Tooltip: ""
+}
+
+SteelCanHead: {
+	ArmorBonus: Mods.Coralite.Items.SteelCanHead.ArmorBonus
+	DisplayName: Steel Can Head
+	Tooltip: ""
+}
+
+SteelHelmet: {
+	ArmorBonus: Mods.Coralite.Items.SteelHelmet.ArmorBonus
+	DisplayName: Steel Helmet
+	Tooltip: ""
+}
+
+SteelMask: {
+	ArmorBonus: Mods.Coralite.Items.SteelMask.ArmorBonus
+	DisplayName: Steel Mask
+	Tooltip: ""
+}
+
+SteelBreastplate: {
+	DisplayName: Steel Breastplate
+	Tooltip: ""
+}
+
+SteelLegs: {
+	DisplayName: Steel Legs
+	Tooltip: ""
+}

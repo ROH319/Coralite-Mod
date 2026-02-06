@@ -1,7 +1,6 @@
 ﻿using Coralite.Content.Dusts;
 using Coralite.Content.Items.Materials;
 using Coralite.Content.Particles;
-using Coralite.Content.Prefixes.FairyWeaponPrefixes;
 using Coralite.Content.Tiles.RedJades;
 using Coralite.Core;
 using Coralite.Core.Configs;
@@ -12,7 +11,6 @@ using InnoVault.GameContent.BaseEntity;
 using InnoVault.PRT;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.IO;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
