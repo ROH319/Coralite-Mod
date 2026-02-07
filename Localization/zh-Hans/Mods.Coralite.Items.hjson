@@ -6708,35 +6708,42 @@ SteelPickaxe: {
 }
 
 SteelBucketHead: {
-	// ArmorBonus: Mods.Coralite.Items.SteelBucketHead.ArmorBonus
-	// DisplayName: Steel Bucket Head
-	// Tooltip: ""
+	ArmorBonus:
+		'''
+		{$Mods.Coralite.Items.SteelBreastplate.ArmorBonus}
+		+1 召唤栏
+		'''
+	DisplayName: 钢桶盔
+	Tooltip: +13% 召唤伤害，+10% 鞭子长度，+1 召唤栏
 }
 
 SteelCanHead: {
-	// ArmorBonus: Mods.Coralite.Items.SteelCanHead.ArmorBonus
-	// DisplayName: Steel Can Head
-	// Tooltip: ""
+	DisplayName: 钢罐头
+	Tooltip: +10% 远程伤害，+6% 远程暴击率
 }
 
 SteelHelmet: {
-	// ArmorBonus: Mods.Coralite.Items.SteelHelmet.ArmorBonus
-	// DisplayName: Steel Helmet
-	// Tooltip: ""
+	DisplayName: 钢头盔
+	Tooltip: +5% 近战伤害，近战暴击率和近战攻击速度
 }
 
 SteelMask: {
-	// ArmorBonus: Mods.Coralite.Items.SteelMask.ArmorBonus
-	// DisplayName: Steel Mask
-	// Tooltip: ""
+	DisplayName: 钢面具
+	Tooltip: +10% 魔法伤害，+6% 魔法暴击率，+60 最大魔力值
 }
 
 SteelBreastplate: {
-	// DisplayName: Steel Breastplate
-	// Tooltip: ""
+	DisplayName: 钢重甲
+	Tooltip: +4% 伤害
+	ArmorBonus:
+		'''
+		获得[c/8f939e:碎裂铠甲]！
+		    ▶ 每30秒获得高额伤害减免，只对较高的伤害生效，效果存在时 +4 防御
+		    ▶ 触发后 -6 防御，+10% 移动速度，头盔对应伤害类型 +13% 伤害和 +5% 暴击率
+		'''
 }
 
 SteelLegs: {
-	// DisplayName: Steel Legs
-	// Tooltip: ""
+	DisplayName: 钢护腿
+	Tooltip: +3% 伤害，+5% 移动速度
 }

@@ -227,6 +227,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
         public float bodyPartRotation;
         public float bodyPartExtraRotation;
         public float alpha = 0;
+        public byte frameX = 1;
 
         /// <summary>
         /// 攻击状态
@@ -235,6 +236,8 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
         const int totalFrameY = 37;
         const float Scale = 0.7f;
+        const float startRot = MathHelper.TwoPi + MathHelper.PiOver2;
+        const float startScale = 0.4f;
 
         const int TeleportDistance = 2000;
 
@@ -262,6 +265,8 @@ namespace Coralite.Content.Items.AlchorthentSeries
             Idle,
             /// <summary> 特殊待机动作1 </summary>
             IdleMove1,
+            /// <summary> 特殊待机动作2，仅在腐蚀状态触发 </summary>
+            IdleMove2,
             /// <summary> 射光束 </summary>
             Shoot,
             /// <summary> 经过一定攻击后变得腐化 </summary>
@@ -287,11 +292,14 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
         public override void Initialize()
         {
-            
+            Projectile.scale = startScale;
+            Projectile.rotation = startRot;
         }
-         
+
         public override void AIMoves()
         {
+            Timer++;
+
             switch (State)
             {
                 default:
@@ -311,6 +319,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
                             break;
                         }
 
+                    xScale = 1;
                     Idle();
                     break;
                 case (byte)AIStates.IdleMove1:
@@ -321,6 +330,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
                             break;
                         }
 
+                    SpecialIdle1();
                     break;
                 case (byte)AIStates.Shoot:
                     if (!Target.GetNPCOwner(out NPC owner, () => Target = -1))
@@ -331,8 +341,6 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
                     break;
             }
-
-            Timer++;
 
             //float length = MathF.Abs(Main.MouseWorld.X - Projectile.Center.X) ;
 
@@ -346,15 +354,6 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
         public void OnSummon()
         {
-            const float startRot = MathHelper.TwoPi + MathHelper.PiOver2;
-            const float startScale = 0.4f;
-
-            if (Timer == 0)
-            {
-                Projectile.scale = startScale;
-                Projectile.rotation = startRot;
-            }
-
             /*
              * 在玩家身后旋转着出现
              * 并且逐渐变大
@@ -369,10 +368,16 @@ namespace Coralite.Content.Items.AlchorthentSeries
             bodyPartRotation = MathHelper.PiOver2;
             Projectile.rotation = startRot * (1 - Helper.BezierEase(factor));
             Projectile.scale = Helper.Lerp(startScale, Scale, factor);
+            frameX = 1;
+
+            if (Timer > 20 && Projectile.frame < 3)
+                Projectile.UpdateFrameNormally(6, 4);
 
             if (Timer > 45)
             {
                 Projectile.velocity = (Projectile.Center - Owner.Center).SafeNormalize(Vector2.Zero) * 7;
+                Projectile.frame = Projectile.frameCounter = frameX = 0;
+
                 SwitchState(AIStates.BackToOwner);
             }
         }
@@ -478,7 +483,6 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
         public void Idle()
         {
-            
             Helper.GetMyGroupIndexAndFillBlackList(Projectile, out int index, out int total);
             Vector2 aimPos = GetIdlePos(index, total) + new Vector2(0, Owner.gfxOffY);
 
@@ -506,7 +510,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
                         }
 
                         //根据计时器和自身索引调整缓动速率，做差异化，体现机械感
-                        float lerpF = (Recorder2+Projectile.whoAmI*5) % 30 < 15 ? 0.4f : 0.2f;
+                        float lerpF = (Recorder2 + Projectile.whoAmI * 5) % 30 < 15 ? 0.4f : 0.2f;
                         Projectile.Center = Vector2.SmoothStep(Projectile.Center, aimPos, lerpF);
                         Projectile.velocity *= 0.5f;
 
@@ -524,16 +528,13 @@ namespace Coralite.Content.Items.AlchorthentSeries
                         }
                         else
                         {
+                            if (TrySwitchToSPIdle1())
+                                return;
+
                             float realTimer = (Recorder2 - 30) % 120;
                             if (realTimer < 20)//旋转
-                            {
                                 Projectile.rotation += (MathHelper.Pi / 3 + 0.3f) / 20;
-                            }
-                            else if (realTimer < 40)
-                            {
-
-                            }
-                            else if (realTimer < 50)
+                            else if (realTimer > 40 && realTimer < 50)
                                 Projectile.rotation -= 0.3f / 10;
                         }
                     }
@@ -566,6 +567,103 @@ namespace Coralite.Content.Items.AlchorthentSeries
                     break;
             }
 
+            bool TrySwitchToSPIdle1()
+            {
+                if (Recorder2 > 60 * 20 + (Projectile.whoAmI % 7) * 60 * 4)
+                {
+                    SwitchState(AIStates.IdleMove1);
+                    return true;
+                }
+
+                return false;
+            }
+        }
+
+        public void SpecialIdle1()
+        {
+            Helper.GetMyGroupIndexAndFillBlackList(Projectile, out int index, out int total);
+            Vector2 aimPos = GetIdlePos(index, total) + new Vector2(0, Owner.gfxOffY);
+
+            if (Vector2.Distance(Projectile.Center, aimPos) > 60)//距离远了就切换回正常状态
+            {
+                SwitchState(AIStates.Idle);
+                return;
+            }
+
+            Vector2 offset = Vector2.Zero;
+            Recorder2++;
+
+            const int rotTime = 20;
+            const int WaitTime = 55;
+
+            switch (Recorder)
+            {
+                default:
+                case 0://向上浮动
+                    offset = new Vector2(0, -Recorder2 / 30f * 18);
+                    Projectile.rotation = Projectile.rotation.AngleLerp(0, 0.25f);
+
+                    if (Recorder2 > 30)
+                    {
+                        Recorder2 = 0;
+                        Recorder = 1;
+                        canDrawBodyPart = true;
+                        bodyPartLength = 0;
+                        Projectile.rotation = 0;
+                        bodyPartRotation = MathHelper.PiOver2;
+                    }
+                    break;
+                case 1://向下顿一下
+                    float f = Helper.HeavyEase(Recorder2 / 20);
+                    offset = new Vector2(0, -18 + 18 * f);
+                    bodyPartLength = f * 24;
+
+                    if (Recorder2 > 20)
+                    {
+                        Recorder2 = 0;
+                        Recorder = 2;
+                        xScaleDirection = Main.rand.NextFromList(-1, 1);
+                    }
+                    break;
+                case 2://向左摇摆
+                    bodyPartExtraRotation = MathF.Sin(Recorder2 / (rotTime + WaitTime) * MathHelper.TwoPi) * 0.2f;
+                    if (Recorder2 < rotTime)
+                        xScale -= 0.4f / rotTime;
+
+                    if (Recorder2 > rotTime + WaitTime)
+                    {
+                        Recorder2 = 0;
+                        Recorder = 3;
+                    }
+                    break;
+                case 3://向左摇摆
+                    bodyPartExtraRotation = MathF.Sin(Recorder2 / (rotTime + WaitTime) * MathHelper.TwoPi) * 0.2f;
+                    if (Recorder2 < rotTime / 2)
+                        xScale += 0.4f / (rotTime / 2);
+                    else if (Recorder2 == rotTime / 2)
+                        xScaleDirection *= -1;
+                    else if (Recorder2 < rotTime)
+                        xScale -= 0.4f / (rotTime / 2);
+
+                    if (Recorder2 > rotTime + WaitTime)
+                    {
+                        Recorder2 = 0;
+                        Recorder = 4;
+                    }
+                    break;
+                case 4://向左摇摆
+                    if (Recorder2 < rotTime)
+                    {
+                        xScale += 0.4f / rotTime;
+                        bodyPartLength *= 0.95f;
+                    }
+
+                    if (Recorder2 > rotTime + 30)
+                        SwitchState(AIStates.Idle);
+                    break;
+            }
+
+            Projectile.Center = Vector2.SmoothStep(Projectile.Center, aimPos + offset, 0.3f);
         }
 
         /// <summary>
@@ -671,9 +769,8 @@ namespace Coralite.Content.Items.AlchorthentSeries
         {
             float rot = bodyPartRotation - MathHelper.PiOver2+exRot;
             DrawLayer(tex, xFrame, totalXFrame, posOffset, darkColor, rot);
-            DrawLayer(tex, xFrame, totalXFrame, posOffset + offset, darkColor, rot);
-            DrawLayer(tex, xFrame, totalXFrame, posOffset + offset*2, lightColor, rot);
-            DrawLayer(tex, xFrame, totalXFrame, posOffset + offset*3, lightColor, rot);
+            DrawLayer(tex, xFrame, totalXFrame, posOffset + offset*0.5f, darkColor, rot);
+            DrawLayer(tex, xFrame, totalXFrame, posOffset + offset, lightColor, rot);
         }
 
         public void DrawSelf(Color lightColor, Vector2 dir)
@@ -681,20 +778,28 @@ namespace Coralite.Content.Items.AlchorthentSeries
             Color darkColor = lightColor * 0.7f;
             darkColor.A = lightColor.A;
 
-            Vector2 offset = dir ;
+            Vector2 offset = dir;
             Texture2D tex = Projectile.GetTexture();
 
             //绘制底层
-            DrawLayer(tex, 0, 2, Vector2.Zero, darkColor);
-            DrawLayer(tex, 0, 2, offset, darkColor);
-            DrawLayer(tex, 0, 2, offset * 2, darkColor);
-            DrawLayer(tex, 0, 2, offset * 3, lightColor);
-            DrawLayer(tex, 0, 2, offset * 4, lightColor);
+            if (xScale != 1)
+            {
+                DrawBodyLayer(tex, 0, Vector2.Zero, darkColor);
+                DrawBodyLayer(tex, 0, offset, darkColor);
+                DrawBodyLayer(tex, 0, offset * 2, darkColor);
+                DrawBodyLayer(tex, 0, offset * 3, lightColor);
+            }
+
+            DrawBodyLayer(tex, 0, offset * 4, lightColor);
 
             //绘制顶层
-            DrawLayer(tex, 1, 2, offset * 5, darkColor);
-            DrawLayer(tex, 1, 2, offset * 6, darkColor);
-            DrawLayer(tex, 1, 2, offset * 7, lightColor);
+            if (xScale != 1)
+            {
+                DrawBodyLayer(tex, 1, offset * 5, darkColor);
+                DrawBodyLayer(tex, 1, offset * 6, darkColor);
+            }
+
+            DrawBodyLayer(tex, 1, offset * 7, lightColor);
         }
 
         /// <summary>
@@ -708,6 +813,20 @@ namespace Coralite.Content.Items.AlchorthentSeries
         public void DrawLayer(Texture2D tex, int xFrame, int totalXFrame, Vector2 posOffset, Color color, float? rotation = null)
         {
             var frameBox = tex.Frame(totalXFrame, totalFrameY, xFrame, Projectile.frame);
+            Main.EntitySpriteDraw(tex, Projectile.Center - Main.screenPosition + posOffset, frameBox, color, rotation ?? Projectile.rotation, frameBox.Size() / 2, new Vector2(xScale, 1) * Projectile.scale, 0, 0);
+        }
+
+        /// <summary>
+        /// 绘制一层
+        /// </summary>
+        /// <param name="tex"></param>
+        /// <param name="xFrame"></param>
+        /// <param name="totalXFrame"></param>
+        /// <param name="posOffset"></param>
+        /// <param name="color"></param>
+        public void DrawBodyLayer(Texture2D tex, int xFrame, Vector2 posOffset, Color color, float? rotation = null)
+        {
+            var frameBox = tex.Frame(6, totalFrameY, xFrame * 3 + frameX, Projectile.frame);
             Main.EntitySpriteDraw(tex, Projectile.Center - Main.screenPosition + posOffset, frameBox, color, rotation ?? Projectile.rotation, frameBox.Size() / 2, new Vector2(xScale, 1) * Projectile.scale, 0, 0);
         }
 

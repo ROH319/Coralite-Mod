@@ -6576,19 +6576,16 @@ SteelBucketHead: {
 }
 
 SteelCanHead: {
-	// ArmorBonus: Mods.Coralite.Items.SteelCanHead.ArmorBonus
 	// DisplayName: Steel Can Head
 	// Tooltip: ""
 }
 
 SteelHelmet: {
-	// ArmorBonus: Mods.Coralite.Items.SteelHelmet.ArmorBonus
 	// DisplayName: Steel Helmet
 	// Tooltip: ""
 }
 
 SteelMask: {
-	// ArmorBonus: Mods.Coralite.Items.SteelMask.ArmorBonus
 	// DisplayName: Steel Mask
 	// Tooltip: ""
 }
@@ -6596,6 +6593,7 @@ SteelMask: {
 SteelBreastplate: {
 	// DisplayName: Steel Breastplate
 	// Tooltip: ""
+	// ArmorBonus: Mods.Coralite.Items.SteelBreastplate.ArmorBonus
 }
 
 SteelLegs: {

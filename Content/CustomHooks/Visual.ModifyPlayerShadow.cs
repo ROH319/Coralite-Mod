@@ -1,4 +1,5 @@
 ﻿using Coralite.Content.Items.Gels;
+using Coralite.Content.Items.Steel;
 using Coralite.Content.ModPlayers;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -48,6 +49,19 @@ namespace Coralite.Content.CustomHooks
                 }
 
                 cp.SlimeDraw = false;
+            }
+            else if (cp.HasEffect(nameof(SteelBreastplate)))
+            {
+                cp.SteelDraw = true;
+
+                for (int i = 0; i < 6; i++)
+                {
+                    Vector2 offset = (i * MathHelper.Pi / 3 + 2 * Main.GlobalTimeWrappedHourly).ToRotationVector2();
+                    offset *= 3;
+                    Main.PlayerRenderer.DrawPlayer(camera, drawPlayer, drawPlayer.position + offset + new Vector2(0, drawPlayer.gfxOffY), drawPlayer.fullRotation, drawPlayer.fullRotationOrigin, 0.8f);
+                }
+
+                cp.SteelDraw = false;
             }
         }
 

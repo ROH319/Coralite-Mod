@@ -66,6 +66,8 @@ namespace Coralite.Content.ModPlayers
 
         /// <summary> 幽灵巨石头套计时器 </summary>
         public byte SpectreBoulderTimer;
+        /// <summary> 钢套装计时器 </summary>
+        public short SteelDefendTimer;
 
         #endregion
 
@@ -126,6 +128,13 @@ namespace Coralite.Content.ModPlayers
 
         public override void ResetEffects()
         {
+            if (SteelDefendTimer > 0)
+            {
+                SteelDefendTimer--;
+                if (SteelDefendTimer == 0 && HasEffect(nameof(SteelBreastplate)))
+                    Helper.PlayPitched(CoraliteSoundID.WafflesIron_Item178, Player.Center, pitchAdjust: -0.5f);
+            }
+
             ResetCoraliteEffects();
 
             inventoryCraftStations ??= new List<IInventoryCraftStation>();
@@ -470,6 +479,14 @@ namespace Coralite.Content.ModPlayers
                     }
                     else
                         HurtTimer = tempHurtTime;
+                }
+                else if (HasEffect(nameof(SteelBreastplate)) && SteelDefendTimer == 0 && (info.Damage > Player.statLife || info.Damage > Player.statLifeMax2 / 5))//对致命伤和大于生命值五分之一的伤害生效
+                {
+                    info.Damage = (int)(info.Damage * (1 - 0.7f));
+                    Helper.PlayPitched(CoraliteSoundID.WafflesIron_Item178, Player.Center, pitchAdjust: -0.5f);
+
+                    SteelDefendTimer = 60 * 30;
+                    info.Dodgeable = false;
                 }
             }
         }

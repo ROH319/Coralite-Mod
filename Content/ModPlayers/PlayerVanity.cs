@@ -15,6 +15,9 @@ namespace Coralite.Content.ModPlayers
 {
     public partial class CoralitePlayer
     {
+        /// <summary> 绘制钢套装的套装效果 </summary>
+        public bool SteelDraw;
+
         public override void ModifyDrawInfo(ref PlayerDrawSet drawInfo)
         {
             if (HasEffect(nameof(BoneRing)))
@@ -61,36 +64,49 @@ namespace Coralite.Content.ModPlayers
             if (HasEffect(nameof(HephaesthChestplate)))
                 drawInfo.bodyGlowColor = Color.White * (0.7f + MathF.Sin(Main.GlobalTimeWrappedHourly * 3) * 0.3f);
 
-            if (SlimeDraw)//傻逼中的傻逼写法
+            if (SlimeDraw)
             {
                 Color targetColor = Color.Lerp(new Color(50, 150, 225, 80), new Color(255, 51, 234, 80), 0.5f + 0.5f * MathF.Sin(0.06f * (int)Main.timeForVisualEffects));
                 Color c = Color.Lerp(Color.Transparent, targetColor, EmperorDefence / (float)EmperorDefenctMax);
-                drawInfo.colorHair = c;
-                drawInfo.colorEyeWhites = c;
-                drawInfo.colorEyes = c;
-                drawInfo.colorHead = c;
-                drawInfo.colorBodySkin = c;
-                drawInfo.colorLegs = c;
-                drawInfo.colorShirt = c;
-                drawInfo.colorUnderShirt = c;
-                drawInfo.colorPants = c;
-                drawInfo.colorShoes = c;
-                drawInfo.colorArmorHead = c;
-                drawInfo.colorArmorBody = c;
-                drawInfo.colorMount = c;
-                drawInfo.colorArmorLegs = c;
-                drawInfo.colorElectricity = c;
-                drawInfo.colorDisplayDollSkin = c;
-
-                drawInfo.headGlowColor = c;
-                drawInfo.bodyGlowColor = c;
-                drawInfo.armGlowColor = c;
-                drawInfo.legsGlowColor = c;
-                drawInfo.ArkhalisColor = c;
-                drawInfo.selectionGlowColor = c;
-                drawInfo.itemColor = c;
-                drawInfo.floatingTubeColor = c;
+                SetAllColor(ref drawInfo, c);
             }
+            else if (SteelDraw)
+            {
+                Color c = new Color(255, 255, 255, 50);
+                if (SteelDefendTimer > 0)
+                    c = new Color(255, 60, 60, 50);
+                SetAllColor(ref drawInfo, c);
+            }
+        }
+
+        public void SetAllColor(ref PlayerDrawSet drawInfo, Color c)
+        {
+            //傻逼中的傻逼写法
+            drawInfo.colorHair = c;
+            drawInfo.colorEyeWhites = c;
+            drawInfo.colorEyes = c;
+            drawInfo.colorHead = c;
+            drawInfo.colorBodySkin = c;
+            drawInfo.colorLegs = c;
+            drawInfo.colorShirt = c;
+            drawInfo.colorUnderShirt = c;
+            drawInfo.colorPants = c;
+            drawInfo.colorShoes = c;
+            drawInfo.colorArmorHead = c;
+            drawInfo.colorArmorBody = c;
+            drawInfo.colorMount = c;
+            drawInfo.colorArmorLegs = c;
+            drawInfo.colorElectricity = c;
+            drawInfo.colorDisplayDollSkin = c;
+
+            drawInfo.headGlowColor = c;
+            drawInfo.bodyGlowColor = c;
+            drawInfo.armGlowColor = c;
+            drawInfo.legsGlowColor = c;
+            drawInfo.ArkhalisColor = c;
+            drawInfo.selectionGlowColor = c;
+            drawInfo.itemColor = c;
+            drawInfo.floatingTubeColor = c;
         }
 
         private int? OverrideHeadSlot()
