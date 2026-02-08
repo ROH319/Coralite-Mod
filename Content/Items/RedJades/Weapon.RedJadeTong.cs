@@ -110,9 +110,8 @@ namespace Coralite.Content.Items.RedJades
                         if (Timer == 0)
                         {
                             Projectile.rotation = Main.rand.NextFloat(MathHelper.TwoPi);
-                            Projectile.AttatchToTarget(npc);
+                            Projectile.AttachToTarget(npc);
                         }
-
                     }
                     break;
                 case 1://自由下落

@@ -276,7 +276,7 @@ namespace Coralite.Content.Items.Glistent
 
         public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
         {
-            if (TargetIndex == -1 && Helper.AttatchToTarget(Projectile, target))//贴上了再设置
+            if (TargetIndex == -1 && Helper.AttachToTarget(Projectile, target))//贴上了再设置
             {
                 TargetIndex = target.whoAmI;
                 Projectile.tileCollide = false;

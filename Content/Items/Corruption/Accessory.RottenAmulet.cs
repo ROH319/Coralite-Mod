@@ -1,11 +1,14 @@
 ﻿using Coralite.Content.Items.Crimson;
+using Coralite.Content.ModPlayers;
 using Coralite.Core;
+using Coralite.Core.Attributes;
 using Terraria;
 using Terraria.ID;
 using Terraria.Localization;
 
 namespace Coralite.Content.Items.Corruption
 {
+    [PlayerEffect]
     [AutoloadEquip(EquipType.Neck)]
     public class RottenAmulet : ModItem
     {
@@ -18,39 +21,26 @@ namespace Coralite.Content.Items.Corruption
 
         public override void SetDefaults()
         {
+            Item.SetShopValues(Terraria.Enums.ItemRarityColor.Orange3, Item.sellPrice(0, 2, 50));
             Item.defense = 3;
-            Item.height = Item.width = 32;
-            Item.maxStack = 1;
-            Item.value = Item.sellPrice(0, 0, 50);
             Item.accessory = true;
-            Item.rare = ItemRarityID.Orange;
         }
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
-            if (player.TryGetModPlayer(out RottenAmuletPlayer rap))
-            {
-                rap.equippedRottenAmulet = true;
-                if (!player.HasBuff<LimbRebirth>())
-                    rap.limbRebirthCount = 0;
+            if (player.TryGetModPlayer(out CoralitePlayer cp))
+                cp.AddEffect(nameof(RottenAmulet));
+        }
 
-                player.lifeRegen += rap.limbRebirthCount;
-                if (rap.limbRebirthCount >= 6)
-                {
-                    rap.limbRebirthCount = 0;
-                    rap.limbRebirthCD = 60 * 5;
-                    player.Heal(25);
-                    player.DelBuff(player.FindBuffIndex(ModContent.BuffType<LimbRebirth>()));
-                }
-            }
+        public override void ArmorSetShadows(Player player)
+        {
+            player.armorEffectDrawShadow = true;
         }
     }
 
     public class LimbRebirth : ModBuff
     {
         public override string Texture => AssetDirectory.CorruptionItems + Name;
-
-        public static int count;
 
         public LocalizedText Current => this.GetLocalization("Current");
 
@@ -59,51 +49,52 @@ namespace Coralite.Content.Items.Corruption
             Main.buffNoSave[Type] = true;
         }
 
-        public override void Update(Player player, ref int buffIndex)
-        {
-            player.armorEffectDrawShadow = true;
-            if (player.TryGetModPlayer(out RottenAmuletPlayer rap) && player.whoAmI == Main.myPlayer)
-                count = rap.limbRebirthCount;
-        }
-
         public override void ModifyBuffText(ref string buffName, ref string tip, ref int rare)
         {
-            tip += $"\n{Current.Value}{count}";
+            if (Main.LocalPlayer.TryGetModPlayer(out RottenAmuletPlayer rap))
+                tip += $"\n{Current.Value}{rap.limbRebirthCount}";
         }
     }
 
     public class RottenAmuletPlayer : ModPlayer
     {
-        public bool equippedRottenAmulet;
+        /// <summary>
+        /// 受击次数
+        /// </summary>
         public int limbRebirthCount;
+        /// <summary>
+        /// 腐烂护符回血效果CD
+        /// </summary>
         public int limbRebirthCD;
 
-        public override void OnHitByNPC(NPC npc, Player.HurtInfo hurtInfo)
+        public override void OnHurt(Player.HurtInfo info)
         {
-            OnHit(hurtInfo);
-        }
-
-        public override void OnHitByProjectile(Projectile proj, Player.HurtInfo hurtInfo)
-        {
-            OnHit(hurtInfo);
-        }
-
-        public void OnHit(Player.HurtInfo hurtInfo)
-        {
-            if (!equippedRottenAmulet || limbRebirthCD != 0 || hurtInfo.Damage < 20)//休想骗伤！！！！！！！！！！！！！！！！！！！！！！！！！！！
+            if (!(Player.TryGetModPlayer(out CoralitePlayer cp) && cp.HasEffect(nameof(RottenAmulet)))
+                || limbRebirthCD != 0 || info.Damage < 20)
                 return;
+
             Player.AddBuff(ModContent.BuffType<LimbRebirth>(), 60 * 15);
             limbRebirthCount++;
+
+            if (limbRebirthCount >= 6)
+            {
+                limbRebirthCount = 0;
+                limbRebirthCD = 60 * 10;
+                Player.Heal(Player.statLifeMax2 / 10);
+                Player.ClearBuff(ModContent.BuffType<LimbRebirth>());
+            }
         }
 
         public override void ResetEffects()
         {
-            if (limbRebirthCount > 6)
-                limbRebirthCount = 6;
             if (limbRebirthCD > 0)
                 limbRebirthCD--;
+        }
 
-            equippedRottenAmulet = false;
+        public override void UpdateLifeRegen()
+        {
+            if (Player.HasBuff<LimbRebirth>())
+                Player.lifeRegen += limbRebirthCount;
         }
     }
 }

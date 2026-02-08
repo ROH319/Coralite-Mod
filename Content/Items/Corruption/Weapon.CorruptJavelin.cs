@@ -26,16 +26,14 @@ namespace Coralite.Content.Items.Corruption
 
         public override void SetDefaults()
         {
-            Item.damage = 30;
-            Item.useTime = 22;
-            Item.useAnimation = 22;
+            Item.SetWeaponValues(35, 4f);
+
+            Item.useTime = Item.useAnimation = 22;
             Item.useStyle = ItemUseStyleID.Swing;
             Item.DamageType = DamageClass.Summon;
-            Item.knockBack = 4;
-
-            Item.value = Item.sellPrice(0, 1, 0, 0);
-            Item.rare = ItemRarityID.Orange;
             Item.shoot = ProjectileType<CorruptJavelinProj>();
+
+            Item.SetShopValues(Terraria.Enums.ItemRarityColor.Orange3, Item.sellPrice(0, 3));
 
             Item.useTurn = false;
             Item.noMelee = true;
@@ -51,10 +49,13 @@ namespace Coralite.Content.Items.Corruption
             {
                 //检测扎在NPC身上的投矛的数量，并让投矛消失，之后射出2倍数量的小投矛
                 int howMany = 0;
-                foreach (var proj in Main.projectile.Where(p => p.active && p.friendly && p.owner == player.whoAmI && p.type == type && p.ai[0] != 3))
+                foreach (var p in Main.ActiveProjectiles)
                 {
-                    howMany++;
-                    (proj.ModProjectile as CorruptJavelinProj).SpecialKill();
+                    if (p.friendly && p.owner == player.whoAmI && p.type == type && p.ai[0] != 3)
+                    {
+                        howMany++;
+                        (p.ModProjectile as CorruptJavelinProj).SpecialKill();
+                    }
                 }
 
                 Projectile.NewProjectile(source, player.Center, Vector2.Zero, ProjectileType<CorruptJavelinSpecial>(), damage, knockback, Main.myPlayer, howMany);
@@ -62,24 +63,23 @@ namespace Coralite.Content.Items.Corruption
 
                 return false;
             }
-
             float total = 0;
 
             //有些丑陋的写法 每次射投矛都得遍历一次
-            IEnumerable<Projectile> minions = Main.projectile.Where(p => p.active && p.friendly && p.owner == player.whoAmI && p.minion && p.type != ProjectileID.StardustGuardian);
+            //IEnumerable<Projectile> minions = Main.projectile.Where(p => p.active && p.friendly && p.owner == player.whoAmI && p.minion && p.type != ProjectileID.StardustGuardian);
 
-            foreach (var proj in minions)
-                total += proj.minionSlots;
+            //foreach (var proj in minions)
+            //    total += proj.minionSlots;
 
-            if (player.maxMinions - total < 1)  //如果当前召唤物达到上限那么就随机一位幸运召唤物把它kill了
-            {
-                List<Projectile> selectedMinions = minions.ToList();
-                selectedMinions.RemoveAll(p => p.type == type && p.ai[0] != 2);
-                if (selectedMinions.Count < 1)
-                    goto lastShoot;
-                Projectile first = selectedMinions[Main.rand.Next(selectedMinions.Count)];
-                first?.Kill();
-            }
+            //if (player.maxMinions - total < 1)  //如果当前召唤物达到上限那么就随机一位幸运召唤物把它kill了
+            //{
+            //    List<Projectile> selectedMinions = minions.ToList();
+            //    selectedMinions.RemoveAll(p => p.type == type && p.ai[0] != 2);
+            //    if (selectedMinions.Count < 1)
+            //        goto lastShoot;
+            //    Projectile first = selectedMinions[Main.rand.Next(selectedMinions.Count)];
+            //    first?.Kill();
+            //}
 
         lastShoot:
             var projectile = Projectile.NewProjectileDirect(source, player.Center + new Vector2(player.direction * Main.rand.Next(24, 32), -64 + Main.rand.Next(8, 8)),
@@ -100,9 +100,7 @@ namespace Coralite.Content.Items.Corruption
         public ref float State => ref Projectile.ai[0];
         public ref float Target => ref Projectile.ai[1];
 
-        public ref float Timer => ref Projectile.localAI[0];
-
-        private Vector2 offset;
+        public ref float Timer => ref Projectile.ai[2];
 
         private float alpha;
         private float shadowScale;
@@ -115,13 +113,12 @@ namespace Coralite.Content.Items.Corruption
 
         public override void SetDefaults()
         {
-            Projectile.width = 24;
-            Projectile.height = 24;
+            Projectile.width =  Projectile.height = 24;
             Projectile.timeLeft = MaxTimeLeft;
             Projectile.minionSlots = 1f;
             Projectile.penetrate = -1;
             Projectile.aiStyle = -1;
-            Projectile.localNPCHitCooldown = 12;
+            Projectile.localNPCHitCooldown = 120;
             Projectile.extraUpdates = 1;
 
             Projectile.friendly = true;
@@ -193,17 +190,19 @@ namespace Coralite.Content.Items.Corruption
                     Timer++;
                     break;
                 case (int)AIStates.shoot:
-                    //仅仅是生成粒子而已
-                    int type = DustID.Shadowflame;
-                    Color color = default;
-                    switch (Main.rand.Next(4))
+                    if (Vector2.Distance(Projectile.Center, Main.player[Projectile.owner].Center)>1500)
                     {
-                        case 0:
-                            break;
-                        default:
-                            type = DustID.Enchanted_Gold;
-                            color = Color.DarkBlue;
-                            break;
+                        Projectile.Kill();
+                        return;
+                    }
+
+                    //仅仅是生成粒子而已
+                    int type = DustID.Shadowflame; 
+                    Color color = default;
+                    if (Main.rand.NextBool(3,4))
+                    {
+                        type = DustID.Enchanted_Gold;
+                        color = Color.DarkBlue;
                     }
 
                     int howMany = (Projectile.timeLeft % 2) + 1;
@@ -216,15 +215,8 @@ namespace Coralite.Content.Items.Corruption
 
                     break;
                 case (int)AIStates.onHit:
-                    if (Target < 0 || Target > Main.maxNPCs)
+                    if (!Target.TryGetNPC(out NPC npc) || !npc.CanBeChasedBy(ignoreDontTakeDamage: true))
                         Projectile.Kill();
-
-                    NPC npc = Main.npc[(int)Target];
-                    if (!npc.active || npc.dontTakeDamage)
-                        Projectile.Kill();
-
-                    Projectile.Center = npc.Center + offset;
-                    Timer = 0;
 
                     if (Main.rand.NextBool(30))
                     {
@@ -248,21 +240,29 @@ namespace Coralite.Content.Items.Corruption
 
         public override bool? CanHitNPC(NPC target)
         {
-            if ((int)State == (int)AIStates.shoot)
+            if (State == (int)AIStates.shoot|| State == (int)AIStates.onHit)
                 return null;
 
             return false;
+        }
+
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
+        {
+            if (State == (int)AIStates.onHit)
+            {
+                modifiers.SourceDamage -= 0.5f;
+            }
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             if ((int)State == (int)AIStates.shoot)
             {
+                Projectile.AttachToTarget(target);
                 Projectile.tileCollide = false;
                 Projectile.timeLeft = MaxTimeLeft;
                 Projectile.velocity *= 0;
                 Target = target.whoAmI;
-                offset = Projectile.Center - target.Center;
                 State = (int)AIStates.onHit;
                 Timer = 0;
                 Projectile.netUpdate = true;
@@ -272,7 +272,7 @@ namespace Coralite.Content.Items.Corruption
                     Vector2 direction = -Projectile.rotation.ToRotationVector2();
                     Vector2 center = Vector2.Lerp(Projectile.Center, target.Center, 0.2f);
 
-                    Helpers.Helper.SpawnDirDustJet(center, () => direction.RotatedBy(Main.rand.NextFloat(-0.4f, 0.4f)), 2, 6, (i) => Main.rand.NextFloat(0.5f, 5f),
+                    Helper.SpawnDirDustJet(center, () => direction.RotatedBy(Main.rand.NextFloat(-0.4f, 0.4f)), 2, 6, (i) => Main.rand.NextFloat(0.5f, 5f),
                         DustID.Corruption, Scale: Main.rand.NextFloat(1f, 1.5f), noGravity: false, extraRandRot: 0.1f);
                 }
             }
@@ -282,6 +282,9 @@ namespace Coralite.Content.Items.Corruption
         {
             State = 3;
             Projectile.velocity = -Projectile.rotation.ToRotationVector2() * 0.4f;
+
+            if (Target.TryGetNPC(out NPC npc))
+                Projectile.DeattachToTarget(npc);
         }
 
         public override void OnKill(int timeLeft)
@@ -310,9 +313,9 @@ namespace Coralite.Content.Items.Corruption
                 origin = new Vector2(mainTex.Width / 4, mainTex.Height / 4);
             }
 
-            if ((int)State == 1)//残影绘制
+            if (State == 1)//残影绘制
             {
-                Vector2 toCenter = new(Projectile.width / 2, Projectile.height / 2);
+                Vector2 toCenter = Projectile.Size/2;
                 Color color = Color.MediumPurple;
                 color.A = 0;
                 for (int i = 1; i < 8; i += 2)
@@ -406,7 +409,7 @@ namespace Coralite.Content.Items.Corruption
                     //生成小投矛弹幕
                     if (Projectile.IsOwnedByLocalPlayer())
                         Projectile.NewProjectile(Projectile.GetSource_FromAI(), Owner.Center, (Main.MouseWorld - Owner.Center).SafeNormalize(Vector2.One).RotatedBy(Main.rand.NextFloat(-0.06f, 0.06f)) * 12,
-                            ProjectileType<SmallCorruptJavelin>(), (int)(Projectile.damage * 0.85f), Projectile.knockBack * 0.5f, Projectile.owner);
+                            ProjectileType<SmallCorruptJavelin>(), Projectile.damage, Projectile.knockBack * 0.5f, Projectile.owner);
                     SoundEngine.PlaySound(CoraliteSoundID.Swing_Item1, Projectile.Center);
                     ShootCount++;
                 }
@@ -450,7 +453,6 @@ namespace Coralite.Content.Items.Corruption
         public ref float State => ref Projectile.ai[0];
         public ref float Target => ref Projectile.ai[1];
 
-        private Vector2 offset;
         private float alpha;
         private bool span;
 
@@ -458,7 +460,7 @@ namespace Coralite.Content.Items.Corruption
         {
             Projectile.width = Projectile.height = 16;
             Projectile.alpha = 0;
-            Projectile.timeLeft = 1000;
+            Projectile.timeLeft = 600;
             Projectile.penetrate = -1;
             Projectile.aiStyle = -1;
             Projectile.extraUpdates = 1;
@@ -491,14 +493,9 @@ namespace Coralite.Content.Items.Corruption
                         alpha += 0.1f;
                     break;
                 case 1:
-                    if (Target < 0 || Target > Main.maxNPCs)
+                    if (!Target.TryGetNPC(out NPC npc) || !npc.CanBeChasedBy(ignoreDontTakeDamage: true))
                         Projectile.Kill();
 
-                    NPC npc = Main.npc[(int)Target];
-                    if (!npc.active || npc.dontTakeDamage)
-                        Projectile.Kill();
-
-                    Projectile.Center = npc.Center + offset;
                     if (Projectile.timeLeft < 40)
                         alpha -= 1 / 40f;
 
@@ -515,11 +512,11 @@ namespace Coralite.Content.Items.Corruption
         {
             if (State == 0)
             {
+                Projectile.AttachToTarget(target);
                 Projectile.tileCollide = false;
-                Projectile.timeLeft = 300;
+                Projectile.timeLeft = 150;
                 Projectile.velocity *= 0;
                 Target = target.whoAmI;
-                offset = Projectile.Center - target.Center;
                 State = 1;
                 Projectile.netUpdate = true;
             }
@@ -538,12 +535,7 @@ namespace Coralite.Content.Items.Corruption
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
-            Vector2 pos = Projectile.Center - Main.screenPosition;
-            float Rot = Projectile.rotation + (MathHelper.Pi / 4);
-            SpriteEffects effect = SpriteEffects.None;
-
-            Main.spriteBatch.Draw(mainTex, pos, null, lightColor * alpha, Rot, mainTex.Size() / 2, Projectile.scale, effect, 0);
+            Projectile.QuickDraw(lightColor * alpha, MathHelper.Pi / 4);
             return false;
         }
     }

@@ -569,7 +569,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
             bool TrySwitchToSPIdle1()
             {
-                if (Recorder2 > 60 * 20 + (Projectile.whoAmI % 7) * 60 * 4)
+                if (Recorder2 > 60 * 17 + (Projectile.whoAmI % 7) * 60 * 7)
                 {
                     SwitchState(AIStates.IdleMove1);
                     return true;
@@ -1130,6 +1130,31 @@ namespace Coralite.Content.Items.AlchorthentSeries
                    , (int)Main.timeForVisualEffects * 0.02f, 4, f, c, 0.2f, 0.5f);
             Main.spriteBatch.End();
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointWrap, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+        }
+    }
+
+    /// <summary>
+    /// 使用ai[0]传入目标敌怪
+    /// </summary>
+    public class CorruptLaser:ModProjectile
+    {
+        public override string Texture => AssetDirectory.Blank;
+
+        public ref float Target => ref Projectile.ai[0];
+
+        public override void SetDefaults()
+        {
+            
+        }
+
+        public override void AI()
+        {
+            
+        }
+
+        public override bool PreDraw(ref Color lightColor)
+        {
+            return false;
         }
     }
 

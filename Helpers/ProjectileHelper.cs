@@ -557,7 +557,20 @@ namespace Coralite.Helpers
         /// </summary>
         /// <param name="proj"></param>
         /// <param name="npc"></param>
-        public static bool AttatchToTarget(this Projectile proj, NPC npc)
+        public static bool AttachToTarget(this Projectile proj, NPC npc)
+        {
+            if (npc.TryGetGlobalNPC(out CoraliteGlobalNPC cgnpc))
+                return cgnpc.AddAttachProj(proj);
+
+            return false;
+        }
+
+        /// <summary>
+        /// 移除对指定NPC的黏附
+        /// </summary>
+        /// <param name="proj"></param>
+        /// <param name="npc"></param>
+        public static bool DeattachToTarget(this Projectile proj, NPC npc)
         {
             if (npc.TryGetGlobalNPC(out CoraliteGlobalNPC cgnpc))
                 return cgnpc.AddAttachProj(proj);

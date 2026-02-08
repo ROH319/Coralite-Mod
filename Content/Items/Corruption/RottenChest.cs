@@ -13,7 +13,7 @@ namespace Coralite.Content.Items.Corruption
 {
     public class RottenChest : BaseChestItem
     {
-        public RottenChest() : base(Item.sellPrice(0, 0, 0, 10), ItemRarityID.Blue, ModContent.TileType<RottenChestTile>(), AssetDirectory.CorruptionItems)
+        public RottenChest() : base(Item.sellPrice(0, 0, 0, 30), ItemRarityID.Blue, ModContent.TileType<RottenChestTile>(), AssetDirectory.CorruptionItems)
         { }
     }
 

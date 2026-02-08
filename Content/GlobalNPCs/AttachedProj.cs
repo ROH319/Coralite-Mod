@@ -35,6 +35,25 @@ namespace Coralite.Content.GlobalNPCs
             return true;
         }
 
+        public bool RemoveAttachProj(Projectile incomeProj)
+        {
+            //if (attachedProj != null && attachedProj.Count > 0)
+            //{
+            //    foreach (int index in attachedProj)
+            //    {
+            //        Projectile proj = Main.projectile[index];
+            //        if (proj.active && proj.ModProjectile is IAttachableProjectile attachProj)
+            //            if (!attachProj.NewProjAttach(incomeProj))
+            //                return false;
+            //    }
+            //}
+
+            AttachedProj.Remove(incomeProj.whoAmI);
+            return true;
+        }
+
+
+
         /// <summary>
         /// 更新贴贴弹幕
         /// </summary>
@@ -75,7 +94,7 @@ namespace Coralite.Content.GlobalNPCs
     }
 
     /// <summary>
-    /// 贴贴弹幕，命中NPC后调用<see cref="CoraliteGlobalNPC.AddAttachProj(Projectile)"/> 或者 <see cref="Helpers.Helper.AttatchToTarget(Projectile, NPC)"/>来贴到NPC上<br></br>
+    /// 贴贴弹幕，命中NPC后调用<see cref="CoraliteGlobalNPC.AddAttachProj(Projectile)"/> 或者 <see cref="Helpers.Helper.AttachToTarget(Projectile, NPC)"/>来贴到NPC上<br></br>
     /// 之后就会在一些时机调用此接口的方法
     /// </summary>
     public interface IAttachableProjectile

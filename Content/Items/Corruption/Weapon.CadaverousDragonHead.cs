@@ -24,23 +24,13 @@ namespace Coralite.Content.Items.Corruption
 
         public override void SetDefaults()
         {
-            Item.useStyle = ItemUseStyleID.Shoot;
+            Item.DefaultToMagicWeapon(ModContent.ProjectileType<CadaverousDragonBreath>(), 6, 6.5f, true);
+            Item.SetWeaponValues(14, 0.3f);
             Item.useAnimation = 24;
-            Item.useTime = 6;
-            Item.width = 50;
-            Item.height = 18;
-            Item.shoot = ModContent.ProjectileType<CadaverousDragonHeadProj>();
             Item.UseSound = CoraliteSoundID.Flamethrower_Item34;
-            Item.damage = 14;
-            Item.knockBack = 0.3f;
-            Item.shootSpeed = 6.5f;
-            Item.mana = 10;
-            Item.noMelee = true;
-            Item.autoReuse = true;
-            Item.noUseGraphic = true;
-            Item.value = Item.sellPrice(0, 0, 50, 0);
-            Item.rare = ItemRarityID.Orange;
-            Item.DamageType = DamageClass.Magic;
+            Item.mana = 9;
+            Item.noUseGraphic = true; 
+            Item.SetShopValues(Terraria.Enums.ItemRarityColor.Orange3, Item.sellPrice(0, 3));
         }
 
         public override bool AltFunctionUse(Player player) => true;
@@ -57,35 +47,26 @@ namespace Coralite.Content.Items.Corruption
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            if (Main.myPlayer == player.whoAmI)
-            {
-                //if (player.altFunctionUse == 2)
-                //{
-                //    if (player.ItemAnimationJustStarted)//只有第一帧才会射火球
-                //    {
-                //        Projectile head1 = SpawnHead(player, source);
-                //        //射火球
+            //射火焰
+            Projectile head2 = SpawnHead(player, source, ModContent.ProjectileType<CadaverousDragonHeadProj>());
+            head2?.ai[0] = player.itemTimeMax;
 
-                //    }
+            Projectile.NewProjectile(source, head2.Center, (Main.MouseWorld - head2.Center).SafeNormalize(Vector2.Zero) * 6, type, (int)(damage * 0.95f), knockback, player.whoAmI);
 
-                //    return false;
-                //}
-
-                //射火焰
-                Projectile head2 = SpawnHead(player, source);
-                Projectile.NewProjectile(source, head2.Center, (Main.MouseWorld - head2.Center).SafeNormalize(Vector2.Zero) * 6, ModContent.ProjectileType<CadaverousDragonBreath>(), (int)(damage * 0.95f), knockback, player.whoAmI);
-                head2.ai[0] = player.itemTimeMax;
-                player.CheckMana(player.GetManaCost(player.HeldItem) / 2, pay: true);
-            }
+            player.CheckMana(player.GetManaCost(player.HeldItem) / 3, pay: true);
             return false;
         }
 
-        public static Projectile SpawnHead(Player player, IEntitySource source)
+        public static Projectile SpawnHead(Player player, IEntitySource source,int type)
         {
-            Projectile p = Main.projectile.FirstOrDefault(p => p.active && p.owner == player.whoAmI && p.type == ModContent.ProjectileType<CadaverousDragonHeadProj>());
-            p ??= Projectile.NewProjectileDirect(source, player.Center, Vector2.Zero, ModContent.ProjectileType<CadaverousDragonHeadProj>(), 1, 0, player.whoAmI);
+            if (player.ownedProjectileCounts[type] < 1)
+                return Projectile.NewProjectileDirect(source, player.Center, Vector2.Zero, ModContent.ProjectileType<CadaverousDragonHeadProj>(), 1, 0, player.whoAmI);
 
-            return p;
+            foreach (var p in Main.ActiveProjectiles)
+                if (p.owner == player.whoAmI && p.type == type)
+                    return p;
+
+            return null;
         }
     }
 
@@ -117,8 +98,7 @@ namespace Coralite.Content.Items.Corruption
         public override void AI()
         {
             //常态在玩家头顶
-
-            if (Item.type == ModContent.ItemType<CadaverousDragonHead>())
+            if (Item.type == ModContent.ItemType<CadaverousDragonHead>() && Owner.Alives())
                 Projectile.timeLeft = 2;
             else
                 Projectile.Kill();
@@ -170,7 +150,6 @@ namespace Coralite.Content.Items.Corruption
             //在尾部生成粒子
             Dust d = Dust.NewDustPerfect(neckPos + Main.rand.NextVector2Circular(6, 6), DustID.Shadowflame, Helpers.Helper.NextVec2Dir(0.5f, 1f));
             d.noGravity = true;
-
         }
 
         public override bool PreDraw(ref Color lightColor)
