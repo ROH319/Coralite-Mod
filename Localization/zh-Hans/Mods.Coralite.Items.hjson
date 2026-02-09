@@ -6747,3 +6747,41 @@ SteelLegs: {
 	DisplayName: 钢护腿
 	Tooltip: +3% 伤害，+5% 移动速度
 }
+
+B9BatteryHead: {
+	// ArmorBonus: Mods.Coralite.Items.B9BatteryHead.ArmorBonus
+	// DisplayName: B9 Battery Head
+	// Tooltip: ""
+}
+
+B9Breastplate: {
+	// ArmorBonus: Mods.Coralite.Items.B9Breastplate.ArmorBonus
+	// DisplayName: B9 Breastplate
+	// Tooltip: ""
+}
+
+B9PlaneHead: {
+	// ArmorBonus: Mods.Coralite.Items.B9PlaneHead.ArmorBonus
+	// DisplayName: B9 Plane Head
+	// Tooltip: ""
+}
+
+B9LaserMask: {
+	// DisplayName: B9 Laser Mask
+	// Tooltip: ""
+}
+
+B9Legs: {
+	// DisplayName: B9 Legs
+	// Tooltip: ""
+}
+
+B9MonitorHead: {
+	// DisplayName: B9 Monitor Head
+	// Tooltip: ""
+}
+
+B9SpaceHelmet: {
+	// DisplayName: B9 Space Helmet
+	// Tooltip: ""
+}
