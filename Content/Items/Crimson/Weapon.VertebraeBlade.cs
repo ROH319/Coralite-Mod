@@ -25,88 +25,76 @@ namespace Coralite.Content.Items.Crimson
 
         public override void SetDefaults()
         {
+            Item.SetWeaponValues(27, 2f);
+            Item.DefaultToMagicWeapon(ModContent.ProjectileType<VertebraeSpike>(), 16, 16f, true);
             Item.useStyle = ItemUseStyleID.Swing;
-            Item.useAnimation = 16;
-            Item.useTime = 16;
-            Item.width = 50;
-            Item.height = 18;
-            Item.shoot = ModContent.ProjectileType<VertebraeSpike>();
             Item.UseSound = CoraliteSoundID.Swing_Item1;
-            Item.damage = 27;
-            Item.knockBack = 0.3f;
-            Item.shootSpeed = 16f;
             Item.mana = 10;
-            Item.noMelee = true;
-            Item.autoReuse = true;
             Item.noUseGraphic = true;
-            Item.value = Item.sellPrice(0, 0, 50, 0);
-            Item.rare = ItemRarityID.Orange;
+            Item.SetShopValues(Terraria.Enums.ItemRarityColor.Orange3, Item.sellPrice(0, 3));
+
             Item.DamageType = DamageClass.Magic;
         }
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            if (player.whoAmI == Main.myPlayer)
+            int count = 0;
+            foreach (var p in Main.ActiveProjectiles)
+                if (p.friendly && p.owner == player.whoAmI && p.type == type && p.ai[0] == 1)
+                    count++;
+
+            if (count >= 4) //聚合椎骨刃
             {
-                int count = Main.projectile.Count(p => p.active && p.friendly && p.owner == player.whoAmI && p.type == type && p.ai[0] == 1);
+                //遍历获取到椎骨刃碎片的中心点，生成弹幕，之后将各个弹幕的index传给剑弹幕
+                Vector2 bladePos = Vector2.Zero;
+                List<int> indexs = new();
 
-                if (count >= 4) //聚合椎骨刃
-                {
-                    //遍历获取到椎骨刃碎片的中心点，生成弹幕，之后将各个弹幕的index传给剑弹幕
-                    Vector2 bladePos = Vector2.Zero;
-                    List<int> indexs = new();
-
-                    for (int i = 0; i < Main.maxProjectiles; i++)
+                foreach (var p in Main.ActiveProjectiles)
+                    if (p.friendly && p.owner == player.whoAmI && p.type == type && p.ai[0] == 1)
                     {
-                        Projectile p = Main.projectile[i];
-                        if (p.active && p.friendly && p.owner == player.whoAmI && p.type == type && p.ai[0] == 1)
-                        {
-                            p.velocity *= 0;
-                            p.tileCollide = false;
-                            p.ai[1] = 2;
-                            bladePos += p.Center;
-                            indexs.Add(i);
-                        }
+                        p.velocity *= 0;
+                        p.tileCollide = false;
+                        p.ai[1] = 2;
+                        bladePos += p.Center;
+                        indexs.Add(p.whoAmI);
                     }
 
-                    bladePos /= indexs.Count;
-                    bladePos += (player.Center - bladePos).SafeNormalize(Vector2.Zero) * 120;
-                    Projectile bladePorj = Projectile.NewProjectileDirect(source, bladePos, Vector2.Zero, ModContent.ProjectileType<VertebraeBladeProj>(), (int)(damage * Math.Clamp(count * 0.75f, 1, 0.75f * 7)), knockback, player.whoAmI);
-                    (bladePorj.ModProjectile as VertebraeBladeProj).indexs = indexs.ToArray();
-                    return false;
-                }
-
-                if (combo > 3)
-                    combo = 0;
-
-                //射出椎骨刃碎片
-                float num2 = Main.mouseX + Main.screenPosition.X - position.X;
-                float num3 = Main.mouseY + Main.screenPosition.Y - position.Y;
-
-                float f = Main.rand.NextFloat() * ((float)Math.PI * 2f);
-                float min = 20f;
-                float max = 60f;
-
-                float speed = velocity.Length();
-
-                Vector2 pos = player.Center + (f.ToRotationVector2() * MathHelper.Lerp(min, max, Main.rand.NextFloat()));
-                for (int i = 0; i < 50; i++)
-                {
-                    pos = position + (f.ToRotationVector2() * MathHelper.Lerp(min, max, Main.rand.NextFloat()));
-                    if (Collision.CanHit(position, 0, 0, pos + ((pos - position).SafeNormalize(Vector2.UnitX) * 8f), 0, 0))
-                        break;
-
-                    f = Main.rand.NextFloat() * ((float)Math.PI * 2f);
-                }
-
-                Vector2 v5 = Main.MouseWorld - pos;
-                Vector2 vector52 = new Vector2(num2, num3).SafeNormalize(Vector2.UnitY) * speed;
-                v5 = v5.SafeNormalize(vector52) * speed;
-                v5 = Vector2.Lerp(v5, vector52, 0.25f);
-                Projectile.NewProjectile(source, pos, v5, type, damage, knockback, player.whoAmI, ai2: combo);
-
-                combo++;
+                bladePos /= indexs.Count;
+                bladePos += (player.Center - bladePos).SafeNormalize(Vector2.Zero) * 120;
+                Projectile bladePorj = Projectile.NewProjectileDirect(source, bladePos, Vector2.Zero, ModContent.ProjectileType<VertebraeBladeProj>(), (int)(damage * Math.Clamp(count * 0.75f, 1, 0.75f * 7)), knockback, player.whoAmI);
+                (bladePorj.ModProjectile as VertebraeBladeProj).indexs = [.. indexs];
+                return false;
             }
+
+            if (combo > 3)
+                combo = 0;
+
+            //射出椎骨刃碎片
+            Vector2 pos2 = Main.MouseWorld - position;
+
+            float f = Main.rand.NextFloat() * ((float)Math.PI * 2f);
+            float min = 20f;
+            float max = 60f;
+
+            float speed = velocity.Length();
+
+            Vector2 pos = player.Center + (f.ToRotationVector2() * MathHelper.Lerp(min, max, Main.rand.NextFloat()));
+            for (int i = 0; i < 50; i++)
+            {
+                pos = position + (f.ToRotationVector2() * MathHelper.Lerp(min, max, Main.rand.NextFloat()));
+                if (Collision.CanHit(position, 0, 0, pos + ((pos - position).SafeNormalize(Vector2.UnitX) * 8f), 0, 0))
+                    break;
+
+                f = Main.rand.NextFloat() * ((float)Math.PI * 2f);
+            }
+
+            Vector2 v5 = Main.MouseWorld - pos;
+            Vector2 vector52 = pos2.SafeNormalize(Vector2.UnitY) * speed;
+            v5 = v5.SafeNormalize(vector52) * speed;
+            v5 = Vector2.Lerp(v5, vector52, 0.25f);
+            Projectile.NewProjectile(source, pos, v5, type, damage, knockback, player.whoAmI, ai2: combo);
+
+            combo++;
             return false;
         }
     }
@@ -351,9 +339,7 @@ namespace Coralite.Content.Items.Crimson
 
                     break;
                 case 1://旋转起来砸向目标位置
-                    {
-                        Projectile.rotation += 0.55f;
-                    }
+                    Projectile.rotation += MathF.Sign(Projectile.velocity.X) * 0.85f;
                     break;
             }
 

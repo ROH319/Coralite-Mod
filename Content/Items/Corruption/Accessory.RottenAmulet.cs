@@ -34,7 +34,8 @@ namespace Coralite.Content.Items.Corruption
 
         public override void ArmorSetShadows(Player player)
         {
-            player.armorEffectDrawShadow = true;
+            if (player.HasBuff<LimbRebirth>())
+                player.armorEffectDrawShadow = true;
         }
     }
 

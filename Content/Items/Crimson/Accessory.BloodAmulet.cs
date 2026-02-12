@@ -1,11 +1,14 @@
 ﻿using Coralite.Content.Items.Corruption;
+using Coralite.Content.ModPlayers;
 using Coralite.Core;
+using Coralite.Core.Attributes;
 using Terraria;
 using Terraria.ID;
 using Terraria.Localization;
 
 namespace Coralite.Content.Items.Crimson
 {
+    [PlayerEffect]
     [AutoloadEquip(EquipType.Neck)]
     public class BloodAmulet : ModItem
     {
@@ -18,32 +21,39 @@ namespace Coralite.Content.Items.Crimson
 
         public override void SetDefaults()
         {
-            Item.height = Item.width = 32;
-            Item.maxStack = 1;
-            Item.value = Item.sellPrice(0, 0, 50);
+            Item.SetShopValues(Terraria.Enums.ItemRarityColor.Orange3, Item.sellPrice(0, 2, 50));
+            Item.defense = 1;
             Item.accessory = true;
-            Item.rare = ItemRarityID.Orange;
         }
 
         public override void UpdateAccessory(Player player, bool hideVisual)
         {
+            if (player.TryGetModPlayer(out CoralitePlayer cp))
+                cp.AddEffect(nameof(BloodAmulet));
+
             if (player.TryGetModPlayer(out BloodAmuletPlayer bap))
             {
-                bap.equippedBloodAmulet = true;
-                if (!player.HasBuff<Bloodthirsty>())
+                if (player.HasBuff<Bloodthirsty>())
+                {
+                    player.GetDamage(DamageClass.Generic) += bap.bloodthirstyCount * 0.015f;
+                    player.GetCritChance(DamageClass.Generic) += bap.bloodthirstyCount / 2;
+                    player.moveSpeed += bap.bloodthirstyCount * 0.015f;
+                }
+                else
                     bap.bloodthirstyCount = 0;
-
-                player.GetDamage(DamageClass.Generic) += bap.bloodthirstyCount * 0.02f;
-                player.moveSpeed += bap.bloodthirstyCount * 0.02f;
             }
+        }
+
+        public override void ArmorSetShadows(Player player)
+        {
+            if (player.HasBuff<Bloodthirsty>())
+                player.armorEffectDrawShadow = true;
         }
     }
 
     public class Bloodthirsty : ModBuff
     {
         public override string Texture => AssetDirectory.CrimsonItems + Name;
-
-        public static int count;
 
         public LocalizedText Current => this.GetLocalization("Current");
 
@@ -52,30 +62,24 @@ namespace Coralite.Content.Items.Crimson
             Main.buffNoSave[Type] = true;
         }
 
-        public override void Update(Player player, ref int buffIndex)
-        {
-            player.armorEffectDrawShadow = true;
-            if (player.TryGetModPlayer(out BloodAmuletPlayer bap) && player.whoAmI == Main.myPlayer)
-                count = bap.bloodthirstyCount;
-        }
-
         public override void ModifyBuffText(ref string buffName, ref string tip, ref int rare)
         {
-            tip += $"\n{Current.Value}{count}";
+            if (Main.LocalPlayer.TryGetModPlayer(out BloodAmuletPlayer bap))
+                tip += $"\n{Current.Value}{bap.bloodthirstyCount}";
         }
     }
 
     public class BloodAmuletPlayer : ModPlayer
     {
-        public bool equippedBloodAmulet;
         public int bloodthirstyCount;
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
-            if (!equippedBloodAmulet || target.life - damageDone > 0 || target.lifeMax <= 5 || target.SpawnedFromStatue)
+            if (!(Player.TryGetModPlayer(out CoralitePlayer cp) && cp.HasEffect(nameof(BloodAmulet)))
+                || target.life - damageDone > 0 || target.lifeMax <= 5 || target.SpawnedFromStatue)
                 return;
 
-            Player.AddBuff(ModContent.BuffType<Bloodthirsty>(), 60 * 9);
+            Player.AddBuff(ModContent.BuffType<Bloodthirsty>(), 60 * 20);
             bloodthirstyCount++;
 
             for (int i = 0; i < 16; i++)
@@ -87,10 +91,8 @@ namespace Coralite.Content.Items.Crimson
 
         public override void ResetEffects()
         {
-            if (bloodthirstyCount > 5)
-                bloodthirstyCount = 5;
-
-            equippedBloodAmulet = false;
+            if (bloodthirstyCount > 10)
+                bloodthirstyCount = 10;
         }
     }
 }

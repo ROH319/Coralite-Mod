@@ -63,7 +63,7 @@ namespace Coralite.Content.Items.Corruption
 
                 return false;
             }
-            float total = 0;
+            //float total = 0;
 
             //有些丑陋的写法 每次射投矛都得遍历一次
             //IEnumerable<Projectile> minions = Main.projectile.Where(p => p.active && p.friendly && p.owner == player.whoAmI && p.minion && p.type != ProjectileID.StardustGuardian);
@@ -81,7 +81,7 @@ namespace Coralite.Content.Items.Corruption
             //    first?.Kill();
             //}
 
-        lastShoot:
+        //lastShoot:
             var projectile = Projectile.NewProjectileDirect(source, player.Center + new Vector2(player.direction * Main.rand.Next(24, 32), -64 + Main.rand.Next(8, 8)),
                 Vector2.Zero, type, damage, knockback, Main.myPlayer);
             projectile.originalDamage = Item.damage;

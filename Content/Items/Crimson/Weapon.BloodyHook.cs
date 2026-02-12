@@ -8,7 +8,6 @@ using Coralite.Helpers;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using System;
-using System.Linq;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
@@ -33,7 +32,7 @@ namespace Coralite.Content.Items.Crimson
             Item.useStyle = ItemUseStyleID.Rapier;
             Item.shoot = ProjectileType<BloodHookSlash>();
             Item.DamageType = DamageClass.Melee;
-            Item.SetShopValues(Terraria.Enums.ItemRarityColor.Orange3, Item.sellPrice(0, 1, 0, 0));
+            Item.SetShopValues(Terraria.Enums.ItemRarityColor.Orange3, Item.sellPrice(0, 2, 0, 0));
             Item.SetWeaponValues(33, 4);
             Item.autoReuse = true;
             Item.noUseGraphic = true;
@@ -42,22 +41,19 @@ namespace Coralite.Content.Items.Crimson
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-            if (Main.myPlayer != player.whoAmI)
-                return false;
-
             if (player.altFunctionUse == 2)
             {
-                foreach (var proj in Main.projectile.Where(p => p.active && p.owner == player.whoAmI && p.type == ProjectileType<BloodHookChain>()))
+                foreach (var proj in Main.ActiveProjectiles)
                 {
-                    if ((int)proj.ai[2] == (int)BaseSilkKnifeSpecialProj.AIStates.onHit)
+                    if (proj.owner == player.whoAmI && proj.type == ProjectileType<BloodHookChain>()&& (int)proj.ai[2] == (int)BaseSilkKnifeSpecialProj.AIStates.onHit)
                     {
                         for (int i = 0; i < proj.localNPCImmunity.Length; i++)
                             proj.localNPCImmunity[i] = 0;
 
                         proj.ai[2] = (int)BaseSilkKnifeSpecialProj.AIStates.drag;
                         proj.netUpdate = true;
+                        return false;
                     }
-                    return false;
                 }
 
                 //生成弹幕
@@ -75,29 +71,15 @@ namespace Coralite.Content.Items.Crimson
         }
     }
 
+    [VaultLoaden(AssetDirectory.CrimsonItems)]
     public class BloodHookSlash : BaseSwingProj
     {
         public override string Texture => AssetDirectory.CrimsonItems + "BloodyHookProj";
 
-        public static Asset<Texture2D> ChainTex;
+        [VaultLoaden("{@classPath}" + "BloodyChain")]
+        public static ATex ChainTex { get; set; }
 
         public ref float Combo => ref Projectile.ai[0];
-
-        public override void Load()
-        {
-            if (Main.dedServ)
-                return;
-
-            ChainTex = Request<Texture2D>(AssetDirectory.CrimsonItems + "BloodyChain");
-        }
-
-        public override void Unload()
-        {
-            if (Main.dedServ)
-                return;
-
-            ChainTex = null;
-        }
 
         public BloodHookSlash() : base(1.57f) { }
 
@@ -191,9 +173,7 @@ namespace Coralite.Content.Items.Crimson
         public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
         {
             if (target.HasBuff<BloodyHookDebuff>())
-            {
-                modifiers.SourceDamage += 0.45f;
-            }
+                modifiers.SourceDamage += 1f;
         }
 
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)

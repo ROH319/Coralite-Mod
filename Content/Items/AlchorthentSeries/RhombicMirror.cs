@@ -245,7 +245,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
         /// <summary>
         /// 攻击状态，决定攻击方式
         /// </summary>
-        public enum AttackTypes:byte
+        public enum AttackTypes : byte
         {
             /// <summary> 正常状态，攻击时增加腐化值，一定次数后进入生锈形态 </summary>
             Clear,
@@ -362,7 +362,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
             float factor = Timer / 45f;
 
             Projectile.Center = Owner.MountedCenter + new Vector2(0, Owner.gfxOffY)
-                + (Owner.direction > 0 ? (MathHelper.Pi + 0.95f) : -0.95f).ToRotationVector2() * (18+Helper.SqrtEase(factor) * 60);
+                + (Owner.direction > 0 ? (MathHelper.Pi + 0.95f) : -0.95f).ToRotationVector2() * (18 + Helper.SqrtEase(factor) * 60);
 
             alpha = Helper.X2Ease(factor);
             bodyPartRotation = MathHelper.PiOver2;
@@ -436,7 +436,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
                     break;
                 case 1://向目标运动
                     {
-                        const int resetTime= 60 * 3;
+                        const int resetTime = 60 * 3;
                         Recorder2++;
 
                         float speed = Owner.velocity.Length() + 5;
@@ -464,7 +464,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
                         }
 
 
-                        if (distance < speed +5)
+                        if (distance < speed + 5)
                             SwitchState(AIStates.Idle);
 
                         //bodyPartRotation = MathHelper.PiOver2;
@@ -501,7 +501,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
                 default:
                 case 0://距离近的时候，向目标点缓动
                     {
-                        if (distanceToAimPos > 45 + Owner.velocity.Length()&&Recorder2>45)
+                        if (distanceToAimPos > 45 + Owner.velocity.Length() && Recorder2 > 45)
                         {
                             Recorder = 1;
                             Recorder2 = 0;
@@ -743,7 +743,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
             Texture2D part1 = RhombicMirrorProjPart1.Value;
 
             //绘制头
-            DrawBodyPart(part1, 0, 4, bodyPartRotation.ToRotationVector2() * bodyPartLength, offset, darkColor,lightColor);
+            DrawBodyPart(part1, 0, 4, bodyPartRotation.ToRotationVector2() * bodyPartLength, offset, darkColor, lightColor);
 
             //绘制以把
             DrawBodyPart(part1, 1, 4, (bodyPartRotation - MathHelper.Pi).ToRotationVector2() * bodyPartLength, offset, darkColor, lightColor);
@@ -762,14 +762,14 @@ namespace Coralite.Content.Items.AlchorthentSeries
             DrawBodyPart(part2, 0, 2, (bodyPartRotation - PiOver3 + angleOffset).ToRotationVector2() * bodyPartLength, offset, darkColor, lightColor, bodyPartExtraRotation);
 
             //绘制左边前腿
-            DrawBodyPart(part2, 1, 2, (bodyPartRotation + PiOver3  - angleOffset).ToRotationVector2() * bodyPartLength, offset, darkColor, lightColor, -bodyPartExtraRotation);
+            DrawBodyPart(part2, 1, 2, (bodyPartRotation + PiOver3 - angleOffset).ToRotationVector2() * bodyPartLength, offset, darkColor, lightColor, -bodyPartExtraRotation);
         }
 
-        public void DrawBodyPart(Texture2D tex, int xFrame, int totalXFrame, Vector2 posOffset,Vector2 offset, Color darkColor, Color lightColor,float exRot=0)
+        public void DrawBodyPart(Texture2D tex, int xFrame, int totalXFrame, Vector2 posOffset, Vector2 offset, Color darkColor, Color lightColor, float exRot = 0)
         {
-            float rot = bodyPartRotation - MathHelper.PiOver2+exRot;
+            float rot = bodyPartRotation - MathHelper.PiOver2 + exRot;
             DrawLayer(tex, xFrame, totalXFrame, posOffset, darkColor, rot);
-            DrawLayer(tex, xFrame, totalXFrame, posOffset + offset*0.5f, darkColor, rot);
+            DrawLayer(tex, xFrame, totalXFrame, posOffset + offset * 0.5f, darkColor, rot);
             DrawLayer(tex, xFrame, totalXFrame, posOffset + offset, lightColor, rot);
         }
 
@@ -985,7 +985,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
             }
 
             if (Timer % 2 == 0 && Main.rand.NextBool())
-                Projectile.SpawnTrailDust(ModContent.DustType<PixelPoint>(), Main.rand.NextFloat(-0.2f, 0.2f), newColor: RhombicMirror.ShineCorruptionColor*0.75f, Scale: Main.rand.NextFloat(1, 2));
+                Projectile.SpawnTrailDust(ModContent.DustType<PixelPoint>(), Main.rand.NextFloat(-0.2f, 0.2f), newColor: RhombicMirror.ShineCorruptionColor * 0.75f, Scale: Main.rand.NextFloat(1, 2));
         }
 
         /// <summary>
@@ -996,7 +996,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
         {
             int targetType = ModContent.ProjectileType<RhombicMirrorProj>();
             foreach (var proj in Main.ActiveProjectiles)
-                if (proj.owner == Projectile.owner && proj.type == targetType&&Projectile.Distance(proj.Center)<800)
+                if (proj.owner == Projectile.owner && proj.type == targetType && Projectile.Distance(proj.Center) < 800)
                     if ((proj.ModProjectile as RhombicMirrorProj).Corrupted == RhombicMirrorProj.AttackTypes.Corrupted)
                         return true;
 
@@ -1099,8 +1099,8 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
         private void DrawCorruptEffect()
         {
-            float factor=1;
-            Color c=Color.Transparent;
+            float factor = 1;
+            Color c = Color.Transparent;
 
             if (Timer < channelTime / 3)
             {
@@ -1119,7 +1119,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
             }
 
             float f = 1;
-            if (Timer< channelTime / 2)
+            if (Timer < channelTime / 2)
                 f = Helper.BezierEase(Timer / (channelTime / 2));
 
             RhombicMirrorProj.DrawLine(shader =>
@@ -1136,7 +1136,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
     /// <summary>
     /// 使用ai[0]传入目标敌怪
     /// </summary>
-    public class CorruptLaser:ModProjectile
+    public class CorruptLaser : ModProjectile
     {
         public override string Texture => AssetDirectory.Blank;
 
@@ -1144,12 +1144,12 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
         public override void SetDefaults()
         {
-            
+
         }
 
         public override void AI()
         {
-            
+
         }
 
         public override bool PreDraw(ref Color lightColor)
@@ -1243,7 +1243,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
         {
             if (OwnerIndex.GetProjectileOwner(out Projectile owner))
             {
-                if (Opacity<maxTime)
+                if (Opacity < maxTime)
                     Opacity++;
 
 
@@ -1263,7 +1263,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
     /// </summary>
     public abstract class RhombicMirrorLaserParticle : Particle
     {
-        public override string Texture => AssetDirectory.AlchorthentSeriesItems+ "EdgeSPA2";
+        public override string Texture => AssetDirectory.AlchorthentSeriesItems + "EdgeSPA2";
 
         public int OwnerProjIndex;
 
