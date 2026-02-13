@@ -64,6 +64,9 @@ namespace Coralite.Content.ModPlayers
                         , 2, -1, ai1: target.Center.X, ai2: target.Center.Y);
                 }
             }
+
+            if (Player.HasBuff<Items.Gels.EmperorSlimeBuff>())
+                target.AddBuff(BuffID.Slimed, 60 * 5);
         }
 
         private void EmperorSlimeMove()

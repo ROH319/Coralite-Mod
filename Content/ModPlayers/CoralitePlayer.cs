@@ -549,10 +549,19 @@ namespace Coralite.Content.ModPlayers
                 modifiers.SourceDamage += 0.01f * Math.Clamp(defence / 4, 0, 30);
             }
 
-            EmperorSlimeBootsHitNPC(target);
+            if (Player.Alives() && HasEffect(nameof(B9Breastplate)))
+            {
+                if (target.Center.X > Main.MouseWorld.X - B9Breastplate.BonusAffectRadius
+                    && target.Center.X < Main.MouseWorld.X + B9Breastplate.BonusAffectRadius
+                    && target.Center.Y > Main.MouseWorld.Y - B9Breastplate.BonusAffectRadius
+                    && target.Center.Y < Main.MouseWorld.Y + B9Breastplate.BonusAffectRadius)
+                {
+                    modifiers.SourceDamage += 0.1f;
+                    modifiers.CritDamage += 0.15f;
+                }
+            }
 
-            if (Player.HasBuff<Items.Gels.EmperorSlimeBuff>())
-                target.AddBuff(BuffID.Slimed, 60 * 5);
+            EmperorSlimeBootsHitNPC(target);
 
             #region 海盗王之魂的效果
             void PriateKingSoulEffect(ref NPC.HitModifiers modifiers)
