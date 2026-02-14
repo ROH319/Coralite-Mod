@@ -1134,22 +1134,55 @@ namespace Coralite.Content.Items.AlchorthentSeries
     }
 
     /// <summary>
-    /// 使用ai[0]传入目标敌怪
+    /// 使用ai[0]传入持有者,ai[1]传入目标敌怪
     /// </summary>
     public class CorruptLaser : ModProjectile
     {
         public override string Texture => AssetDirectory.Blank;
 
-        public ref float Target => ref Projectile.ai[0];
+        public ref float ProjOwner => ref Projectile.ai[0];
+        public ref float Target => ref Projectile.ai[1];
+        public ref float Length => ref Projectile.ai[2];
+
+        public Vector2 endPos;
 
         public override void SetDefaults()
         {
-
+            Projectile.penetrate = -1;
+            Projectile.usesIDStaticNPCImmunity = true;
+            Projectile.idStaticNPCHitCooldown = 20;
+            Projectile.width = Projectile.height = 30;
+            Projectile.friendly = true;
+            Projectile.DamageType = DamageClass.Summon;
         }
+
+        public override bool ShouldUpdatePosition() => false;
 
         public override void AI()
         {
+            if (!ProjOwner.GetProjectileOwner<RhombicMirrorProj>(out Projectile owner,Projectile.Kill))
+                return;
+            if (!Target.GetNPCOwner(out NPC target))
+                return;
+        }
 
+        public void SetEndPoint(ref Vector2 endPoint, int exAngledir)
+        {
+            Vector2 dir = Projectile.rotation.ToRotationVector2();
+            endPoint = Projectile.Center + dir * 120 * 16;
+
+            int count = (int)Length / 16 + 1;
+
+            for (int k = 0; k < count; k++)
+            {
+                Vector2 posCheck = Projectile.Center + (dir * k * 16);
+
+                if (Helper.PointInTile(posCheck) || k == count-1)
+                {
+                    endPoint = posCheck;
+                    return;
+                }
+            }
         }
 
         public override bool PreDraw(ref Color lightColor)

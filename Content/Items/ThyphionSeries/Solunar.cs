@@ -690,7 +690,6 @@ namespace Coralite.Content.Items.ThyphionSeries
             } while (false);
 
             Timer++;
-
         }
 
         public void SetEndPoint(ref Vector2 endPoint, int exAngledir)

@@ -316,11 +316,14 @@ namespace Coralite.Content.Items.Steel
         }
     }
 
+    [VaultLoaden(AssetDirectory.SteelItems)]
     public class B9ArmorEffectProj : ModProjectile
     {
         public override string Texture => AssetDirectory.SteelItems + Name;
 
         public Player Owner => Main.player[Projectile.owner];
+
+        public static ATex B9ArmorEffectProj2 { get; set; }
 
         public override void SetDefaults()
         {
@@ -359,9 +362,10 @@ namespace Coralite.Content.Items.Steel
                 return false;
 
             Texture2D tex = Projectile.GetTexture();
+            Texture2D tex2 = B9ArmorEffectProj2.Value;
             Vector2 center = Projectile.Center - Main.screenPosition;
-            Color c = new Color(239, 58, 12);
-            float mouseLength = 8;
+            Color c = new Color(255, 75, 30);
+            float mouseLength = 6;
             float mouseScale = 0.75f;
 
             float f = Projectile.ai[0] / (60 * 2);
@@ -370,31 +374,31 @@ namespace Coralite.Content.Items.Steel
             if (!Owner.ItemAnimationActive)
             {
                 c *= 0.5f;
-                mouseLength *= 2;
+                mouseLength =16;
                 mouseScale = 1;
-                angle = f * MathHelper.TwoPi;
+                angle = (int)Main.timeForVisualEffects *0.02f;
             }
 
             //绘制在框框上
-            Draw(center + new Vector2(-B9Breastplate.BonusAffectRadius), 0, 2, c);
-            Draw(center + new Vector2(B9Breastplate.BonusAffectRadius, -B9Breastplate.BonusAffectRadius), MathHelper.PiOver2, 2, c);
-            Draw(center + new Vector2(-B9Breastplate.BonusAffectRadius, B9Breastplate.BonusAffectRadius), -MathHelper.PiOver2, 2, c);
-            Draw(center + new Vector2(B9Breastplate.BonusAffectRadius), MathHelper.Pi, 2, c);
+            Draw(center + new Vector2(-B9Breastplate.BonusAffectRadius), 0, 1, c);
+            Draw(center + new Vector2(B9Breastplate.BonusAffectRadius, -B9Breastplate.BonusAffectRadius), MathHelper.PiOver2, 1, c);
+            Draw(center + new Vector2(-B9Breastplate.BonusAffectRadius, B9Breastplate.BonusAffectRadius), -MathHelper.PiOver2, 1, c);
+            Draw(center + new Vector2(B9Breastplate.BonusAffectRadius), MathHelper.Pi, 1, c);
 
             //绘制在鼠标旁边
-            Draw(center + new Vector2(-mouseLength).RotatedBy(angle), MathHelper.Pi+angle, mouseScale, c);
-            Draw(center + new Vector2(mouseLength, -mouseLength).RotatedBy(angle), -MathHelper.PiOver2 + angle, mouseScale, c);
-            Draw(center + new Vector2(-mouseLength, mouseLength).RotatedBy(angle), MathHelper.PiOver2 + angle, mouseScale, c);
-            Draw(center + new Vector2(mouseLength).RotatedBy(angle), angle, mouseScale, c);
+            Draw2(center + new Vector2(-mouseLength).RotatedBy(angle), MathHelper.Pi+angle, mouseScale, c);
+            Draw2(center + new Vector2(mouseLength, -mouseLength).RotatedBy(angle), -MathHelper.PiOver2 + angle, mouseScale, c);
+            Draw2(center + new Vector2(-mouseLength, mouseLength).RotatedBy(angle), MathHelper.PiOver2 + angle, mouseScale, c);
+            Draw2(center + new Vector2(mouseLength).RotatedBy(angle), angle, mouseScale, c);
 
             //绘制在中间扩散
             float length = Helper.BezierEase(f)* B9Breastplate.BonusAffectRadius;
-            c *= f;
-            float scale = 1f + 1f * f;
-            Draw(center + new Vector2(-length), 0, scale, c);
-            Draw(center + new Vector2(length, -length), MathHelper.PiOver2, scale, c);
-            Draw(center + new Vector2(-length, length), -MathHelper.PiOver2, scale, c);
-            Draw(center + new Vector2(length), MathHelper.Pi, scale, c);
+           Color c2 =c* f;
+            float scale = 0.5f + 0.5f * f;
+            Draw(center + new Vector2(-length), 0, scale, c2);
+            Draw(center + new Vector2(length, -length), MathHelper.PiOver2, scale, c2);
+            Draw(center + new Vector2(-length, length), -MathHelper.PiOver2, scale, c2);
+            Draw(center + new Vector2(length), MathHelper.Pi, scale, c2);
 
             Rectangle r = Utils.CenteredRectangle(Main.MouseWorld, new Vector2(B9Breastplate.BonusAffectRadius * 2));
 
@@ -407,12 +411,21 @@ namespace Coralite.Content.Items.Steel
                 Main.spriteBatch.Draw(tex, pos, null, c, rot, Vector2.Zero, scale, 0, 0);
             }
 
+            void Draw2(Vector2 pos, float rot, float scale, Color c)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    Main.spriteBatch.Draw(tex2, pos+(i*MathHelper.PiOver2).ToRotationVector2(), null, c*0.3f, rot, Vector2.Zero, scale, 0, 0);
+                }
+                Main.spriteBatch.Draw(tex2, pos, null, c, rot, Vector2.Zero, scale, 0, 0);
+            }
+
             void DrawTargetNPC(Vector2 pos)
             {
-                Draw(pos + new Vector2(-mouseLength).RotatedBy(angle), MathHelper.Pi + angle, mouseScale, c);
-                Draw(pos + new Vector2(mouseLength, -mouseLength).RotatedBy(angle), -MathHelper.PiOver2 + angle, mouseScale, c);
-                Draw(pos + new Vector2(-mouseLength, mouseLength).RotatedBy(angle), MathHelper.PiOver2 + angle, mouseScale, c);
-                Draw(pos + new Vector2(mouseLength).RotatedBy(angle), angle, mouseScale, c);
+                Draw2(pos + new Vector2(-mouseLength).RotatedBy(angle), MathHelper.Pi + angle, mouseScale, c);
+                Draw2(pos + new Vector2(mouseLength, -mouseLength).RotatedBy(angle), -MathHelper.PiOver2 + angle, mouseScale, c);
+                Draw2(pos + new Vector2(-mouseLength, mouseLength).RotatedBy(angle), MathHelper.PiOver2 + angle, mouseScale, c);
+                Draw2(pos + new Vector2(mouseLength).RotatedBy(angle), angle, mouseScale, c);
             }
 
             return false;
