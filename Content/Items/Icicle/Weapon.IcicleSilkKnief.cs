@@ -250,7 +250,7 @@ namespace Coralite.Content.Items.Icicle
 
             Main.spriteBatch.Draw(chainTex, laserTarget, laserSource, lightColor, Projectile.rotation, origin2, 0, 0);
 
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
 
             if (Count > 0)
             {

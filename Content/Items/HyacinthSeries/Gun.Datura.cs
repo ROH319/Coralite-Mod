@@ -279,7 +279,7 @@ namespace Coralite.Content.Items.HyacinthSeries
             if (Projectile.frame > 11)
                 return false;
 
-            var frame = Projectile.GetTexture()
+            var frame = Projectile.GetTextureValue()
                 .Frame(4, 12, (int)(ProjType * 2) + (int)Projectile.localAI[2], Projectile.frame);
 
             Projectile.QuickDraw(frame, lightColor, 0, scaleMult);

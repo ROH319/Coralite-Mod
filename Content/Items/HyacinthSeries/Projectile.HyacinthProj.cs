@@ -763,7 +763,7 @@ namespace Coralite.Content.Items.HyacinthSeries
         {
             Vector2 center = Projectile.Center - Main.screenPosition;
 
-            Texture2D haloTex = Projectile.GetTexture();
+            Texture2D haloTex = Projectile.GetTextureValue();
             Vector2 haloOrigin = haloTex.Size() / 2;
 
             Color black = new(0, 0, 0, (int)(Projectile.ai[1] * 255));
@@ -790,7 +790,7 @@ namespace Coralite.Content.Items.HyacinthSeries
 
         public void DrawWarp()
         {
-            Texture2D warpTex = Projectile.GetTexture();
+            Texture2D warpTex = Projectile.GetTextureValue();
             Color warpColor = new Color(45, 45 / 4, 45) * Projectile.ai[1];
             for (int i = 0; i < 3; i++)
             {

@@ -96,7 +96,7 @@ namespace Coralite.Content.Items.FlyingShields
 
         public override void DrawSelf(Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var pos = Projectile.Center - Main.screenPosition;
             var origin = mainTex.Size() / 2;
 
@@ -365,7 +365,7 @@ namespace Coralite.Content.Items.FlyingShields
         {
             lightColor *= Projectile.alpha / 255f;
 
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var frameBox = mainTex.Frame(1, 4, 0, Projectile.frame);
             var origin = frameBox.Size() / 2;
             var pos = Projectile.Center - Main.screenPosition;

@@ -237,7 +237,7 @@ namespace Coralite.Content.Items.RedJades
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
 
             Color c = lightColor;
             Color c2 = Coralite.RedJadeRed;
@@ -410,7 +410,7 @@ namespace Coralite.Content.Items.RedJades
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
 
             Color c = lightColor * alpha;
             Color c2 = Coralite.RedJadeRed;

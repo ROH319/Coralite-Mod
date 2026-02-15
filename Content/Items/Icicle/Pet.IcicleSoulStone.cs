@@ -147,7 +147,7 @@ namespace Coralite.Content.Items.Icicle
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var frameBox = mainTex.Frame(1, 4, 0, Projectile.frame);
 
             SpriteEffects effects = SpriteEffects.None;

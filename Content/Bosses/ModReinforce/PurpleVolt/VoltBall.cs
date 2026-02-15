@@ -412,7 +412,7 @@ namespace Coralite.Content.Bosses.ModReinforce.PurpleVolt
             if (State < 2)//绘制本体的球
             {
                 Texture2D mainTex = CoraliteAssets.Halo.Circle.Value;
-                Texture2D tex2 = Projectile.GetTexture();
+                Texture2D tex2 = Projectile.GetTextureValue();
 
                 Color c = ZacurrentDragon.ZacurrentRed;
                 c.A = 0;

@@ -213,7 +213,7 @@ namespace Coralite.Core.Systems.FairyCatcherSystem.Bases
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D tex = Projectile.GetTexture();
+            Texture2D tex = Projectile.GetTextureValue();
 
             Vector2 pos = Projectile.Center
                 + new Vector2(0, Owner.gfxOffY)

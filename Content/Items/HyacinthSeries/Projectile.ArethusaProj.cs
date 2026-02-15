@@ -144,7 +144,7 @@ namespace Coralite.Content.Items.HyacinthSeries
 
         public void DrawNonPremultiplied(SpriteBatch spriteBatch)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Vector2 center = Projectile.Center - Main.screenPosition;
             //Color lightColor = Lighting.GetColor((Projectile.Center / 16).ToPoint());
 
@@ -193,7 +193,7 @@ namespace Coralite.Content.Items.HyacinthSeries
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
 
             Main.spriteBatch.Draw(mainTex, Projectile.Center - Main.screenPosition, null, Color.White * Alpha * 0.5f, 0, new Vector2(35, 45), Scale, SpriteEffects.None, 0f);
             Main.spriteBatch.Draw(mainTex, Projectile.Center - Main.screenPosition, null, Color.White * Alpha, Projectile.rotation, new Vector2(35, 45), Scale, SpriteEffects.None, 0f);

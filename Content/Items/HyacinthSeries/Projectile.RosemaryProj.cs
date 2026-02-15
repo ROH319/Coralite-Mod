@@ -340,7 +340,7 @@ namespace Coralite.Content.Items.HyacinthSeries
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Vector2 center = Projectile.Center - Main.screenPosition;
             Vector2 origin = new(mainTex.Width / 2, mainTex.Height / 4);
 

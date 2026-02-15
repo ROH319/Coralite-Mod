@@ -138,7 +138,7 @@ namespace Coralite.Content.Items.MagikeSeries2
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Rectangle frameBox;
 
             //如果距离小于顶部长度那么就只绘制顶部

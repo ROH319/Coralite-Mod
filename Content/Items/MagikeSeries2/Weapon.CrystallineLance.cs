@@ -219,7 +219,7 @@ namespace Coralite.Content.Items.MagikeSeries2
             SpriteEffects spriteEffects = SpriteEffects.None;
 
             // Get texture of projectile.
-            Texture2D texture = Projectile.GetTexture();
+            Texture2D texture = Projectile.GetTextureValue();
 
             // Get the currently selected frame on the texture.
             Rectangle sourceRectangle = texture.Frame(1, Main.projFrames[Type], frameY: Projectile.frame);
@@ -351,7 +351,7 @@ namespace Coralite.Content.Items.MagikeSeries2
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D tex = Projectile.GetTexture();
+            Texture2D tex = Projectile.GetTextureValue();
             var frameBox = tex.Frame(3, 1, (int)Projectile.ai[0], 0);
 
             Projectile.DrawShadowTrails(lightColor, 0.5f, 0.5f / 5, 1, 5, 1, Projectile.scale, frameBox, 0);

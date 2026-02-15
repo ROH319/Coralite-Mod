@@ -331,6 +331,26 @@ namespace Coralite.Core
             /// 周围很多线条，中间白色直线
             /// </summary>
             public static ATex TwistLaser { get; private set; }
+
+            /// <summary> 
+            /// 一堆线条聚合成的线
+            /// </summary>
+            public static ATex MultLines { get; private set; }
+
+            /// <summary> 
+            /// 多段折现，像是音符连线，字带天蓝色
+            /// </summary>
+            public static ATex MusicLine { get; private set; }
+
+            /// <summary> 
+            /// 一堆线条聚合成的线
+            /// </summary>
+            public static ATex MultLinesSPA { get; private set; }
+
+            /// <summary> 
+            /// 多段折现，像是音符连线，字带天蓝色
+            /// </summary>
+            public static ATex MusicLineSPA { get; private set; }
         }
 
         /// <summary>

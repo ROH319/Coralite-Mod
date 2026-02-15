@@ -120,7 +120,7 @@ namespace Coralite.Content.Items.Icicle
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Vector2 center = Projectile.Center - Main.screenPosition;
 
             Main.spriteBatch.Draw(mainTex, center, null, lightColor, Projectile.rotation, mainTex.Size() / 2, 1.1f, DirSign > 0 ? SpriteEffects.None : SpriteEffects.FlipVertically, 0f);

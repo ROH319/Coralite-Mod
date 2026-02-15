@@ -301,7 +301,7 @@ namespace Coralite.Core.Systems.FlyingShieldSystem
 
         public virtual void DrawSelf(Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var pos = Projectile.Center - Main.screenPosition;
             Main.spriteBatch.Draw(mainTex, pos, null, lightColor, Projectile.rotation - 1.57f + extraRotation, mainTex.Size() / 2, Projectile.scale, 0, 0);
         }

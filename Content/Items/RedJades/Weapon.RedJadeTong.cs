@@ -154,7 +154,7 @@ namespace Coralite.Content.Items.RedJades
 
             Vector2 pos = Projectile.Center - Main.screenPosition;
 
-            Projectile.GetTexture().QuickCenteredDraw(Main.spriteBatch, pos, lightColor, Projectile.rotation);
+            Projectile.GetTextureValue().QuickCenteredDraw(Main.spriteBatch, pos, lightColor, Projectile.rotation);
             RedJadeTongBombHighLight.Value.QuickCenteredDraw(Main.spriteBatch, pos, c, Projectile.rotation);
 
             return false;

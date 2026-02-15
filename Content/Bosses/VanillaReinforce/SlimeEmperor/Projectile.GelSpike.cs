@@ -48,7 +48,7 @@ namespace Coralite.Content.Bosses.VanillaReinforce.SlimeEmperor
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var origin = mainTex.Size() / 2;
             if (Main.zenithWorld)
                 lightColor = SlimeEmperor.BlackSlimeColor;

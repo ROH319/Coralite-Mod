@@ -85,7 +85,7 @@ namespace Coralite.Core.Systems.MTBStructure
             {
                 if (tile.WallType != info.wallType)
                 {
-                    Texture2D tex = Projectile.GetTexture();
+                    Texture2D tex = Projectile.GetTextureValue();
                     Vector2 pos = p.ToWorldCoordinates() - Main.screenPosition;
 
                     Main.spriteBatch.Draw(tex, pos, null, Color.Red * 0.5f
@@ -136,7 +136,7 @@ namespace Coralite.Core.Systems.MTBStructure
             {
                 if (tile.TileType != type)
                 {
-                    Texture2D tex = Projectile.GetTexture();
+                    Texture2D tex = Projectile.GetTextureValue();
                     Vector2 pos = p.ToWorldCoordinates() - Main.screenPosition;
 
                     tex.QuickCenteredDraw(Main.spriteBatch, pos, Color.Red * 0.5f, scale: 0.5f);

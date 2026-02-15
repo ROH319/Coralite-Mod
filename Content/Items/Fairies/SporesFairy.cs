@@ -331,7 +331,7 @@ namespace Coralite.Content.Items.Fairies
             if (Projectile.frame > 9)
                 return false;
 
-            var frame = Projectile.GetTexture()
+            var frame = Projectile.GetTextureValue()
                 .Frame(4, 10, (int)(ProjType * 2) + (int)Projectile.localAI[2], Projectile.frame);
 
             Projectile.QuickDraw(frame, lightColor, 0, scaleMult);

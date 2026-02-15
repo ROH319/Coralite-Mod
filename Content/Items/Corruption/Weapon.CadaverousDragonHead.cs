@@ -157,7 +157,7 @@ namespace Coralite.Content.Items.Corruption
             Vector2 pos = Projectile.Center - Main.screenPosition;
 
             //绘制上下鄂
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Rectangle frameBox = mainTex.Frame(1, 2, 0, 1);
             Vector2 origin = new(frameBox.Width * 0.3f, frameBox.Height / 2);
             Color c = lightColor;

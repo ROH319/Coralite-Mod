@@ -362,7 +362,7 @@ namespace Coralite.Content.Items.LandOfTheLustrousSeries
 
         public virtual void DrawAdditive(SpriteBatch spriteBatch)
         {
-            Texture2D laserTex = Projectile.GetTexture();
+            Texture2D laserTex = Projectile.GetTextureValue();
             Texture2D flowTex = CoraliteAssets.Laser.Body.Value;
 
             rand += LaserRotation.ToRotationVector2() * 3;

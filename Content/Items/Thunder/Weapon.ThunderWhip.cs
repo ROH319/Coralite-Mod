@@ -172,7 +172,7 @@ namespace Coralite.Content.Items.Thunder
             SpriteEffects flip = Projectile.spriteDirection < 0 ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
 
             Main.instance.LoadProjectile(Type);
-            Texture2D texture = Projectile.GetTexture();
+            Texture2D texture = Projectile.GetTextureValue();
 
             Vector2 pos = list[0];
 

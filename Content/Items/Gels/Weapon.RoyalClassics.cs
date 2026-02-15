@@ -162,7 +162,7 @@ namespace Coralite.Content.Items.Gels
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var pos = Projectile.Center - Main.screenPosition;
 
             float exRot = Projectile.whoAmI * MathHelper.PiOver2;
@@ -235,7 +235,7 @@ namespace Coralite.Content.Items.Gels
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var origin = mainTex.Size() / 2;
             if (Main.zenithWorld)
                 lightColor = SlimeEmperor.BlackSlimeColor;
@@ -411,7 +411,7 @@ namespace Coralite.Content.Items.Gels
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var pos = Projectile.Center - Main.screenPosition;
 
             float exRot = Projectile.whoAmI * 0.3f + Main.GlobalTimeWrappedHourly * 2;

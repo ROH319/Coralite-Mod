@@ -239,7 +239,7 @@ namespace Coralite.Content.Items.LandOfTheLustrousSeries
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Vector2 toCenter = new(Projectile.width / 2, Projectile.height / 2);
 
             for (int i = 0; i < 5; i++)
@@ -411,7 +411,7 @@ namespace Coralite.Content.Items.LandOfTheLustrousSeries
 
         public void DrawNonPremultiplied(SpriteBatch spriteBatch)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var frameBox = mainTex.Frame(1, 3, 0, (int)Tex);
             spriteBatch.Draw(mainTex, Projectile.Center - Main.screenPosition, frameBox, Color.White, 0,
                 frameBox.Size() / 2, Projectile.scale, 0, 0);
@@ -524,7 +524,7 @@ namespace Coralite.Content.Items.LandOfTheLustrousSeries
             Main.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointWrap, DepthStencilState.Default, RasterizerState.CullNone, effect, Main.GameViewMatrix.ZoomMatrix);
 
             Main.graphics.GraphicsDevice.Textures[1] = noiseTex;
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Color c = lightColor;
             c *= Projectile.alpha / 255f;
             Main.spriteBatch.Draw(mainTex, Projectile.Center, null, c, 0, mainTex.Size() / 2, scale1, 0, 0);

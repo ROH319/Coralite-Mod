@@ -736,7 +736,7 @@ namespace Coralite.Core.Systems.FairyCatcherSystem.Bases
         /// <param name="lightColor"></param>
         public virtual void DrawSelf(SpriteBatch spriteBatch, Vector2 screenPos, Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var frame = mainTex.Frame(FrameX, FrameY, 0, Projectile.frame);
 
             spriteBatch.Draw(mainTex, Projectile.Center - screenPos, frame, lightColor, Projectile.rotation, frame.Size() / 2,

@@ -263,7 +263,7 @@ namespace Coralite.Content.Items.ThyphionSeries
                         , origin2, 1, 0, 0f);
             }
 
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Vector2 center = Projectile.Center - Main.screenPosition;
             var effect = DirSign > 0 ? SpriteEffects.None : SpriteEffects.FlipVertically;
             var origin = mainTex.Size() / 2;

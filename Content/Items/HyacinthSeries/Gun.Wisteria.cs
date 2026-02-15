@@ -162,7 +162,7 @@ namespace Coralite.Content.Items.HyacinthSeries
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var frameBox = mainTex.Frame(1, 7, 0, Projectile.frame);
 
             Projectile.DrawShadowTrails(lightColor, 0.2f, 0.2f / 12, 1, 12, 1

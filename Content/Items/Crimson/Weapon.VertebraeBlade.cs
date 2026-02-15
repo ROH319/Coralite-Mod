@@ -210,7 +210,7 @@ namespace Coralite.Content.Items.Crimson
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var frameBox = mainTex.Frame(1, 4, 0, Projectile.frame);
             var origin = frameBox.Size() / 2;
 
@@ -368,7 +368,7 @@ namespace Coralite.Content.Items.Crimson
         {
             if (State == 1)
             {
-                Texture2D mainTex = Projectile.GetTexture();
+                Texture2D mainTex = Projectile.GetTextureValue();
                 var origin = mainTex.Size() / 2;
 
                 Projectile.DrawShadowTrails(Color.DarkRed, 0.5f, 0.5f / 8, 1, 8, 1);

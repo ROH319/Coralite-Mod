@@ -228,7 +228,7 @@ namespace Coralite.Content.Items.FlyingShields
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
 
             Projectile.DrawShadowTrails(new Color(110, 91, 255) * alpha, 0.5f, 0.5f / 6, 0, 6, 1, -1.57f, -1);
             Main.spriteBatch.Draw(mainTex, Projectile.Center - Main.screenPosition, null, lightColor * alpha, Projectile.rotation - 1.57f, mainTex.Size() / 2, Projectile.scale, 0, 0);

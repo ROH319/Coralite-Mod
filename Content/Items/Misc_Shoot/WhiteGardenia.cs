@@ -760,7 +760,7 @@ namespace Coralite.Content.Items.Misc_Shoot
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             SpriteEffects effect = Projectile.spriteDirection > 0 ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
 
             Projectile.DrawShadowTrailsSacleStep(lightColor, 0.4f, 0.4f / 10, 0, 10, 1, 0.4f / 10, null, effect);

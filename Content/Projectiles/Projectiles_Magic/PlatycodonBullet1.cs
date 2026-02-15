@@ -158,7 +158,7 @@ namespace Coralite.Content.Projectiles.Projectiles_Magic
 
         public void DrawNonPremultiplied(SpriteBatch spriteBatch)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
 
             spriteBatch.Draw(mainTex, Projectile.Center - Main.screenPosition, mainTex.Frame(1, 2, 0, (int)Projectile.ai[0]), Color.White * Alpha, Projectile.rotation, new Vector2(15, 9), Projectile.scale, SpriteEffects.None, 0f);
         }

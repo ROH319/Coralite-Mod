@@ -166,7 +166,7 @@ namespace Coralite.Content.Items.FlyingShields.Accessories
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D tex = Projectile.GetTexture();
+            Texture2D tex = Projectile.GetTextureValue();
             Color c = new Color(255, 255, 255, 0) * 0.1f;
             for (int i = 0; i < 3; i++)
             {
@@ -291,7 +291,7 @@ namespace Coralite.Content.Items.FlyingShields.Accessories
             Matrix projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, -1, 1);
 
             effect.Parameters["transformMatrix"].SetValue(world * view * projection);
-            effect.Parameters["sampleTexture"].SetValue(Projectile.GetTexture());
+            effect.Parameters["sampleTexture"].SetValue(Projectile.GetTextureValue());
             effect.Parameters["gradientTexture"].SetValue(ModContent.Request<Texture2D>(AssetDirectory.FlyingShieldAccessories + "SnowflakeSpikeGradient").Value);
             effect.Parameters["alpha"].SetValue(Alpha);
 

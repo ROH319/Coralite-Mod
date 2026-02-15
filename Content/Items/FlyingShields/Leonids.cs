@@ -164,7 +164,7 @@ namespace Coralite.Content.Items.FlyingShields
         public override bool PreDraw(ref Color lightColor)
         {
             DrawTrails();
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Color c = Color.White;
             c.A = 0;
 

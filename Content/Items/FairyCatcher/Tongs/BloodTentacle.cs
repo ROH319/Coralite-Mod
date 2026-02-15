@@ -221,7 +221,7 @@ namespace Coralite.Content.Items.FairyCatcher.Tongs
             DrawLine(BloodTentacleProj.BloodTentacleChain.Value, Owner.Center - Main.screenPosition
                 , Projectile.Center - Main.screenPosition);
 
-            Projectile.GetTexture().QuickCenteredDraw(Main.spriteBatch, Projectile.Center - Main.screenPosition
+            Projectile.GetTextureValue().QuickCenteredDraw(Main.spriteBatch, Projectile.Center - Main.screenPosition
                 , lightColor, Projectile.rotation, Projectile.scale, Projectile.direction > 0 ? SpriteEffects.None : SpriteEffects.FlipVertically);
 
             return false;

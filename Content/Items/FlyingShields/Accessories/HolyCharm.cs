@@ -155,7 +155,7 @@ namespace Coralite.Content.Items.FlyingShields.Accessories
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Texture2D extraTex = ModContent.Request<Texture2D>(AssetDirectory.OtherProjectiles + "TerraBladeSlash").Value;
 
             var frameBox = extraTex.Frame(1, 4, 0, 0);

@@ -132,7 +132,7 @@ namespace Coralite.Content.Bosses.VanillaReinforce.NightmarePlantera
         {
             tentacle?.DrawTentacle(i => 4 * MathF.Sin(i / 2 * Main.GlobalTimeWrappedHourly));
 
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Rectangle frameBox = mainTex.Frame(1, 4, 0, Projectile.frame);
             Vector2 selforigin = frameBox.Size() / 2;
 

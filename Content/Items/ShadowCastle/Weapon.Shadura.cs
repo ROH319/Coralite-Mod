@@ -600,7 +600,7 @@ namespace Coralite.Content.Items.ShadowCastle
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D maintex = Projectile.GetTexture();
+            Texture2D maintex = Projectile.GetTextureValue();
             Texture2D flowTex = Request<Texture2D>(AssetDirectory.ShadowCastleItems + "ShaduraHighlight").Value;
 
             Vector2 origin = maintex.Size() / 2;

@@ -88,7 +88,7 @@ namespace Coralite.Content.Bosses.ShadowBalls
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Vector2 pos = Projectile.Center - Main.screenPosition;
             var origin = mainTex.Size() / 2;
             Color c = new Color(189, 109, 255, 0) * alpha;

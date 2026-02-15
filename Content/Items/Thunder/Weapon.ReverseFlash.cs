@@ -160,7 +160,7 @@ namespace Coralite.Content.Items.Thunder
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Vector2 center = Projectile.Center - Main.screenPosition;
 
             Main.spriteBatch.Draw(mainTex, center, null, lightColor, Projectile.rotation, mainTex.Size() / 2, 1

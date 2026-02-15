@@ -274,7 +274,7 @@ namespace Coralite.Content.Items.ThyphionSeries
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Vector2 center = Projectile.Center - Main.screenPosition;
 
             Rectangle framebox = mainTex.Frame(2, 1, 1, 0);
@@ -480,7 +480,7 @@ namespace Coralite.Content.Items.ThyphionSeries
 
         public void DrawAdditive(SpriteBatch spriteBatch)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
 
             var origin = mainTex.Size() / 2;
             Vector2 pos = Projectile.Center - Main.screenPosition;
@@ -501,7 +501,7 @@ namespace Coralite.Content.Items.ThyphionSeries
 
         public void DrawNonPremultiplied(SpriteBatch spriteBatch)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
 
             var origin = mainTex.Size() / 2;
             Vector2 pos = Projectile.Center - Main.screenPosition;
@@ -688,7 +688,7 @@ namespace Coralite.Content.Items.ThyphionSeries
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             SpriteEffects effects = OwnerDirection > 0 ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
 
             Projectile.DrawShadowTrailsSacleStep(lightColor * Alpha, 0.5f, 0.5f / 12, 0, 12, 1, 0.3f / 12, null, 0);

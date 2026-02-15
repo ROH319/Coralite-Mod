@@ -1362,7 +1362,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
 
             SpriteEffects effect = Projectile.spriteDirection > 0 ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
             float rot = Projectile.rotation + (Projectile.spriteDirection > 0 ? 0 : MathHelper.Pi);
@@ -1693,7 +1693,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var rect = mainTex.Frame(1, 8, 0, Projectile.frame);
 
             bool dir = Owner.direction > 0;

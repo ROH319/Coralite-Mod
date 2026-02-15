@@ -92,7 +92,7 @@ namespace Coralite.Core.Prefabs.Projectiles
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
 
             GetFrame(mainTex, out Rectangle? frame, out Vector2 origin);
 

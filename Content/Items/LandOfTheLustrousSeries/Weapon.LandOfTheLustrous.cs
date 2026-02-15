@@ -380,7 +380,7 @@ namespace Coralite.Content.Items.LandOfTheLustrousSeries
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Texture2D haloTex = HaloTex.Value;
             Vector2 toCenter = new(Projectile.width / 2, Projectile.height / 2);
             var frame = mainTex.Frame(1, Main.projFrames[Projectile.type], 0, Projectile.frame);
@@ -883,7 +883,7 @@ namespace Coralite.Content.Items.LandOfTheLustrousSeries
                     return new GemDrawData(TextureAssets.Item[ModContent.ItemType<SplendorMagicore>()].Value
                         , Color.White, Coralite.SplendorMagicoreLightBlue, Color.DarkCyan);
                 default:
-                    return new GemDrawData(Projectile.GetTexture()
+                    return new GemDrawData(Projectile.GetTextureValue()
                         , Color.White, Color.Gray, Color.DarkGray);
             }
         }

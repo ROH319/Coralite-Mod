@@ -286,7 +286,7 @@ namespace Coralite.Content.Items.Donator
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var frameBox = mainTex.Frame(1, 3, 0, (int)TextureType);
             if (State != 0)
                 Projectile.DrawShadowTrails(new Color(141, 255, 202), 0.4f, 0.4f / 5, 1, 5, 1, Projectile.scale, frameBox, 0);

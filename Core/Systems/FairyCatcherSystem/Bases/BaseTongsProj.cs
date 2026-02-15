@@ -484,7 +484,7 @@ namespace Coralite.Core.Systems.FairyCatcherSystem.Bases
         /// </summary>
         public virtual void DrawTong()
         {
-            Texture2D tex = Projectile.GetTexture();
+            Texture2D tex = Projectile.GetTextureValue();
             tex.QuickCenteredDraw(Main.spriteBatch, Projectile.Center - Main.screenPosition
                 , Lighting.GetColor(Projectile.Center.ToTileCoordinates()), Projectile.rotation, effect: Owner.direction > 0 ? SpriteEffects.None : SpriteEffects.FlipVertically);
         }

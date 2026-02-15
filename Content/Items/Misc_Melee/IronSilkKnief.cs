@@ -154,7 +154,7 @@ namespace Coralite.Content.Items.Misc_Melee
 
             Main.spriteBatch.Draw(chainTex, laserTarget, laserSource, lightColor, Projectile.rotation, origin, 0, 0);
 
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
 
             //绘制影子拖尾
             //Projectile.DrawShadowTrails(lightColor, 0.3f, 0.03f, 1, 8, 2, 2f, -1);
@@ -260,7 +260,7 @@ namespace Coralite.Content.Items.Misc_Melee
 
             Main.spriteBatch.Draw(chainTex, laserTarget, laserSource, lightColor, Projectile.rotation, origin2, 0, 0);
 
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
 
             //绘制自己
             Main.spriteBatch.Draw(mainTex, endPos, null, lightColor, Projectile.rotation + 1.37f, mainTex.Size() / 2, Projectile.scale, 0, 0);

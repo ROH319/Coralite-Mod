@@ -130,7 +130,7 @@ namespace Coralite.Content.Items.FlyingShields
 
         public override void DrawTrails(Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var origin = mainTex.Size() / 2;
             for (int i = trailCachesLength - 1; i > 6; i--)
                 Main.spriteBatch.Draw(mainTex, Projectile.oldPos[i] - Main.screenPosition, null,

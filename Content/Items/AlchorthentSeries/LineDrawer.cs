@@ -56,6 +56,19 @@ namespace Coralite.Content.Items.AlchorthentSeries
             /// <summary> 线段宽度 </summary>
             public float lineWidth = 12;
 
+            public Color drawColor = Color.White;
+            /// <summary> 透明度 </summary>
+            public float alpha = 1;
+
+            /// <summary>
+            /// 设置线条宽度
+            /// </summary>
+            /// <param name="lineWidth"></param>
+            public void SetLineWidth(float lineWidth)
+            {
+                this.lineWidth = lineWidth;
+            }
+
             /// <summary>
             /// 绘制线段
             /// </summary>
@@ -88,6 +101,11 @@ namespace Coralite.Content.Items.AlchorthentSeries
                     this.baseTex = baseTex;
             }
 
+            public void SetEndPos(Vector2 endPos)
+            {
+                EndPos = endPos;
+            }
+
             public override void Render(Vector2 basePos)
             {
                 if (baseTex == null)
@@ -95,7 +113,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
                 //从起始点绘制到结束点
                 Texture2D tex = baseTex.Value;
 
-                Main.spriteBatch.Draw(tex, basePos + StartPos * scale, null, Color.White, (EndPos - StartPos).ToRotation(), new Vector2(0, tex.Height / 2), new Vector2((EndPos - StartPos).Length() / tex.Width * scale, LinwWidth / tex.Height), 0, 0);
+                Main.spriteBatch.Draw(tex, basePos + StartPos * scale, null, drawColor * alpha, (EndPos - StartPos).ToRotation(), new Vector2(0, tex.Height / 2), new Vector2((EndPos - StartPos).Length() / tex.Width * scale, LinwWidth / tex.Height), 0, 0);
             }
         }
 
@@ -144,8 +162,8 @@ namespace Coralite.Content.Items.AlchorthentSeries
                     Vector2 Top = Center + (normal * LinwWidth / 2);
                     Vector2 Bottom = Center - (normal * LinwWidth / 2);
 
-                    CoraliteSystem.Vertexes.Add(new(Top, Color.White, new Vector3(factor, 0, 0)));
-                    CoraliteSystem.Vertexes.Add(new(Bottom, Color.White, new Vector3(factor, 1, 0)));
+                    CoraliteSystem.Vertexes.Add(new(Top, drawColor * alpha, new Vector3(factor, 0, 0)));
+                    CoraliteSystem.Vertexes.Add(new(Bottom, drawColor * alpha, new Vector3(factor, 1, 0)));
                 }
 
                 Main.graphics.GraphicsDevice.Textures[0] = Texture;

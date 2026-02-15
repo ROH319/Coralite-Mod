@@ -281,7 +281,7 @@ namespace Coralite.Content.Items.Shadow
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Rectangle frameBox = mainTex.Frame(1, 3, 0, Projectile.frame);
             Vector2 center = Projectile.Center - Main.screenPosition;
             Vector2 origin = new(mainTex.Width / 2, mainTex.Height / 6);
@@ -476,7 +476,7 @@ namespace Coralite.Content.Items.Shadow
 
         public void DrawNonPremultiplied(SpriteBatch spriteBatch)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
 
             Vector2 center = Vector2.Lerp(Projectile.Center, Projectile.velocity, PosFactor);
             Vector2 scale = new(ScaleFactor * MaxScale, YScale);
@@ -926,7 +926,7 @@ namespace Coralite.Content.Items.Shadow
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Rectangle frameBox = mainTex.Frame(1, 7, 0, Projectile.frame);
             Vector2 origin = new(mainTex.Width / 2, mainTex.Height / 14);
 

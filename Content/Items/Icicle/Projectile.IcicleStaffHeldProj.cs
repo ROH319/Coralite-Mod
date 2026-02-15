@@ -109,7 +109,7 @@ namespace Coralite.Content.Items.Icicle
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
 
             Main.spriteBatch.Draw(mainTex, Projectile.Center - Main.screenPosition, null, lightColor, Projectile.rotation, new Vector2(0, mainTex.Height), Projectile.scale, SpriteEffects.None, 0f);
             return false;

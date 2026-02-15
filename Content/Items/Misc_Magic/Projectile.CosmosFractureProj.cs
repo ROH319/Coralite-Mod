@@ -362,7 +362,7 @@ namespace Coralite.Content.Items.Misc_Magic
 
         protected void DrawBigSword(SpriteBatch sb)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
 
             sb.Draw(mainTex, Projectile.Center + (TargetDirection * (Projectile.height / 2)) - Main.screenPosition, mainTex.Frame(), Color.White, TargetDirection.ToRotation() + 0.785f,
                           new Vector2(mainTex.Width / 2, mainTex.Height / 2), Projectile.height / 96, SpriteEffects.None, 0);
@@ -606,14 +606,14 @@ namespace Coralite.Content.Items.Misc_Magic
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Main.spriteBatch.Draw(Projectile.GetTexture(), Projectile.Center - Main.screenPosition, new Rectangle(38 * textureType, 0, 38, 36),
+            Main.spriteBatch.Draw(Projectile.GetTextureValue(), Projectile.Center - Main.screenPosition, new Rectangle(38 * textureType, 0, 38, 36),
                                                     new Color(217, 241, 255, 180), Projectile.rotation, new Vector2(19, 18), Projectile.scale, SpriteEffects.None, 0);
             return false;
         }
 
         public void DrawAdditive(SpriteBatch spriteBatch)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Rectangle source = new(38 * textureType, 0, 38, 36);      //<---简单粗暴地填数字了，前提是贴图不能有改动
             Vector2 origin = new(19, 18);
 

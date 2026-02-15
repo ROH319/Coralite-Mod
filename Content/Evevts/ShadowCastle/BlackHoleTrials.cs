@@ -279,7 +279,7 @@ namespace Coralite.Content.Evevts.ShadowCastle
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D blackBallTex = Projectile.GetTexture();
+            Texture2D blackBallTex = Projectile.GetTextureValue();
             Vector2 pos = Projectile.Center - Main.screenPosition;
             Main.spriteBatch.Draw(blackBallTex, pos, null, Color.White * alpha, 0, blackBallTex.Size() / 2, scale * 0.9f, 0, 0);
 
@@ -479,7 +479,7 @@ namespace Coralite.Content.Evevts.ShadowCastle
 
         public void DrawNonPremultiplied(SpriteBatch spriteBatch)
         {
-            Texture2D blackBallTex = Projectile.GetTexture();
+            Texture2D blackBallTex = Projectile.GetTextureValue();
             Vector2 pos = Projectile.Center - Main.screenPosition;
             Color c1 = Color.White;
             c1.A = (byte)(c1.A * alpha);

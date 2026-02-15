@@ -241,7 +241,7 @@ namespace Coralite.Content.Items.FlyingShields
 
         public override void DrawSelf(Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var frame = mainTex.Frame(4, 2, 0, Burning ? 1 : 0);
             var pos = Projectile.Center - Main.screenPosition;
             Main.spriteBatch.Draw(mainTex, pos, frame, lightColor, Projectile.rotation - 1.57f + extraRotation, frame.Size() / 2, Projectile.scale, 0, 0);
@@ -1219,7 +1219,7 @@ namespace Coralite.Content.Items.FlyingShields
             c.A = (byte)(255 * alpha);
             if (State < 2)
             {
-                Texture2D mainTex = Projectile.GetTexture();
+                Texture2D mainTex = Projectile.GetTextureValue();
 
                 float scale = Projectile.scale * 0.15f;
 

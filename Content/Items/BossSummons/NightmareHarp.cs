@@ -337,7 +337,7 @@ namespace Coralite.Content.Items.BossSummons
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var pos = Projectile.Center - Main.screenPosition;
             SpriteEffects effect = Owner.direction > 0 ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
 
@@ -421,7 +421,7 @@ namespace Coralite.Content.Items.BossSummons
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var frameBox = mainTex.Frame(2, 1, (int)NoteType, 0);
 
             var pos = Projectile.Center - Main.screenPosition;

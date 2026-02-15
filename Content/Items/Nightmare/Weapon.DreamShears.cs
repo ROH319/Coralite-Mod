@@ -584,7 +584,7 @@ namespace Coralite.Content.Items.Nightmare
 
 
             //绘制本体
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Rectangle framebox = mainTex.Frame(1, 2, 0, 1);
             Vector2 origin2 = framebox.Size() / 2;
 
@@ -801,7 +801,7 @@ namespace Coralite.Content.Items.Nightmare
             Matrix projection = Matrix.CreateOrthographicOffCenter(0, Main.screenWidth, Main.screenHeight, 0, -1, 1);
 
             effect.Parameters["transformMatrix"].SetValue(world * view * projection);
-            effect.Parameters["sampleTexture"].SetValue(Projectile.GetTexture());
+            effect.Parameters["sampleTexture"].SetValue(Projectile.GetTextureValue());
             effect.Parameters["gradientTexture"].SetValue(DreamShearsSlash.GradientTexture.Value);
             effect.Parameters["alpha"].SetValue(Alpha);
 
@@ -977,7 +977,7 @@ namespace Coralite.Content.Items.Nightmare
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Rectangle framebox = mainTex.Frame(1, 2, 0, 1);
             Vector2 origin2 = framebox.Size() / 2;
             Vector2 center = Projectile.Center - Main.screenPosition;
@@ -1130,7 +1130,7 @@ namespace Coralite.Content.Items.Nightmare
             Vector2 pos = Projectile.Center - Main.screenPosition;
 
             //绘制上下鄂
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Rectangle frameBox = mainTex.Frame(1, 2, 0, 0);
             Vector2 origin = frameBox.BottomLeft();
             Color c = DreamShearsRolling.darkRed * alpha;
@@ -1151,7 +1151,7 @@ namespace Coralite.Content.Items.Nightmare
         {
             Vector2 pos = Projectile.Center - Main.screenPosition;
 
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Rectangle frameBox = mainTex.Frame(1, 2, 0, 0);
             Vector2 origin = frameBox.BottomLeft();
             Color c = DreamShearsRolling.lightRed * alpha;

@@ -252,7 +252,7 @@ namespace Coralite.Content.Bosses.ShadowBalls
 
                 effect.Parameters["uTime"].SetValue(Main.GlobalTimeWrappedHourly * 6);
                 effect.Parameters["transformMatrix"].SetValue(world * view * projection);
-                effect.Parameters["sampleTexture"].SetValue(Projectile.GetTexture());
+                effect.Parameters["sampleTexture"].SetValue(Projectile.GetTextureValue());
                 effect.Parameters["gradientTexture"].SetValue(gradientTex.Value);
                 effect.Parameters["extTexture"].SetValue(extraTex.Value);
 
@@ -386,7 +386,7 @@ namespace Coralite.Content.Bosses.ShadowBalls
 
                 effect.Parameters["uTime"].SetValue(Random + (Main.GlobalTimeWrappedHourly / 5));
                 effect.Parameters["transformMatrix"].SetValue(world * view * projection);
-                effect.Parameters["sampleTexture"].SetValue(Projectile.GetTexture());
+                effect.Parameters["sampleTexture"].SetValue(Projectile.GetTextureValue());
                 effect.Parameters["gradientTexture"].SetValue(gradientTex2.Value);
                 effect.Parameters["extTexture"].SetValue(CoraliteAssets.Laser.VanillaFlowA.Value);
 

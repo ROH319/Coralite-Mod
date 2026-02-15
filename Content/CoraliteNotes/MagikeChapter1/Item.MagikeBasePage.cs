@@ -110,7 +110,7 @@ namespace Coralite.Content.CoraliteNotes.MagikeChapter1
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D texture = Projectile.GetTexture();
+            Texture2D texture = Projectile.GetTextureValue();
             Rectangle frame = texture.Frame();
 
             Vector2 frameOrigin = frame.Size() / 2f;

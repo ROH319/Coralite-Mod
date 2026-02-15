@@ -661,7 +661,7 @@ namespace Coralite.Helpers
         /// <param name="effect"></param>
         public static void DrawShadowTrailsSpriteEffect(this Projectile projectile, Color drawColor, float maxAlpha, float alphaStep, int start, int howMany, int step, Rectangle frameBox, float extraRot = 0, float scale = -1, SpriteEffects effect = SpriteEffects.None)
         {
-            Texture2D mainTex = projectile.GetTexture();
+            Texture2D mainTex = projectile.GetTextureValue();
             Vector2 toCenter = new(projectile.width / 2, projectile.height / 2);
             Rectangle r = mainTex.Frame(frameBox.Width, frameBox.Height, frameBox.X, frameBox.Y);
 
@@ -788,7 +788,7 @@ namespace Coralite.Helpers
 
         public static void QuickDraw(this Projectile projectile, Color lightColor, float exRot)
         {
-            Texture2D mainTex = projectile.GetTexture();
+            Texture2D mainTex = projectile.GetTextureValue();
 
             Main.spriteBatch.Draw(mainTex, projectile.Center - Main.screenPosition, null, lightColor, projectile.rotation + exRot,
                 mainTex.Size() / 2, projectile.scale, 0, 0);
@@ -796,7 +796,7 @@ namespace Coralite.Helpers
 
         public static void QuickDraw(this Projectile projectile, Color lightColor, float exRot,SpriteEffects effect)
         {
-            Texture2D mainTex = projectile.GetTexture();
+            Texture2D mainTex = projectile.GetTextureValue();
 
             Main.spriteBatch.Draw(mainTex, projectile.Center - Main.screenPosition, null, lightColor, projectile.rotation + exRot,
                 mainTex.Size() / 2, projectile.scale, effect, 0);
@@ -804,7 +804,7 @@ namespace Coralite.Helpers
 
         public static void QuickDraw(this Projectile projectile, Color lightColor, float overrideRot, int EmmmItIsAStupidValue)
         {
-            Texture2D mainTex = projectile.GetTexture();
+            Texture2D mainTex = projectile.GetTextureValue();
 
             Main.spriteBatch.Draw(mainTex, projectile.Center - Main.screenPosition, null, lightColor, overrideRot,
                 mainTex.Size() / 2, projectile.scale, 0, 0);
@@ -812,7 +812,7 @@ namespace Coralite.Helpers
 
         public static void QuickDraw(this Projectile projectile, Rectangle frameBox, Color lightColor, float exRot)
         {
-            Texture2D mainTex = projectile.GetTexture();
+            Texture2D mainTex = projectile.GetTextureValue();
 
             Main.spriteBatch.Draw(mainTex, projectile.Center - Main.screenPosition, frameBox, lightColor, projectile.rotation + exRot,
                 frameBox.Size() / 2, projectile.scale, 0, 0);
@@ -827,7 +827,7 @@ namespace Coralite.Helpers
         /// <param name="exRot"></param>
         public static void QuickFrameDraw(this Projectile projectile, Rectangle frameBox, Color lightColor, float exRot)
         {
-            Texture2D mainTex = projectile.GetTexture();
+            Texture2D mainTex = projectile.GetTextureValue();
             var rect = mainTex.Frame(frameBox.Width, frameBox.Height, frameBox.X, frameBox.Y);
 
             Main.spriteBatch.Draw(mainTex, projectile.Center - Main.screenPosition, rect, lightColor, projectile.rotation + exRot,
@@ -836,7 +836,7 @@ namespace Coralite.Helpers
 
         public static void QuickDraw(this Projectile projectile, Rectangle frameBox, Color lightColor, float exRot, float scaleMult)
         {
-            Texture2D mainTex = projectile.GetTexture();
+            Texture2D mainTex = projectile.GetTextureValue();
 
             Main.spriteBatch.Draw(mainTex, projectile.Center - Main.screenPosition, frameBox, lightColor, projectile.rotation + exRot,
                 frameBox.Size() / 2, projectile.scale * scaleMult, 0, 0);
@@ -851,7 +851,7 @@ namespace Coralite.Helpers
         /// <param name="exRot"></param>
         public static void QuickFrameDraw(this Projectile projectile, Rectangle frameBox, Color lightColor, float exRot, float scaleMult)
         {
-            Texture2D mainTex = projectile.GetTexture();
+            Texture2D mainTex = projectile.GetTextureValue();
             var rect = mainTex.Frame(frameBox.Width, frameBox.Height, frameBox.X, frameBox.Y);
 
             Main.spriteBatch.Draw(mainTex, projectile.Center - Main.screenPosition, rect, lightColor, projectile.rotation + exRot,
@@ -867,7 +867,7 @@ namespace Coralite.Helpers
         /// <param name="exRot"></param>
         public static void QuickFrameDraw(this Projectile projectile, Rectangle frameBox, Color lightColor, float exRot, SpriteEffects effect)
         {
-            Texture2D mainTex = projectile.GetTexture();
+            Texture2D mainTex = projectile.GetTextureValue();
             var rect = mainTex.Frame(frameBox.Width, frameBox.Height, frameBox.X, frameBox.Y);
 
             Main.spriteBatch.Draw(mainTex, projectile.Center - Main.screenPosition, rect, lightColor, projectile.rotation + exRot,
@@ -883,7 +883,7 @@ namespace Coralite.Helpers
         /// <param name="exRot"></param>
         public static void QuickFrameDraw(this Projectile projectile, Rectangle frameBox, Color lightColor, float exRot, float scaleMult, SpriteEffects effect)
         {
-            Texture2D mainTex = projectile.GetTexture();
+            Texture2D mainTex = projectile.GetTextureValue();
             var rect = mainTex.Frame(frameBox.Width, frameBox.Height, frameBox.X, frameBox.Y);
 
             Main.spriteBatch.Draw(mainTex, projectile.Center - Main.screenPosition, rect, lightColor, projectile.rotation + exRot,
@@ -892,7 +892,7 @@ namespace Coralite.Helpers
 
         public static void QuickDraw(this Projectile projectile, Rectangle frameBox, SpriteEffects effect, Color lightColor, float exRot)
         {
-            Texture2D mainTex = projectile.GetTexture();
+            Texture2D mainTex = projectile.GetTextureValue();
 
             Main.spriteBatch.Draw(mainTex, projectile.Center - Main.screenPosition, frameBox, lightColor, projectile.rotation + exRot,
                 frameBox.Size() / 2, projectile.scale, effect, 0);
@@ -900,7 +900,7 @@ namespace Coralite.Helpers
 
         public static void QuickDraw(this Projectile projectile, Vector2 overrideCenter, Color lightColor, float exRot)
         {
-            Texture2D mainTex = projectile.GetTexture();
+            Texture2D mainTex = projectile.GetTextureValue();
 
             Main.spriteBatch.Draw(mainTex, overrideCenter - Main.screenPosition, null, lightColor, projectile.rotation + exRot,
                 mainTex.Size() / 2, projectile.scale, 0, 0);
@@ -908,7 +908,7 @@ namespace Coralite.Helpers
 
         public static void QuickDraw(this Projectile projectile, Color lightColor, float overrideScale, float exRot)
         {
-            Texture2D mainTex = projectile.GetTexture();
+            Texture2D mainTex = projectile.GetTextureValue();
 
             Main.spriteBatch.Draw(mainTex, projectile.Center - Main.screenPosition, null, lightColor, projectile.rotation + exRot,
                 mainTex.Size() / 2, overrideScale, 0, 0);
@@ -916,7 +916,7 @@ namespace Coralite.Helpers
 
         public static void QuickDraw(this Projectile projectile, Color lightColor, Vector2 overrideScale, float exRot)
         {
-            Texture2D mainTex = projectile.GetTexture();
+            Texture2D mainTex = projectile.GetTextureValue();
 
             Main.spriteBatch.Draw(mainTex, projectile.Center - Main.screenPosition, null, lightColor, projectile.rotation + exRot,
                 mainTex.Size() / 2, overrideScale, 0, 0);
@@ -960,7 +960,17 @@ namespace Coralite.Helpers
         /// </summary>
         /// <param name="projectile"></param>
         /// <returns></returns>
-        public static Texture2D GetTexture(this Projectile projectile)
+        public static ATex GetTexture(this Projectile projectile)
+        {
+            return TextureAssets.Projectile[projectile.type];
+        }
+
+        /// <summary>
+        /// 从<see cref="TextureAssets"/>中获取弹幕的贴图
+        /// </summary>
+        /// <param name="projectile"></param>
+        /// <returns></returns>
+        public static Texture2D GetTextureValue(this Projectile projectile)
         {
             return TextureAssets.Projectile[projectile.type].Value;
         }

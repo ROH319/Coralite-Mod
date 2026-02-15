@@ -305,7 +305,7 @@ namespace Coralite.Content.Items.Misc_Shoot
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var pos = Projectile.Center - Main.screenPosition;
 
             Color color = lightColor * Projectile.localAI[0];

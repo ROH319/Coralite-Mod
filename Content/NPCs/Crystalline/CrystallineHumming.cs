@@ -1043,7 +1043,7 @@ namespace Coralite.Content.NPCs.Crystalline
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D tex = Projectile.GetTexture();
+            Texture2D tex = Projectile.GetTextureValue();
             var frameBox = tex.Frame(3, 1, (int)Projectile.ai[0], 0);
 
             Projectile.DrawShadowTrails(lightColor, 0.5f, 0.5f / 5, 1, 5, 1, Projectile.scale, frameBox, 0);

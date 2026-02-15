@@ -176,7 +176,7 @@ namespace Coralite.Content.Items.Nightmare
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Texture2D highlightTex = DarkLeaf.HighlightTex.Value;
             var pos = Projectile.Center - Main.screenPosition;
 

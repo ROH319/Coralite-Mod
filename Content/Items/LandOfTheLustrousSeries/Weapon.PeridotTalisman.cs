@@ -522,7 +522,7 @@ namespace Coralite.Content.Items.LandOfTheLustrousSeries
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = TexType == 0 ? SecondTex.Value : Projectile.GetTexture();
+            Texture2D mainTex = TexType == 0 ? SecondTex.Value : Projectile.GetTextureValue();
             var frame = mainTex.Frame(1, TexType == 0 ? 4 : 3, 0, Projectile.frame);
             float exrot = TexType == 0 ? 0 : -1.57f;
 

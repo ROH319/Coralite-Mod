@@ -414,7 +414,7 @@ namespace Coralite.Content.Items.Nightmare
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Vector2 pos = Projectile.Center - Main.screenPosition;
             Rectangle frameBox = mainTex.Frame(1, 4, 0, Projectile.frame);
             Vector2 origin = frameBox.Size() / 2;
@@ -511,7 +511,7 @@ namespace Coralite.Content.Items.Nightmare
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Vector2 pos = Projectile.Center - Main.screenPosition;
             //Rectangle frameBox = mainTex.Frame(1, 4, 0, Projectile.frame);
             Vector2 origin = mainTex.Size() / 2;

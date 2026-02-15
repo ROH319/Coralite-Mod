@@ -198,7 +198,7 @@ namespace Coralite.Content.Items.Nightmare
             SpriteEffects flip = Projectile.spriteDirection < 0 ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
 
             Main.instance.LoadProjectile(Type);
-            Texture2D texture = Projectile.GetTexture();
+            Texture2D texture = Projectile.GetTextureValue();
 
             Vector2 pos = list[0];
 
@@ -360,7 +360,7 @@ namespace Coralite.Content.Items.Nightmare
             //绘制线条
             EdenWhip.DrawLine(Projectile.oldPos.ToList());
 
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
 
             Rectangle frame = new(0, 0, 34, 24); // 鞭子把手的大小
 

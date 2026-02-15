@@ -986,10 +986,10 @@ namespace Coralite.Content.Items.Misc_Equip
                 default:
                 case TopperTypes.Error:
                 case TopperTypes.None:
-                    DrawTopper(Projectile.GetTexture(), lightColor);
+                    DrawTopper(Projectile.GetTextureValue(), lightColor);
                     break;
                 case TopperTypes.Blood:
-                    DrawTopper(Projectile.GetTexture(), lightColor);
+                    DrawTopper(Projectile.GetTextureValue(), lightColor);
 
                     var effect = Projectile.spriteDirection > 0 ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
                     if (BloodToppers != null)
@@ -1086,7 +1086,7 @@ namespace Coralite.Content.Items.Misc_Equip
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D tex = Projectile.GetTexture();
+            Texture2D tex = Projectile.GetTextureValue();
             SpriteBatch spriteBatch = Main.spriteBatch;
             Vector2 pos = Projectile.Center - Main.screenPosition + offset;
             Color c = Color.White * alpha;
@@ -1242,7 +1242,7 @@ namespace Coralite.Content.Items.Misc_Equip
             Helper.DrawPrettyLine(1, 0, pos, Color.Red, Color.Red
                 , 0.5f, 0, 0.5f, 0.5f, 1, Projectile.rotation, 1, new Vector2(1f, 1f));
 
-            Projectile.QuickDraw(Projectile.GetTexture().Frame(1, 11, 0, Projectile.frame)
+            Projectile.QuickDraw(Projectile.GetTextureValue().Frame(1, 11, 0, Projectile.frame)
                 , Color.White, -MathHelper.PiOver4);
 
             return false;
@@ -1364,7 +1364,7 @@ namespace Coralite.Content.Items.Misc_Equip
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointWrap, DepthStencilState.None
                 , RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
-            Texture2D tex = Projectile.GetTexture();
+            Texture2D tex = Projectile.GetTextureValue();
 
             Vector2 pos = Projectile.Center - Main.screenPosition;
             var frameBox = tex.Frame(1, 9, 0, Projectile.frame);
@@ -1696,7 +1696,7 @@ namespace Coralite.Content.Items.Misc_Equip
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var frameBox = mainTex.Frame(3, 4, (int)ShadowStyle, Projectile.frame);
 
             Projectile.DrawShadowTrails(Color.Magenta, 0.3f, 0.3f / 12, 1, 12, 1
@@ -1778,7 +1778,7 @@ namespace Coralite.Content.Items.Misc_Equip
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var frameBox = mainTex.Frame(1, 5, 0, (int)ProjStyle);
 
             Projectile.DrawShadowTrails(Color.DarkRed, 0.3f, 0.3f / 8, 1, 8, 1
@@ -1922,7 +1922,7 @@ namespace Coralite.Content.Items.Misc_Equip
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var frameBox = mainTex.Frame(1, 2, 0, 0);
 
             lightColor *= Alpha;

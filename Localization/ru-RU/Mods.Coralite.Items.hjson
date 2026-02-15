@@ -6638,3 +6638,8 @@ B9SpaceHelmet: {
 	// DisplayName: B9 Space Helmet
 	// Tooltip: ""
 }
+
+BabyIceWing: {
+	// DisplayName: Baby Ice Wing
+	// Tooltip: ""
+}

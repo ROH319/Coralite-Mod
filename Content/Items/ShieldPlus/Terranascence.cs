@@ -606,7 +606,7 @@ namespace Coralite.Content.Items.ShieldPlus
         {
             if (Item.ModItem is Terranascence terranascence)
             {
-                Texture2D mainTex = Projectile.GetTexture();
+                Texture2D mainTex = Projectile.GetTextureValue();
 
                 var origin = new Vector2(0, mainTex.Height);
                 var pos = Projectile.Center - Main.screenPosition + new Vector2(-Owner.direction * 20, -8);

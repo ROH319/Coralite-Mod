@@ -33,7 +33,7 @@ namespace Coralite.Content.NPCs.Shadow
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D maintex = Projectile.GetTexture();
+            Texture2D maintex = Projectile.GetTextureValue();
             Rectangle source = new(0, Projectile.frame * maintex.Height / 3, maintex.Width, maintex.Height / 3);
             Vector2 origin = new(maintex.Width / 2, maintex.Height / 6);
 

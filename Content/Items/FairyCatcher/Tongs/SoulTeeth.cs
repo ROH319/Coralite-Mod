@@ -164,7 +164,7 @@ namespace Coralite.Content.Items.FairyCatcher.Tongs
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
 
-            Texture2D tex = Projectile.GetTexture();
+            Texture2D tex = Projectile.GetTextureValue();
             Vector2 pos = Projectile.Center - Main.screenPosition;
 
             float dir = MathF.Sign(TurnRotPerFrame);

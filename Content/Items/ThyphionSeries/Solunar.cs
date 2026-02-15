@@ -529,7 +529,7 @@ namespace Coralite.Content.Items.ThyphionSeries
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Vector2 center = Projectile.Center - Main.screenPosition;
             var effect = DirSign > 0 ? SpriteEffects.None : SpriteEffects.FlipVertically;
             var origin = mainTex.Size() / 2;
@@ -745,7 +745,7 @@ namespace Coralite.Content.Items.ThyphionSeries
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Vector2 origin = new Vector2(0, mainTex.Height / 2);
             Vector2 pos = Projectile.Center - Main.screenPosition;
 
@@ -1273,11 +1273,11 @@ namespace Coralite.Content.Items.ThyphionSeries
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Rectangle rect = Projectile.GetTexture().Frame(3, 1, ArrowType);
+            Rectangle rect = Projectile.GetTextureValue().Frame(3, 1, ArrowType);
 
             if (ArrowType != 1)
             {
-                Texture2D mainTex = Projectile.GetTexture();
+                Texture2D mainTex = Projectile.GetTextureValue();
                 Vector2 origin = rect.Size() / 2;
 
                 for (int i = 0; i < 12; i += 2)
@@ -1320,7 +1320,7 @@ namespace Coralite.Content.Items.ThyphionSeries
             if (ArrowType != 1)
                 return;
 
-            Rectangle rect = Projectile.GetTexture().Frame(3, 1, ArrowType);
+            Rectangle rect = Projectile.GetTextureValue().Frame(3, 1, ArrowType);
 
             Projectile.QuickDraw(rect, Color.White, 1.57f);
         }

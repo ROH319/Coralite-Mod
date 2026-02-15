@@ -258,7 +258,7 @@ namespace Coralite.Content.Items.HyacinthSeries
                 cantDraw = false;
                 return;
             }
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
 
             spriteBatch.Draw(mainTex, Projectile.Center - Main.screenPosition, mainTex.Frame(4, 4, (int)frameX, Projectile.frame)
                 , Color.White * 0.8f, Projectile.rotation, new Vector2(64, 64), Projectile.scale, SpriteEffects.None, 0f);

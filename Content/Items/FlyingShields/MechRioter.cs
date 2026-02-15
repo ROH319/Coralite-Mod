@@ -113,7 +113,7 @@ namespace Coralite.Content.Items.FlyingShields
 
         public override void DrawSelf(Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var frameBox = mainTex.Frame(2, 1, hited ? 1 : 0, 0);
             var origin = frameBox.Size() / 2;
             var pos = Projectile.Center - Main.screenPosition;
@@ -367,7 +367,7 @@ namespace Coralite.Content.Items.FlyingShields
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var pos = Projectile.Center - Main.screenPosition;
 
             if (Phase == 0)

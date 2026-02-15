@@ -329,7 +329,7 @@ namespace Coralite.Content.Items.MagikeSeries2
             Main.spriteBatch.Draw(letterTex, pos, null, lightColor * LetterFactor
                 , LetterRot, new Vector2(letterTex.Width / 2, 0), Projectile.scale, effect, 0);
 
-            Projectile.QuickDraw(Projectile.GetTexture().Frame(1, 6, 0, Projectile.frame)
+            Projectile.QuickDraw(Projectile.GetTextureValue().Frame(1, 6, 0, Projectile.frame)
                 , effect, lightColor, 0);
 
             return false;

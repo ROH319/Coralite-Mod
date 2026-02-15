@@ -324,7 +324,7 @@ namespace Coralite.Content.Items.MagikeSeries1
 
             DrawLine(handleTopPos, center);
 
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             SpriteEffects effects = DirSign > 0 ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
 
             Main.spriteBatch.Draw(mainTex, Owner.MountedCenter + new Vector2(base.DirSign * 16, -8) - Main.screenPosition, null

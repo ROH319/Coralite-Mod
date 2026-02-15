@@ -434,7 +434,7 @@ namespace Coralite.Content.Items.LandOfTheLustrousSeries
             switch ((int)State)
             {
                 default:
-                    return Projectile.GetTexture();
+                    return Projectile.GetTextureValue();
                 case (int)AttackType.ShootSword:
                     extraRot = -0.785f;
                     Main.instance.LoadItem(ItemID.SkyFracture);
@@ -571,7 +571,7 @@ namespace Coralite.Content.Items.LandOfTheLustrousSeries
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Vector2 origin = mainTex.Size() / 2;
 
             Vector2 toCenter = Projectile.Size / 2;
@@ -587,7 +587,7 @@ namespace Coralite.Content.Items.LandOfTheLustrousSeries
                 , (float)Main.timeForVisualEffects * 0.02f
                 , TopazProj.highlightC, TopazProj.brightC, TopazProj.darkC, () =>
                 {
-                    Main.spriteBatch.Draw(Projectile.GetTexture(), Projectile.Center, null,
+                    Main.spriteBatch.Draw(Projectile.GetTextureValue(), Projectile.Center, null,
                          Color.White, Projectile.rotation, origin, Projectile.scale, SpriteEffects.None, 0);
                 }, sb =>
                 {
@@ -733,7 +733,7 @@ namespace Coralite.Content.Items.LandOfTheLustrousSeries
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Rectangle value24 = mainTex.Frame(1, 3, 0, Projectile.frame);
             Vector2 origin11 = new(16f, value24.Height / 2);
             Color alpha4 = lightColor;
@@ -881,7 +881,7 @@ namespace Coralite.Content.Items.LandOfTheLustrousSeries
                 , (float)Main.timeForVisualEffects * 0.02f
                 , TopazProj.highlightC, TopazProj.brightC, TopazProj.darkC, () =>
                 {
-                    Texture2D mainTex = Projectile.GetTexture();
+                    Texture2D mainTex = Projectile.GetTextureValue();
 
                     Main.spriteBatch.Draw(mainTex, Projectile.Center, null, Color.White, Projectile.rotation,
                         mainTex.Size() / 2, Projectile.scale, 0, 0);
@@ -962,7 +962,7 @@ namespace Coralite.Content.Items.LandOfTheLustrousSeries
         {
             rand -= Projectile.velocity / 20;
 
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Vector2 origin = mainTex.Size() / 2;
 
             Projectile.DrawShadowTrails(TopazProj.brightC, 0.4f, 0.4f / 12, 1, 12, 1);
@@ -1064,7 +1064,7 @@ namespace Coralite.Content.Items.LandOfTheLustrousSeries
         {
             rand -= Projectile.velocity / 20;
 
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Vector2 origin = mainTex.Size() / 2;
 
             Projectile.DrawShadowTrails(TopazProj.brightC, 0.4f, 0.4f / 12, 1, 12, 1);

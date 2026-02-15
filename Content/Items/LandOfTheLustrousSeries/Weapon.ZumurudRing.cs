@@ -353,7 +353,7 @@ namespace Coralite.Content.Items.LandOfTheLustrousSeries
                 , ((float)Main.timeForVisualEffects * (Main.gamePaused ? 0.02f : 0.01f)) + (Projectile.whoAmI / 3f)
                 , highlightC, brightC, darkC, () =>
                 {
-                    Texture2D mainTex = Projectile.GetTexture();
+                    Texture2D mainTex = Projectile.GetTextureValue();
                     spriteBatch.Draw(mainTex, Projectile.Center, null, Color.White, Projectile.rotation, mainTex.Size() / 2, Projectile.scale, 0, 0);
                 }, sb =>
                 {

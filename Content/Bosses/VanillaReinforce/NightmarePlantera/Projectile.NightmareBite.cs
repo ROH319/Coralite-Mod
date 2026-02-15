@@ -354,7 +354,7 @@ namespace Coralite.Content.Bosses.VanillaReinforce.NightmarePlantera
             }
 
             //绘制上下鄂
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Rectangle frameBox = mainTex.Frame(1, 2, 0, 0);
             Vector2 origin = frameBox.BottomLeft();
             Color c = DrawColor * alpha;
@@ -375,7 +375,7 @@ namespace Coralite.Content.Bosses.VanillaReinforce.NightmarePlantera
         {
             Vector2 pos = Projectile.Center - Main.screenPosition;
 
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Rectangle frameBox = mainTex.Frame(1, 2, 0, 0);
             Vector2 origin = frameBox.BottomLeft();
             Color c = DrawColor * alpha;

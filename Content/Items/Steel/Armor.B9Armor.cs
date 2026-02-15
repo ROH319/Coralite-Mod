@@ -338,7 +338,7 @@ namespace Coralite.Content.Items.Steel
 
         public override void AI()
         {
-            if (!Owner.Alives())
+            if (!Owner.Alives() || !Owner.TryGetModPlayer(out CoralitePlayer cp)||!cp.HasEffect(nameof(B9Breastplate)))
             {
                 Projectile.Kill();
                 return;
@@ -361,7 +361,7 @@ namespace Coralite.Content.Items.Steel
             if (!Projectile.IsOwnedByLocalPlayer() || Owner.HeldItem.damage <1)
                 return false;
 
-            Texture2D tex = Projectile.GetTexture();
+            Texture2D tex = Projectile.GetTextureValue();
             Texture2D tex2 = B9ArmorEffectProj2.Value;
             Vector2 center = Projectile.Center - Main.screenPosition;
             Color c = new Color(255, 75, 30);

@@ -137,7 +137,7 @@ namespace Coralite.Content.Items.FairyCatcher.Lasso
             Vector2 dir = Angle.ToRotationVector2();
             Vector2 pos = Projectile.Center - Main.screenPosition;
 
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Color c = Color.White * 0.75f;
             if (Timer < 20)
                 c *= Timer / 20;

@@ -330,7 +330,7 @@ namespace Coralite.Core.Systems.FairyCatcherSystem.Bases
                 eff = Owner.direction > 0 ? SpriteEffects.None : SpriteEffects.FlipVertically;
 
             PreDrawSpecial(eff, ref lightColor);
-            Texture2D tex = Projectile.GetTexture();
+            Texture2D tex = Projectile.GetTextureValue();
 
             DrawJar(Projectile.Center - Main.screenPosition + new Vector2(0, Owner.gfxOffY), lightColor, eff, tex);
 

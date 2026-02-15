@@ -254,7 +254,7 @@ namespace Coralite.Content.Items.Donator
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var frame = mainTex.Frame(2, Main.projFrames[Projectile.type], frameX, Projectile.frame);
             var origin = new Vector2(frame.Width / 2, 0);
             Vector2 toCenter = new(Projectile.width / 2, 0);
@@ -452,7 +452,7 @@ namespace Coralite.Content.Items.Donator
 
         public void DrawNonPremultiplied(SpriteBatch spriteBatch)
         {
-            Projectile.QuickDraw(Projectile.GetTexture().Frame(1, 12, 0, frame), Color.White, -MathHelper.PiOver2 - MathHelper.PiOver4);
+            Projectile.QuickDraw(Projectile.GetTextureValue().Frame(1, 12, 0, frame), Color.White, -MathHelper.PiOver2 - MathHelper.PiOver4);
         }
     }
 

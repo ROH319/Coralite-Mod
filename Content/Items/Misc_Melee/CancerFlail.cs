@@ -199,7 +199,7 @@ namespace Coralite.Content.Items.Misc_Melee
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var frameBox = mainTex.Frame(1, 2, 0, (int)Combo);
             Vector2 endPos = Projectile.Center - Main.screenPosition;//终止点
             SpriteEffects effect = Projectile.spriteDirection > 0 ? SpriteEffects.None : SpriteEffects.FlipVertically;

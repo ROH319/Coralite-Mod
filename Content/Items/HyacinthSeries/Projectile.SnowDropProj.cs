@@ -105,7 +105,7 @@ namespace Coralite.Content.Items.HyacinthSeries
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
 
             Main.spriteBatch.Draw(mainTex, Projectile.Center - Main.screenPosition, null, Color.White, Projectile.rotation, mainTex.Size() / 2, Projectile.scale, SpriteEffects.None, 0f);
             return false;
@@ -159,7 +159,7 @@ namespace Coralite.Content.Items.HyacinthSeries
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Vector2 center = Projectile.Center - Main.screenPosition;
             Vector2 origin = new(28, 0);
 
@@ -232,7 +232,7 @@ namespace Coralite.Content.Items.HyacinthSeries
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
 
             Main.spriteBatch.Draw(mainTex, Projectile.Center - Main.screenPosition, mainTex.Frame(1, 7, 0, Projectile.frame), lightColor, Projectile.rotation, new Vector2(28, 13), Projectile.scale, SpriteEffects.None, 0f);
             return false;

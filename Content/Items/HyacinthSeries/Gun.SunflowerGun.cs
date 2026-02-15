@@ -152,7 +152,7 @@ namespace Coralite.Content.Items.HyacinthSeries
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Color drawColor = lightColor;
             //if (Projectile.timeLeft < 30)
             //    drawColor = new Color(200, 200, 200, 200) * Projectile.ai[1];

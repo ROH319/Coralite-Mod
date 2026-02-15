@@ -106,7 +106,7 @@ namespace Coralite.Content.Bosses.BabyIceDragon
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Rectangle frame = mainTex.Frame(1, 5, 0, Projectile.frame);
             SpriteEffects effects = SpriteEffects.None;
             Vector2 origin = new(16f, frame.Height / 2);

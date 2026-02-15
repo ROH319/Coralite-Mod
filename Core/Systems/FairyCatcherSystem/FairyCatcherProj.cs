@@ -419,7 +419,7 @@ namespace Coralite.Core.Systems.FairyCatcherSystem
             Color edgeColor = Color.White;
             Color innerColor = Color.DarkSlateBlue * 0.7f;
 
-            Texture2D coreTex = Projectile.GetTexture();
+            Texture2D coreTex = Projectile.GetTextureValue();
 
             if (Owner.TryGetModPlayer(out FairyCatcherPlayer fcp) && fcp.FairyCircleCoreType > -1)
             {

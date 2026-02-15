@@ -305,7 +305,7 @@ namespace Coralite.Content.Items.ThyphionSeries
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Vector2 center = Projectile.Center - Main.screenPosition;
 
             SpriteBatch spriteBatch = Main.spriteBatch;
@@ -578,7 +578,7 @@ namespace Coralite.Content.Items.ThyphionSeries
 
         public void DrawNonPremultiplied(SpriteBatch spriteBatch)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
 
             if (State == 0)
                 mainTex = TurbulencePin.Value;

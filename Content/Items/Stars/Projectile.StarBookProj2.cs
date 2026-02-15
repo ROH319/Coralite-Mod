@@ -117,7 +117,7 @@ namespace Coralite.Content.Items.Stars
             Main.spriteBatch.End();
             Main.spriteBatch.Begin(0, BlendState.Additive, Main.DefaultSamplerState, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
 
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Rectangle source = new(16 * textureType, 0, 16, 16);     //<---简单粗暴地填数字了，前提是贴图不能有改动
             Vector2 origin = new(8, 8);
 

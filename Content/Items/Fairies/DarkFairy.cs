@@ -186,7 +186,7 @@ namespace Coralite.Content.Items.Fairies
         public override bool PreDraw(ref Color lightColor)
         {
             DrawTrails();
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Color c = Color.Black;
 
             var pos = Projectile.Center - Main.screenPosition;

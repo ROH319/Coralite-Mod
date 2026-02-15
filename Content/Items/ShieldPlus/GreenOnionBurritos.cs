@@ -339,7 +339,7 @@ namespace Coralite.Content.Items.ShieldPlus
 
         public override void DrawSelf(Color lightColor)
         {
-            Texture2D mainTex = Special ? EXTex.Value : Projectile.GetTexture();
+            Texture2D mainTex = Special ? EXTex.Value : Projectile.GetTextureValue();
             var pos = Projectile.Center - Main.screenPosition;
             Vector2 origin = mainTex.Size() / 2;
 

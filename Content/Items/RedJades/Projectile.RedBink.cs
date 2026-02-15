@@ -251,7 +251,7 @@ namespace Coralite.Content.Items.RedJades
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Vector2 drawPos = Projectile.Center - Main.screenPosition;
             Vector2 origin = mainTex.Size() / 2;
 

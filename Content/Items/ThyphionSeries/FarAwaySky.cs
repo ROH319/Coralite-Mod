@@ -239,7 +239,7 @@ namespace Coralite.Content.Items.ThyphionSeries
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Vector2 center = Projectile.Center - Main.screenPosition;
             Vector2 dir = Rotation.ToRotationVector2();
 

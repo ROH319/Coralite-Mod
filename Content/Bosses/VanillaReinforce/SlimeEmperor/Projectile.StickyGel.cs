@@ -149,7 +149,7 @@ namespace Coralite.Content.Bosses.VanillaReinforce.SlimeEmperor
 
         public void DrawNonPremultiplied(SpriteBatch spriteBatch)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var pos = Projectile.Center - Main.screenPosition;
             Color color = Color.White;
             color.A = 150;

@@ -203,7 +203,7 @@ namespace Coralite.Content.Items.ShadowCastle
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
 
             SpriteEffects effects = DirSign > 0 ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
             float rot = Projectile.rotation + (DirSign > 0 ? 0f : MathHelper.Pi);

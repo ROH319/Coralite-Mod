@@ -205,7 +205,7 @@ namespace Coralite.Content.Items.FairyCatcher.Lasso
         public override bool PreDraw(ref Color lightColor)
         {
             Vector2 pos = Projectile.Center - Main.screenPosition;
-            Projectile.GetTexture().QuickCenteredDraw(Main.spriteBatch, pos, lightColor, Rot);
+            Projectile.GetTextureValue().QuickCenteredDraw(Main.spriteBatch, pos, lightColor, Rot);
 
             Texture2D swordTex = HallowSword.Value;
             Texture2D lightShotSPA = CoraliteAssets.Trail.LightShotSPA.Value;

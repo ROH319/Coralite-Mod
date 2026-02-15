@@ -6794,3 +6794,12 @@ B9SpaceHelmet: {
 	DisplayName: B9 航行式头盔
 	Tooltip: +19% 魔法伤害，+8% 魔法暴击率，+100 最大魔力值
 }
+
+BabyIceWing: {
+	DisplayName: 冰龙宝宝之翼
+	Tooltip:
+		'''
+		可以使用3次冰晶跳跃
+		“只能扑腾几下的小翅膀！”
+		'''
+}

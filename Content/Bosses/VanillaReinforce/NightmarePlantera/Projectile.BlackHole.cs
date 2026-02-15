@@ -132,7 +132,7 @@ namespace Coralite.Content.Bosses.VanillaReinforce.NightmarePlantera
 
         public void DrawNonPremultiplied(SpriteBatch spriteBatch)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Vector2 pos = Projectile.Center - Main.screenPosition;
 
             spriteBatch.Draw(mainTex, pos, null, Color.White, 0, mainTex.Size() / 2, scale, 0, 0);

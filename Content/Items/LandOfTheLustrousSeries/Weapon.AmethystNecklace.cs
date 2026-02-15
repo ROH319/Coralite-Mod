@@ -326,7 +326,7 @@ namespace Coralite.Content.Items.LandOfTheLustrousSeries
 
         public void DrawSelf(Color lightColor, Vector2[] positions, float[] scales)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var origin = mainTex.Size() / 2;
 
             for (int i = 0; i < 6; i++)
@@ -536,7 +536,7 @@ namespace Coralite.Content.Items.LandOfTheLustrousSeries
 
         public void DrawAdditive(SpriteBatch spriteBatch)
         {
-            Texture2D laserTex = Projectile.GetTexture();
+            Texture2D laserTex = Projectile.GetTextureValue();
             Texture2D flowTex = CoraliteAssets.Laser.VanillaFlowA.Value;
 
             rand += LaserRotation.ToRotationVector2() * 3;

@@ -300,7 +300,7 @@ namespace Coralite.Content.Items.Corruption
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Vector2 pos = Projectile.Center - Main.screenPosition;
             var origin = new Vector2(3 * mainTex.Width / 4, mainTex.Height / 4);
             float Rot = Projectile.rotation + (Projectile.spriteDirection * 0.9f);
@@ -419,7 +419,7 @@ namespace Coralite.Content.Items.Corruption
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Vector2 pos = Projectile.Center - Main.screenPosition;
             var origin = mainTex.Size() / 2;
             float rot = Projectile.rotation + (Projectile.spriteDirection * 0.9f);

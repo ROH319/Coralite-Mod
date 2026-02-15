@@ -505,7 +505,7 @@ namespace Coralite.Core.Prefabs.Projectiles
             //Main.spriteBatch.End();
             //Main.spriteBatch.Begin(0, BlendState.NonPremultiplied, Main.DefaultSamplerState, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
 
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Vector2 origin = new(mainTex.Width / 2, mainTex.Height / 2);
 
             float extraRot = GetExRot();

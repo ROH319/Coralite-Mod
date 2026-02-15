@@ -241,7 +241,7 @@ namespace Coralite.Content.Items.Misc_Magic
         public override bool PreDraw(ref Color lightColor)
         {
             DrawTrails();
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
 
             var pos = Projectile.Center - Main.screenPosition;
             var origin = mainTex.Size() / 2;

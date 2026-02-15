@@ -569,7 +569,7 @@ namespace Coralite.Content.Items.Shadow
 
             Main.spriteBatch.Draw(chainTex, laserTarget, laserSource, lightColor, Projectile.rotation, origin2, 0, 0);
 
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Vector2 origin = mainTex.Size() / 2;
             //绘制自己
             float exRot = 0f;

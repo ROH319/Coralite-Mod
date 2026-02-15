@@ -1,22 +1,17 @@
+sampler baseTex : register(s0);
+
 float4 coreColor;
 float4 lightColor;
 float uFlowAdd;
 float uTime;
+float uFlowUEx;
+float uBaseUEx;
+float uNormalCadj;
 matrix transformMatrix;
-texture uBaseImage;
 texture uCoreImage;
 texture uFlowImage;
 texture uNormalImage;
 
-sampler2D baseTex = sampler_state
-{
-    texture = <uBaseImage>;
-    magfilter = LINEAR;
-    minfilter = LINEAR;
-    mipfilter = LINEAR;
-    AddressU = wrap;
-    AddressV = wrap; //循环UV
-};
 sampler2D coreTex = sampler_state
 {
     texture = <uCoreImage>;
@@ -76,22 +71,24 @@ float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
     float ycoord = input.TexCoords.y;
 
     //计算法线贴图的位置
-    float2 normalUV = float2(xcoord + uTime, 0.5 - 1 / 6.0 + ycoord / 3 + sin(uTime) * 1 / 3.0);
-    float2 normalC = tex2D(flowTex, normalUV).xy;//同时应用与核心取点偏移
-    
-    float4 coreC = lerp(coreColor, lightColor, (normalC.x + normalC.y) / 2);
+    float2 normalUV = float2(xcoord + uTime, 0.5 - 1 / 6.0 + ycoord / 3 + sin(uTime * 0.5) / 3.0);
+    float2 normalC = tex2D(flowTex, normalUV).xy; //同时应用与核心取点偏移
     
     //底图
-    float2 st = float2((xcoord + uTime) % 1.0, ycoord);
-    float4 bColor = tex2D(baseTex, st).xyzw * input.Color;
-	
+    float2 st = float2((xcoord * uBaseUEx + uTime) % 1.0, ycoord);
+    float4 bColor = tex2D(baseTex, st).xyzw;
+    bColor = (bColor * coreColor + float4(bColor.xyz, 0) * bColor.r) * input.Color.r;
+    
     //核心叠加
-    float2 ct = float2((xcoord / 2 + uTime * 2) % 1.0 + (normalC.x - 0.5) * 0.01, ycoord);
-    bColor += tex2D(coreTex, st).xyzw * coreC;
+    float2 ct = float2((xcoord / 2 + uTime * 1.4) % 1.0 + (normalC.x - 0.5) * 0.02, ycoord);
+    float coreTC = tex2D(coreTex, st).x;
+    float4 coreC = lerp(coreColor, lightColor, coreTC + (normalC.x + normalC.y - 1) / 2 * uNormalCadj);
+    
+    bColor += coreTC * coreC;
     
     //流动图叠加
-    ct = float2((xcoord / 3 - uTime * 1.5) % 1.0, ycoord);
-    bColor += tex2D(coreTex, st).xyzw * uFlowAdd;
+    ct = float2((xcoord / uFlowUEx - uTime * 0.5 + (normalC.x - 0.5) * 0.01) % 1.0, ycoord);
+    bColor += float4(tex2D(flowTex, ct).xyz, 0) * uFlowAdd;
     
     return bColor;
 }

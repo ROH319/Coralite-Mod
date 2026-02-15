@@ -334,7 +334,7 @@ namespace Coralite.Content.Items.LandOfTheLustrousSeries
                 , ((float)(Main.timeForVisualEffects + Projectile.timeLeft) * (Main.gamePaused ? 0.02f : 0.01f)) + (Projectile.whoAmI / 3f)
                 , highlightC, brightC, darkC, () =>
                 {
-                    Texture2D mainTex = Projectile.GetTexture();
+                    Texture2D mainTex = Projectile.GetTextureValue();
                     spriteBatch.Draw(mainTex, Projectile.Center, null, Color.White, Projectile.rotation, mainTex.Size() / 2, Projectile.scale, 0, 0);
                 }, sb =>
                 {
@@ -524,7 +524,7 @@ namespace Coralite.Content.Items.LandOfTheLustrousSeries
                 , ((float)(Main.timeForVisualEffects + Projectile.timeLeft) * (Main.gamePaused ? 0.02f : 0.01f)) + (Projectile.whoAmI / 3f)
                 , DiamondProj.highlightC, DiamondProj.brightC, DiamondProj.darkC, () =>
                 {
-                    Texture2D mainTex = Projectile.GetTexture();
+                    Texture2D mainTex = Projectile.GetTextureValue();
                     Vector2 origin = mainTex.Size() / 2;
                     for (int i = datas.Count - 1; i >= 0; i--)
                         datas[i].Draw(spriteBatch, mainTex, origin);

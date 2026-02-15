@@ -184,7 +184,7 @@ namespace Coralite.Content.Items.RedJades
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
 
             Main.spriteBatch.Draw(mainTex, Projectile.Center - Main.screenPosition, null, lightColor, Projectile.rotation - MathHelper.PiOver2, mainTex.Size() / 2,
                 Projectile.scale, Projectile.direction > 0 ? SpriteEffects.None : SpriteEffects.FlipHorizontally, 0);

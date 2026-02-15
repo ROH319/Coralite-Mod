@@ -430,7 +430,7 @@ namespace Coralite.Content.Items.Misc_Melee
         public void DrawNonPremultiplied(SpriteBatch spriteBatch)
         {
             Vector2 pos = Projectile.Center - Main.screenPosition;
-            Texture2D tex = Projectile.GetTexture();
+            Texture2D tex = Projectile.GetTextureValue();
 
             Vector2 scale = new Vector2(Width * 1.75f, Height * 0.5f);
             Rectangle frame = tex.Frame(1, 6, 0, Projectile.frame);

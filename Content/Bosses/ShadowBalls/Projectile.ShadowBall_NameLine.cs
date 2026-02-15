@@ -43,7 +43,7 @@ namespace Coralite.Content.Bosses.ShadowBalls
         public override bool PreDraw(ref Color lightColor)
         {
             SpriteBatch spriteBatch = Main.spriteBatch;
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             Vector2 screenPosition = Main.screenPosition;
 
             var pos = Main.LocalPlayer.Center - screenPosition;

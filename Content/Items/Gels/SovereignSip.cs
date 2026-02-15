@@ -458,7 +458,7 @@ namespace Coralite.Content.Items.Gels
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
 
             var pos = Projectile.Bottom - Main.screenPosition;
             var frameBox = mainTex.Frame(1, 11, 0, Projectile.frame);

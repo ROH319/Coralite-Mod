@@ -327,7 +327,7 @@ namespace Coralite.Content.Items.ThyphionSeries
         {
             if (Hited == 0)//没碰到任何东西就绘制本体
             {
-                Texture2D mainTex = Projectile.GetTexture();
+                Texture2D mainTex = Projectile.GetTextureValue();
 
                 Color c = Lighting.GetColor(Projectile.Center.ToTileCoordinates(), new Color(103, 255, 255));
                 c.A = 0;

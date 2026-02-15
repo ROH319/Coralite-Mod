@@ -390,7 +390,7 @@ namespace Coralite.Content.Items.Donator
                 return false;
             }
 
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
 
             var frame = mainTex.Frame(2, 11, frameX, Projectile.frame);
             var origin = new Vector2((frame.Width / 2) - (DirSign * frame.Width * 2 / 5), frame.Height * 3 / 4);
@@ -576,7 +576,7 @@ namespace Coralite.Content.Items.Donator
 
         public void DrawNonPremultiplied(SpriteBatch spriteBatch)
         {
-            Projectile.QuickDraw(Projectile.GetTexture().Frame(1, 3, 0, Projectile.frame), Color.White, 1.57f);
+            Projectile.QuickDraw(Projectile.GetTextureValue().Frame(1, 3, 0, Projectile.frame), Color.White, 1.57f);
         }
     }
 

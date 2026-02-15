@@ -525,7 +525,7 @@ namespace Coralite.Content.Items.FlyingShields
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
             var pos = Projectile.Center - Main.screenPosition;
 
             Projectile.DrawShadowTrails(lightColor, 0.5f, 0.5f / 6, 1, 6, 1);
@@ -662,7 +662,7 @@ namespace Coralite.Content.Items.FlyingShields
             float rot = (Timer / 40 + Main.GlobalTimeWrappedHourly) % 1;
             float rotation = Projectile.rotation - 1.57f;
 
-            var mainTex = Projectile.GetTexture();
+            var mainTex = Projectile.GetTextureValue();
             Vector2 pos = Projectile.Center - Main.screenPosition;
 
             Rectangle frame = mainTex.Frame(2, 1, 1, 0);

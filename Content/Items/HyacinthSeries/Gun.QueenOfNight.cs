@@ -357,7 +357,7 @@ namespace Coralite.Content.Items.HyacinthSeries
             if (State > 0)
                 return false;
 
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
 
             var frame = mainTex.Frame(1, 9, 0, Projectile.frame);
             Projectile.QuickDraw(frame, (Color.White * 0.8f) with { A = 0 }, 0, 1.2f);
@@ -500,7 +500,7 @@ namespace Coralite.Content.Items.HyacinthSeries
             if (Timer > 15)
                 return false;
 
-            Texture2D mainTex = Projectile.GetTexture();
+            Texture2D mainTex = Projectile.GetTextureValue();
 
             var pos = Projectile.Center - Main.screenPosition;
             var frame = mainTex.Frame(1, 9, 0, Projectile.frame);

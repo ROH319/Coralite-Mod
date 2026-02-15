@@ -181,7 +181,7 @@ namespace Coralite.Content.Items.Donator
 
 
             Main.instance.LoadProjectile(Type);
-            Texture2D texture = Projectile.GetTexture();
+            Texture2D texture = Projectile.GetTextureValue();
 
             Vector2 pos = list[1];
 
