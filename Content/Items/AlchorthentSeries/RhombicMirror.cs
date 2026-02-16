@@ -50,10 +50,9 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
         public override void MinionAim(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
         {
-
             //PRTLoader.NewParticle<TestAlchSymbol>(Main.MouseWorld, Vector2.Zero, ShineCorruptionColor);
 
-            Projectile.NewProjectile(source, player.Center, Vector2.Zero, ModContent.ProjectileType<CorruptLaser>(), damage, knockback, player.whoAmI, 0,0,2);
+            Projectile.NewProjectile(source, player.Center, Vector2.Zero, ModContent.ProjectileType<CorruptLaser>(), damage, knockback, player.whoAmI, 0,0,1);
         }
 
         public override void SpecialAttack(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
@@ -1143,7 +1142,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
     {
         public override string Texture => AssetDirectory.AlchorthentSeriesItems+Name;
 
-        public static ATex PolyNormal { get; set; }
+        public static ATex WarpLinesFlow { get; set; }
 
         public ref float ProjOwner => ref Projectile.ai[0];
         public ref float Target => ref Projectile.ai[1];
@@ -1202,7 +1201,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
             {
                 laser = new LineDrawer.StraightLine(Vector2.Zero, Vector2.Zero, Projectile.GetTexture());
                 laser.alpha = 1;
-                laser.drawColor = new Color(20,255,255,0);
+                laser.drawColor = new Color(90,255,255,0);
             }
 
             Timer++;
@@ -1210,11 +1209,11 @@ namespace Coralite.Content.Items.AlchorthentSeries
             Projectile.Center = owner.Center;
             if (hasTarget)
             {
-                Length = Helper.Lerp(Length, Vector2.Distance(owner.Center, target.Center), 0.5f);
+                Length = Helper.Lerp(Length, Vector2.Distance(owner.Center, target.Center), 0.13f);
                 Projectile.rotation = (target.Center - Projectile.Center).ToRotation();
             }
 
-            const int lineWidth = 44;
+            const int lineWidth = 40;
 
             switch (State)
             {
@@ -1278,8 +1277,8 @@ namespace Coralite.Content.Items.AlchorthentSeries
             => ColorState switch
             {
                 0 => new Color(110, 59, 84),
-                1 => new Color(64, 113, 117),
-                _ => RhombicMirror.ShineCorruptionColor,
+                1 => new Color(41, 57, 71),
+                _ => new Color(50,30,121),
             } * 0.8f;
 
         public Color GetLaserLightColor()
@@ -1287,7 +1286,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
             {
                 0 => new Color(255, 251, 205),
                 1 => new Color(178, 220, 204),
-                _ => Color.White,
+                _ => new Color(200, 140, 255),
             };
 
         public override bool PreDraw(ref Color lightColor)
@@ -1297,34 +1296,23 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
             effect.Parameters["coreColor"].SetValue(GetLaserCoreColor().ToVector4());
             effect.Parameters["lightColor"].SetValue(GetLaserLightColor().ToVector4());
+            effect.Parameters["uBottomCA"].SetValue(0.6f);
             effect.Parameters["uFlowAdd"].SetValue(0.3f);
-            effect.Parameters["uTime"].SetValue((float)Main.timeForVisualEffects * 0.025f);
-            effect.Parameters["uFlowUEx"].SetValue(0.5f);
-            effect.Parameters["uBaseUEx"].SetValue(endPos.Length()/(Projectile.GetTexture().Width()/2));
+            effect.Parameters["uTime"].SetValue((float)Main.timeForVisualEffects * 0.05f);
+            effect.Parameters["uFlowUEx"].SetValue(endPos.Length() / (CoraliteAssets.Laser.MusicLineSPA.Value.Width*0.6f));
+            effect.Parameters["uBaseUEx"].SetValue(endPos.Length() / (Projectile.GetTexture().Width() / 2));
             effect.Parameters["uNormalCadj"].SetValue(0.6f);
             effect.Parameters["transformMatrix"].SetValue(VaultUtils.GetTransfromMatrix());
-            effect.Parameters["uCoreImage"].SetValue(CoraliteAssets.Laser.MultLinesSPA.Value);//CoraliteAssets.Laser.MultLinesSPA.Value
-            effect.Parameters["uFlowImage"].SetValue(CoraliteAssets.Laser.MusicLineSPA.Value);//CoraliteAssets.Laser.MusicLineSPA.Value
-            effect.Parameters["uNormalImage"].SetValue(PolyNormal.Value);
-            //CoraliteAssets.Blank
+            effect.Parameters["uCoreImage"].SetValue(CoraliteAssets.Laser.MultLinesSPA.Value);
+            effect.Parameters["uFlowImage"].SetValue(WarpLinesFlow.Value);
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointWrap, DepthStencilState.None, RasterizerState.CullNone, effect, Main.GameViewMatrix.TransformationMatrix);
 
             //绘制激光
             laser?.Render(Projectile.Center);
 
-            //Vector2 origin = new Vector2(tex.Width * 7 / 8, tex.Height / 2);
-            //float rotation = Projectile.rotation + MathHelper.Pi;
-
-            //for (int i = 0; i < 2; i++)
-            //    spriteBatch.Draw(tex, pos, null
-            //        , Color.White, rotation, origin, scale * 1.1f, 0, 0);
-
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointWrap, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
-
-            //spriteBatch.Draw(tex, pos - Main.screenPosition, null
-            //    , new Color(255, 255, 255, 0) * 0.65f * Alpha, rotation, origin, scale * 1.1f, 0, 0);
 
             return false;
         }
