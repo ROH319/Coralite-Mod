@@ -52,7 +52,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
         {
             //PRTLoader.NewParticle<TestAlchSymbol>(Main.MouseWorld, Vector2.Zero, ShineCorruptionColor);
 
-            Projectile.NewProjectile(source, player.Center, Vector2.Zero, ModContent.ProjectileType<CorruptLaser>(), damage, knockback, player.whoAmI, 0,0,1);
+            //Projectile.NewProjectile(source, player.Center, Vector2.Zero, ModContent.ProjectileType<CorruptLaser>(), damage, knockback, player.whoAmI, 0,0,2);
         }
 
         public override void SpecialAttack(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
@@ -339,6 +339,9 @@ namespace Coralite.Content.Items.AlchorthentSeries
                         SwitchState(AIStates.Shoot);
                         break;
                     }
+
+                    break;
+                case (byte)AIStates.Corrupt:
 
                     break;
             }
@@ -665,6 +668,31 @@ namespace Coralite.Content.Items.AlchorthentSeries
             }
 
             Projectile.Center = Vector2.SmoothStep(Projectile.Center, aimPos + offset, 0.3f);
+        }
+
+        public void Shoot()
+        {
+            /*
+             * 1.旋转加速
+             * 2.向目标位置渐进
+             * 3.到达位置后旋转
+             * 4.蓄力特效
+             * 5.射激光持续中
+             * 6.将自己弹开并获得腐化进度
+             */
+
+            switch (Recorder)
+            {
+                default:
+                case 0:
+                    {
+                        if (Recorder2==0)
+                        {
+
+                        }
+                    }
+                    break;
+            }
         }
 
         /// <summary>
@@ -1143,6 +1171,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
         public override string Texture => AssetDirectory.AlchorthentSeriesItems+Name;
 
         public static ATex WarpLinesFlow { get; set; }
+        public static ATex RhombicParticle { get; set; }
 
         public ref float ProjOwner => ref Projectile.ai[0];
         public ref float Target => ref Projectile.ai[1];
@@ -1153,7 +1182,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
         public ref float State => ref Projectile.localAI[1];
 
         public Vector2 endPos;
-        public Vector2 Scale;
+        //public Vector2 Scale;
 
         private LineDrawer.StraightLine laser;
 
@@ -1179,7 +1208,8 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
         public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
         {
-            return false;
+            float a = 0;
+            return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), Projectile.Center, Projectile.Center+ endPos, 40, ref a);
         }
 
         public override void AI()
@@ -1200,8 +1230,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
             if (!VaultUtils.isServer && Timer == 0)
             {
                 laser = new LineDrawer.StraightLine(Vector2.Zero, Vector2.Zero, Projectile.GetTexture());
-                laser.alpha = 1;
-                laser.drawColor = new Color(90,255,255,0);
+                laser.drawColor = new Color(120,255,255,0);
             }
 
             Timer++;
@@ -1209,7 +1238,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
             Projectile.Center = owner.Center;
             if (hasTarget)
             {
-                Length = Helper.Lerp(Length, Vector2.Distance(owner.Center, target.Center), 0.13f);
+                Length = Helper.Lerp(Length, Vector2.Distance(owner.Center, target.Center), 0.2f);
                 Projectile.rotation = (target.Center - Projectile.Center).ToRotation();
             }
 
@@ -1220,9 +1249,9 @@ namespace Coralite.Content.Items.AlchorthentSeries
                 default://展开
                 case 0:
                     {
-                        laser?.SetLineWidth(Helper.Lerp(0, lineWidth, Timer / 8f));
+                        laser?.SetLineWidth(Helper.Lerp(0, lineWidth, Timer / 6f));
 
-                        if (Timer > 8)
+                        if (Timer > 6)
                         {
                             Timer = 0;
                             State = 1;
@@ -1257,7 +1286,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
         public void SetEndPoint()
         {
             Vector2 dir = Projectile.rotation.ToRotationVector2();
-            endPos = Vector2.Zero;
+           Vector2 endPos = Vector2.Zero;
 
             int count = (int)Length / 16 + 1;
 
@@ -1268,8 +1297,17 @@ namespace Coralite.Content.Items.AlchorthentSeries
                 if (Helper.PointInTile(posCheck) || k == count - 1)
                 {
                     endPos = posCheck - Projectile.Center;
+                    this.endPos = Vector2.SmoothStep(this.endPos, endPos, 0.4f);
                     return;
                 }
+            }
+        }
+
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
+        {
+            if (target.whoAmI!= Target)
+            {
+                modifiers.SourceDamage -= 0.5f;
             }
         }
 
@@ -1291,6 +1329,9 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
         public override bool PreDraw(ref Color lightColor)
         {
+            DrawRhombicPic(Projectile.Center - Main.screenPosition);
+            //DrawRhombicPic(Projectile.Center - Main.screenPosition + endPos);
+
             SpriteBatch spriteBatch = Main.spriteBatch;
             Effect effect = ShaderLoader.GetShader("CorruptMirrorLaser");
 
@@ -1299,7 +1340,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
             effect.Parameters["uBottomCA"].SetValue(0.6f);
             effect.Parameters["uFlowAdd"].SetValue(0.3f);
             effect.Parameters["uTime"].SetValue((float)Main.timeForVisualEffects * 0.05f);
-            effect.Parameters["uFlowUEx"].SetValue(endPos.Length() / (CoraliteAssets.Laser.MusicLineSPA.Value.Width*0.6f));
+            effect.Parameters["uFlowUEx"].SetValue(endPos.Length() / (CoraliteAssets.Laser.MusicLineSPA.Value.Width * 0.7f));
             effect.Parameters["uBaseUEx"].SetValue(endPos.Length() / (Projectile.GetTexture().Width() / 2));
             effect.Parameters["uNormalCadj"].SetValue(0.6f);
             effect.Parameters["transformMatrix"].SetValue(VaultUtils.GetTransfromMatrix());
@@ -1314,7 +1355,50 @@ namespace Coralite.Content.Items.AlchorthentSeries
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointWrap, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
 
+            DrawHighlight(Projectile.Center - Main.screenPosition);
+            DrawHighlight(Projectile.Center - Main.screenPosition + endPos);
+
             return false;
+        }
+
+        /// <summary>
+        /// 绘制菱形的图案
+        /// </summary>
+        public void DrawRhombicPic(Vector2 pos)
+        {
+            float rot = Projectile.rotation;
+
+            Texture2D tex = RhombicParticle.Value;
+            float lengthScale =  laser.LineWidth/ tex.Width*1.5f;
+            Color dackC = GetLaserCoreColor() * 0.6f;
+            Color lightC = (GetLaserLightColor() * 0.6f) with { A = 0 };
+            Rectangle frame = new Rectangle(0, 0, 1, 2);
+
+            //绘制十字的菱形图案
+            tex.QuickCenteredDraw(Main.spriteBatch, frame, pos, dackC, rot + MathHelper.PiOver2, lengthScale * 1.1f);
+            tex.QuickCenteredDraw(Main.spriteBatch, frame, pos, lightC, rot + MathHelper.PiOver2, lengthScale * 1.1f);
+
+            for (int i = -1; i < 2; i++)
+            {
+                tex.QuickCenteredDraw(Main.spriteBatch, frame, pos, dackC, rot+i*MathHelper.PiOver4, lengthScale * 0.8f);
+                tex.QuickCenteredDraw(Main.spriteBatch, frame, pos, lightC, rot + i * MathHelper.PiOver4, lengthScale * 0.8f);
+            }
+        }
+
+        public void DrawHighlight(Vector2 pos)
+        {
+            float rot = Projectile.rotation;
+
+            Texture2D tex = RhombicParticle.Value;
+            float lengthScale = laser.LineWidth / tex.Width * 3;
+            Color dackC = GetLaserCoreColor();
+            Color lightC = (GetLaserLightColor()) with { A = 0 };
+            Rectangle frame = new Rectangle(0, 1, 1, 2);
+            Vector2 scale = new Vector2(lengthScale, 0.4f);
+
+            //绘制菱形中心团
+            tex.QuickCenteredDraw(Main.spriteBatch, frame, pos, scale, dackC, rot + MathHelper.PiOver2);
+            tex.QuickCenteredDraw(Main.spriteBatch, frame, pos, scale, lightC, rot + MathHelper.PiOver2);
         }
     }
 

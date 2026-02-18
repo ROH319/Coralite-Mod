@@ -1,7 +1,6 @@
 ﻿using Coralite.Core;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Collections.Generic;
 using Terraria;
 
 namespace Coralite.Content.Items.AlchorthentSeries
@@ -30,7 +29,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
         {
             foreach (var line in lines)
             {
-                line.scale = scale;
+                line.lineScale = scale;
             }
         }
 
@@ -49,9 +48,9 @@ namespace Coralite.Content.Items.AlchorthentSeries
             public Vector2 StartPos = startPos;
 
             /// <summary> 对起始点相对原始点的缩放 </summary>
-            public float scale = 1;
+            public float lineScale = 1;
 
-            public float LinwWidth => lineWidth * linwWidthScale;
+            public float LineWidth => lineWidth * linwWidthScale;
 
             /// <summary> 线段宽度 </summary>
             public float lineWidth = 12;
@@ -112,8 +111,10 @@ namespace Coralite.Content.Items.AlchorthentSeries
                     return;
                 //从起始点绘制到结束点
                 Texture2D tex = baseTex.Value;
+                Vector2 dir = EndPos - StartPos;
+                Vector2 scale2 = new Vector2(dir.Length() / tex.Width * lineScale, LineWidth / tex.Height);
 
-                Main.spriteBatch.Draw(tex, basePos + StartPos * scale, null, drawColor * alpha, (EndPos - StartPos).ToRotation(), new Vector2(0, tex.Height / 2), new Vector2((EndPos - StartPos).Length() / tex.Width * scale, LinwWidth / tex.Height), 0, 0);
+                Main.spriteBatch.Draw(tex, basePos + StartPos * lineScale, null, drawColor * alpha, dir.ToRotation(), new Vector2(0, tex.Height / 2), scale2, 0, 0);
             }
         }
 
@@ -150,17 +151,17 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
                 Vector2 Dir = (GetEndPos(0.001f) - StartPos).SafeNormalize(Vector2.Zero).RotatedBy(MathHelper.PiOver2);
 
-                CoraliteSystem.Vertexes.Add(new(basePos + StartPos * scale + Dir * lineWidth / 2, Color.White, new Vector3(0, 0, 0)));
-                CoraliteSystem.Vertexes.Add(new(basePos + StartPos * scale - Dir * lineWidth / 2, Color.White, new Vector3(0, 1, 0)));
+                CoraliteSystem.Vertexes.Add(new(basePos + StartPos * lineScale + Dir * lineWidth / 2, Color.White, new Vector3(0, 0, 0)));
+                CoraliteSystem.Vertexes.Add(new(basePos + StartPos * lineScale - Dir * lineWidth / 2, Color.White, new Vector3(0, 1, 0)));
 
                 for (int i = 1; i <= LinePointCount; i++)
                 {
                     float factor = (float)i / LinePointCount;
 
-                    Vector2 Center = basePos + GetEndPos(factor) * scale;
+                    Vector2 Center = basePos + GetEndPos(factor) * lineScale;
                     Vector2 normal = (GetEndPos(factor) - GetEndPos(factor - 0.01f)).SafeNormalize(Vector2.Zero).RotatedBy(MathHelper.PiOver2);
-                    Vector2 Top = Center + (normal * LinwWidth / 2);
-                    Vector2 Bottom = Center - (normal * LinwWidth / 2);
+                    Vector2 Top = Center + (normal * LineWidth / 2);
+                    Vector2 Bottom = Center - (normal * LineWidth / 2);
 
                     CoraliteSystem.Vertexes.Add(new(Top, drawColor * alpha, new Vector3(factor, 0, 0)));
                     CoraliteSystem.Vertexes.Add(new(Bottom, drawColor * alpha, new Vector3(factor, 1, 0)));
