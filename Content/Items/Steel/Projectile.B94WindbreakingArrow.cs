@@ -117,7 +117,7 @@ namespace Coralite.Content.Items.Steel
 
         public override bool PreDraw(ref Color lightColor)
         {
-            Projectile.QuickDraw(lightColor, 1.57f);
+            Projectile.QuickFrameDraw(new Rectangle(HomingTarget == null ? 0 : 1, 0, 2, 1), lightColor, 1.57f);
             return false;
         }
     }

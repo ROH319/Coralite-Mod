@@ -679,16 +679,86 @@ namespace Coralite.Content.Items.AlchorthentSeries
              * 4.蓄力特效
              * 5.射激光持续中
              * 6.将自己弹开并获得腐化进度
+             * 
+             * 使用recorder2记录攻击次数
+             * 使用recorder3记录目标身边的位置
+             * 使用recorder4记录目标身边的旋转
              */
+
+            if (!Target.GetNPCOwner(out NPC target))
+            {
+                SwitchState(AIStates.BackToOwner);
+                return;
+            }
 
             switch (Recorder)
             {
                 default:
                 case 0:
                     {
-                        if (Recorder2==0)
+                        //仅在初次开始攻击的时候改变速度，并记录旋转和距离
+                        if (Timer <2)//因为计时器在此之前增加的
                         {
+                            Helper.GetMyGroupIndexAndFillBlackList(Projectile, out int index, out int total);
+                            float percent = index / (float)total;
 
+                            if (Recorder2 == 0)
+                            {
+                                Projectile.velocity = (percent + (Owner.direction > 0 ? 0 : MathHelper.Pi)).ToRotationVector2() * 4;
+                            }
+
+                            Recorder3 = -MathHelper.PiOver2 + (percent + Recorder2 * 1.5f / total) * MathHelper.TwoPi;
+                            Recorder4 = MathF.Max(target.width, target.height) / 2 + 30 + total * 14;
+                        }
+
+                        //旋转并减速
+                        Projectile.velocity *= 0.8f;
+                        Projectile.rotation += Timer / 25f * 0.4f;
+                        GraduallyWithdrawBodyPart();
+
+                        if (Timer > 25)
+                        {
+                            Recorder = 1;
+                            Timer = 0;
+                            canDrawBodyPart = false;
+                        }
+                    }
+                    break;
+                case 1://渐进
+                    {
+                        Vector2 aimPos = target.Center + Recorder3.ToRotationVector2() * Recorder4;
+
+                        Projectile.rotation += 0.4f;
+
+                        float factor = 0.2f;
+                        if (Timer > 30)
+                            factor += (Timer - 30) * 0.01f;
+
+                        Projectile.Center = Vector2.SmoothStep(Projectile.Center, aimPos, factor);
+                        if (Vector2.DistanceSquared(Projectile.Center, aimPos) < 16)
+                        {
+                            Recorder = 2;
+                            Timer = 0;
+                        }
+                    }
+                    break;
+                case 2://锁定位置+旋转自身
+                    {
+                        Vector2 aimPos = target.Center + Recorder3.ToRotationVector2() * Recorder4;
+
+                        if (Vector2.DistanceSquared(Projectile.Center, aimPos) > 8 * 16 * 8 * 16)
+                            Projectile.Center = aimPos;
+
+                        Projectile.Center = Vector2.SmoothStep(Projectile.Center, aimPos, 0.75f);
+
+                        Projectile.rotation = Projectile.rotation.AngleLerp((aimPos - Projectile.Center).ToRotation(), 0.2f);
+
+                        xScale = Helper.Lerp(xScale, 0.6f, 0.15f);
+
+                        if (Timer > 20)
+                        {
+                            Recorder = 3;
+                            Timer = 0;
                         }
                     }
                     break;
@@ -729,6 +799,15 @@ namespace Coralite.Content.Items.AlchorthentSeries
             int restCount = totalCount - 6;
             float length = 70 + (totalCount - 7) * 15;
             return basePos + ((selfIndex - 7) * MathHelper.TwoPi / restCount - MathHelper.PiOver2).ToRotationVector2() * length;
+        }
+
+        /// <summary>
+        /// 逐渐收回身体部件
+        /// </summary>
+        public void GraduallyWithdrawBodyPart()
+        {
+            xScale =Helper.Lerp(xScale,1,0.2f);
+            bodyPartLength *= 0.95f;
         }
 
         private void SwitchState(AIStates targetState)
