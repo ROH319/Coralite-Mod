@@ -18,6 +18,7 @@ namespace Coralite.Content.Particles
 
         public override void SetProperty()
         {
+            ShouldKillWhenOffScreen = false;
         }
 
         public override void AI()
@@ -32,7 +33,7 @@ namespace Coralite.Content.Particles
                     Velocity = Velocity.RotatedBy(-rotate);
 
                 UpdatePositionCache(spawnTime);
-                trail.TrailPositions = oldPositions;
+                SetTrailPositions();
             }
 
             if (Opacity < -120 || Color.A < 10)
@@ -41,7 +42,11 @@ namespace Coralite.Content.Particles
             Opacity -= 1f;
             if (Opacity == 0)
                 Velocity = Vector2.Zero;
+        }
 
+        public virtual void SetTrailPositions()
+        {
+            trail.TrailPositions = oldPositions;
         }
 
         public override bool PreDraw(SpriteBatch spriteBatch) => false;
@@ -124,6 +129,46 @@ namespace Coralite.Content.Particles
                 particle.spawnTime = spawnTime;
                 particle.rotate = rotate;
             }
+        }
+    }
+
+    public class FlowLineThinFollow: FlowLineThin
+    {
+        public Projectile Owner;
+
+        public override void SetTrailPositions()
+        {
+            trail.TrailPositions = oldPositions;
+            for (int i = 0; i < trail.TrailPositions.Length; i++)
+            {
+                trail.TrailPositions[i] += Owner.Center;
+            }
+        }
+
+        public static FlowLineThinFollow Spawn(Vector2 center, Vector2 velocity, Projectile Onwer,float trailWidth, int spawnTime, float rotate, Color color = default)
+        {
+            if (VaultUtils.isServer)
+                return null;
+
+            FlowLineThinFollow particle = PRTLoader.CreateAndInitializePRT<FlowLineThinFollow>(center, velocity, color, 1f);
+            if (particle != null)
+            {
+                particle.Opacity = spawnTime;
+                particle.InitializePositionCache(spawnTime);
+                particle.trail = new Trail(Main.instance.GraphicsDevice, spawnTime, new EmptyMeshGenerator(), factor => trailWidth, factor =>
+                {
+                    if (factor.X > 0.5f)
+                        return Color.Lerp(particle.Color, new Color(0, 0, 0, 0), (factor.X - 0.5f) * 2);
+
+                    return Color.Lerp(new Color(0, 0, 0, 0), particle.Color, factor.X * 2);
+                });
+
+                particle.spawnTime = spawnTime;
+                particle.rotate = rotate;
+                particle.Owner = Onwer;
+            }
+
+            return particle;
         }
     }
 }

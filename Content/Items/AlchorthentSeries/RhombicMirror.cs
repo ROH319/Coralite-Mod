@@ -7,6 +7,7 @@ using Coralite.Core.Configs;
 using Coralite.Core.Loaders;
 using Coralite.Core.Prefabs.Particles;
 using Coralite.Core.Systems.MagikeSystem.Particles;
+using Coralite.Core.Systems.ParticleSystem;
 using Coralite.Helpers;
 using InnoVault.GameContent.BaseEntity;
 using InnoVault.PRT;
@@ -199,7 +200,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
     /// 菱花镜召唤物，ai0控制是否强化形态
     /// </summary>
     [VaultLoaden(AssetDirectory.AlchorthentSeriesItems)]
-    public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>
+    public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>,IDrawPrimitive
     {
         /*
          * 神秘身体部分贴图
@@ -230,10 +231,12 @@ namespace Coralite.Content.Items.AlchorthentSeries
         public float alpha = 0;
         public byte frameX = 1;
 
+        public PrimitivePRTGroup particleGroup;
+
         /// <summary>
         /// 攻击状态
         /// </summary>
-        public AttackTypes Corrupted { get; set; }
+        public AttackTypes CorrupteState { get; set; }
 
         const int totalFrameY = 37;
         const float Scale = 0.7f;
@@ -249,11 +252,13 @@ namespace Coralite.Content.Items.AlchorthentSeries
         public enum AttackTypes : byte
         {
             /// <summary> 正常状态，攻击时增加腐化值，一定次数后进入生锈形态 </summary>
-            Clear,
+            Clear0 = 0,
+            Clear1 = 1,
+            Clear2 = 2,
             /// <summary> 生锈形态，攻击力减弱，可以被腐化镜子检测到 </summary>
-            Corrupted,
+            Corrupted = 3,
             /// <summary> 除锈状态，发动一次强力攻击，攻击后回复正常状态 </summary>
-            BreakCorrupt
+            BreakCorrupt = 4
         }
 
         private enum AIStates : byte
@@ -273,7 +278,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
             /// <summary> 经过一定攻击后变得腐化 </summary>
             Corrupt,
             /// <summary> 腐蚀光束 </summary>
-            CorruptedShoot,
+            BreakCorruptShoot,
         }
 
         public override void SetOtherDefault()
@@ -327,19 +332,21 @@ namespace Coralite.Content.Items.AlchorthentSeries
                     if (Timer > 20 && Main.rand.NextBool(12))
                         if (FindEnemy())
                         {
-                            SwitchState(AIStates.Shoot);
+                            SwitchState(CorrupteState == AttackTypes.BreakCorrupt
+                                ?AIStates.BreakCorruptShoot:AIStates.Shoot);
                             break;
                         }
 
                     SpecialIdle1();
                     break;
                 case (byte)AIStates.Shoot:
-                    if (!Target.GetNPCOwner(out NPC owner, () => Target = -1))
+                    if (!Target.GetNPCOwner(out NPC target, () => Target = -1))
                     {
-                        SwitchState(AIStates.Shoot);
+                        SwitchState(AIStates.BackToOwner);
                         break;
                     }
 
+                    Shoot(target);
                     break;
                 case (byte)AIStates.Corrupt:
 
@@ -670,7 +677,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
             Projectile.Center = Vector2.SmoothStep(Projectile.Center, aimPos + offset, 0.3f);
         }
 
-        public void Shoot()
+        public void Shoot(NPC target)
         {
             /*
              * 1.旋转加速
@@ -685,19 +692,13 @@ namespace Coralite.Content.Items.AlchorthentSeries
              * 使用recorder4记录目标身边的旋转
              */
 
-            if (!Target.GetNPCOwner(out NPC target))
-            {
-                SwitchState(AIStates.BackToOwner);
-                return;
-            }
-
             switch (Recorder)
             {
                 default:
                 case 0:
                     {
                         //仅在初次开始攻击的时候改变速度，并记录旋转和距离
-                        if (Timer <2)//因为计时器在此之前增加的
+                        if (Timer < 2)//因为计时器在此之前增加的
                         {
                             Helper.GetMyGroupIndexAndFillBlackList(Projectile, out int index, out int total);
                             float percent = index / (float)total;
@@ -750,18 +751,87 @@ namespace Coralite.Content.Items.AlchorthentSeries
                             Projectile.Center = aimPos;
 
                         Projectile.Center = Vector2.SmoothStep(Projectile.Center, aimPos, 0.75f);
-
                         Projectile.rotation = Projectile.rotation.AngleLerp((aimPos - Projectile.Center).ToRotation(), 0.2f);
 
-                        xScale = Helper.Lerp(xScale, 0.6f, 0.15f);
+                        const int RotTime = 20;
+                        const int ChannelTime = 30;
+                        const int AttackTimeTime = 40;
 
-                        if (Timer > 20)
+                        if (Timer < RotTime)
                         {
-                            Recorder = 3;
+                            Recorder3 += 0.03f;
+                        }
+                        else if (Timer < RotTime + ChannelTime)
+                        {
+                            Recorder3 += 0.03f;
+
+                            if (!VaultUtils.isServer)
+                            {
+                                particleGroup ??= new PrimitivePRTGroup();
+
+                                if (Timer % 5 == 0)
+                                {
+                                    float length = 65 + (1 - Timer / 30f) * 30;
+                                    Vector2 dir = Helper.NextVec2Dir();
+                                    particleGroup.Add(FlowLineThinFollow.Spawn(dir * length, -dir * length / 10, Projectile, 6, 10, Main.rand.NextFloat(-0.15f, 0.15f), GetFlowLineColor()));
+                                }
+                            }
+
+                            xScale = Helper.Lerp(xScale, 0.6f, 0.1f);
+                        }
+                        else if (Timer == RotTime + ChannelTime)
+                        {
+                            Projectile.NewProjectileFromThis<CorruptLaser>(Projectile.Center, Vector2.Zero, Projectile.damage, Projectile.knockBack, Projectile.whoAmI, Target, CorrupteState == AttackTypes.Corrupted ? 1 : 0);
+                        }
+                        else if (Timer < RotTime + ChannelTime + AttackTimeTime)
+                        {
+                            Recorder3 += 0.03f;
+                            float f = Timer - RotTime + ChannelTime;
+                            f /= AttackTimeTime;
+                            Recorder4 -= 1.5f * Helper.SqrtEase(1 - f);
+                        }
+                        else
+                        {
+                            Recorder = 4;
                             Timer = 0;
+                            Projectile.velocity = (Projectile.Center - target.Center).SafeNormalize(Vector2.Zero);
                         }
                     }
                     break;
+                case 3://弹开
+                    {
+                        xScale = Helper.Lerp(xScale, 1f, 0.1f);
+                        Projectile.velocity *= 0.8f;
+                        Projectile.rotation += (1-Timer / 25f) * 0.4f;
+
+                        if (Timer>25)
+                        {
+                            Recorder2++;
+                            AttackTypes a = CorrupteState;
+                            GetCorruptEnergy();
+
+                            AIStates targetState;
+                            if (a != AttackTypes.Corrupted && CorrupteState == AttackTypes.Corrupted)//进入腐化状态
+                                targetState = AIStates.Corrupt;
+                            else if (CorrupteState == AttackTypes.BreakCorrupt)//当前是破除腐蚀状态
+                                targetState = FindEnemy() ? AIStates.BreakCorruptShoot : AIStates.BackToOwner;
+                            else//正常攻击
+                                targetState = FindEnemy() ? AIStates.Shoot : AIStates.BackToOwner;
+
+                            SwitchState(targetState);
+                        }
+                    }
+                    break;
+            }
+
+            Color GetFlowLineColor()
+            {
+                return CorrupteState switch
+                {
+                    AttackTypes.Corrupted => new Color(178, 220, 204),
+                    AttackTypes.BreakCorrupt => RhombicMirror.ShineCorruptionColor,
+                    _ => new Color(255, 251, 205)
+                };
             }
         }
 
@@ -810,13 +880,26 @@ namespace Coralite.Content.Items.AlchorthentSeries
             bodyPartLength *= 0.95f;
         }
 
+        public void GetCorruptEnergy()
+        {
+            if (CorrupteState< AttackTypes.Corrupted)
+                CorrupteState ++;
+        }
+
+        /// <summary>
+        /// 连续攻击不重置Recorder2
+        /// </summary>
+        /// <param name="targetState"></param>
         private void SwitchState(AIStates targetState)
         {
+            if (State != (byte)AIStates.Shoot || targetState != AIStates.Shoot)
+                Recorder2 = 0;
+
             State = (byte)targetState;
 
             Recorder = 0;
-            Recorder2 = 0;
             Recorder3 = 0;
+            Recorder4 = 0;
 
             Timer = 0;
             alpha = 1;
@@ -838,6 +921,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
                 DrawBodyParts(lightColor, xScaleFactor, dir);
 
             DrawSelf(lightColor, dir);
+
             return false;
         }
 
@@ -936,6 +1020,11 @@ namespace Coralite.Content.Items.AlchorthentSeries
         {
             var frameBox = tex.Frame(6, totalFrameY, xFrame * 3 + frameX, Projectile.frame);
             Main.EntitySpriteDraw(tex, Projectile.Center - Main.screenPosition + posOffset, frameBox, color, rotation ?? Projectile.rotation, frameBox.Size() / 2, new Vector2(xScale, 1) * Projectile.scale, 0, 0);
+        }
+
+        public void DrawPrimitives()
+        {
+            particleGroup?.DrawPrimitive();
         }
 
         #endregion
@@ -1105,7 +1194,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
             int targetType = ModContent.ProjectileType<RhombicMirrorProj>();
             foreach (var proj in Main.ActiveProjectiles)
                 if (proj.owner == Projectile.owner && proj.type == targetType && Projectile.Distance(proj.Center) < 800)
-                    if ((proj.ModProjectile as RhombicMirrorProj).Corrupted == RhombicMirrorProj.AttackTypes.Corrupted)
+                    if ((proj.ModProjectile as RhombicMirrorProj).CorrupteState == RhombicMirrorProj.AttackTypes.Corrupted)
                         return true;
 
             return false;
@@ -1340,7 +1429,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
                 case 1://持续造成伤害
                     {
                         laser?.SetLineWidth(lineWidth + 2 * MathF.Sin(Timer * 0.4f));
-                        if (Timer>40)
+                        if (Timer > 30)
                         {
                             Timer = 0;
                             State = 2;
@@ -1365,7 +1454,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
         public void SetEndPoint()
         {
             Vector2 dir = Projectile.rotation.ToRotationVector2();
-           Vector2 endPos = Vector2.Zero;
+            Vector2 endPos;
 
             int count = (int)Length / 16 + 1;
 
