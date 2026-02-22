@@ -5,6 +5,7 @@ using Coralite.Helpers;
 using InnoVault.PRT;
 using InnoVault.Trails;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using Terraria;
 
 namespace Coralite.Content.Particles
@@ -15,6 +16,10 @@ namespace Coralite.Content.Particles
 
         protected int spawnTime;
         protected float rotate;
+        /// <summary>
+        /// 在运动结束后是否还更新点
+        /// </summary>
+        protected bool updatePosWhenEnd=false;
 
         public override void SetProperty()
         {
@@ -24,7 +29,11 @@ namespace Coralite.Content.Particles
         public override void AI()
         {
             if (Opacity < 0)
+            {
                 Color *= 0.88f;
+                if (updatePosWhenEnd)
+                    SetTrailPositions();
+            }
             else
             {
                 if (Opacity >= spawnTime * 3f / 4f || Opacity < spawnTime / 4f)
@@ -68,9 +77,8 @@ namespace Coralite.Content.Particles
         public static void Spawn(Vector2 center, Vector2 velocity, float trailWidth, int spawnTime, float rotate, Color color = default)
         {
             if (VaultUtils.isServer)
-            {
                 return;
-            }
+
             FlowLine particle = PRTLoader.NewParticle<FlowLine>(center, velocity, color, 1f);
             if (particle != null)
             {
@@ -134,18 +142,22 @@ namespace Coralite.Content.Particles
 
     public class FlowLineThinFollow: FlowLineThin
     {
-        public Projectile Owner;
+        public Func<Vector2> GetCenter;
+        public Vector2[] poses;
 
         public override void SetTrailPositions()
         {
-            trail.TrailPositions = oldPositions;
-            for (int i = 0; i < trail.TrailPositions.Length; i++)
+            poses ??= new Vector2[oldPositions.Length];
+            if (trail.TrailPositions != null)
             {
-                trail.TrailPositions[i] += Owner.Center;
+                Vector2 center = GetCenter();
+                for (int i = 0; i < trail.TrailPositions.Length; i++)
+                    poses[i] = oldPositions[i] + center;
             }
+            trail.TrailPositions = poses;
         }
 
-        public static FlowLineThinFollow Spawn(Vector2 center, Vector2 velocity, Projectile Onwer,float trailWidth, int spawnTime, float rotate, Color color = default)
+        public static FlowLineThinFollow Spawn(Vector2 center, Vector2 velocity, Func<Vector2> getCenter, float trailWidth, int spawnTime, float rotate, Color color = default)
         {
             if (VaultUtils.isServer)
                 return null;
@@ -165,7 +177,8 @@ namespace Coralite.Content.Particles
 
                 particle.spawnTime = spawnTime;
                 particle.rotate = rotate;
-                particle.Owner = Onwer;
+                particle.GetCenter = getCenter;
+                particle.updatePosWhenEnd = true;
             }
 
             return particle;

@@ -53,7 +53,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
         {
             //PRTLoader.NewParticle<TestAlchSymbol>(Main.MouseWorld, Vector2.Zero, ShineCorruptionColor);
 
-            //Projectile.NewProjectile(source, player.Center, Vector2.Zero, ModContent.ProjectileType<CorruptLaser>(), damage, knockback, player.whoAmI, 0,0,2);
+            Projectile.NewProjectile(source, player.Center, Vector2.Zero, ModContent.ProjectileType<CorruptLaser>(), damage, knockback, player.whoAmI, 0, 0, 2);
         }
 
         public override void SpecialAttack(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
@@ -340,6 +340,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
                     SpecialIdle1();
                     break;
                 case (byte)AIStates.Shoot:
+                case (byte)AIStates.Corrupt:
                     if (!Target.GetNPCOwner(out NPC target, () => Target = -1))
                     {
                         SwitchState(AIStates.BackToOwner);
@@ -348,7 +349,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
                     Shoot(target);
                     break;
-                case (byte)AIStates.Corrupt:
+                //case (byte)AIStates.Corrupt:
 
                     break;
             }
@@ -361,6 +362,8 @@ namespace Coralite.Content.Items.AlchorthentSeries
             //}
             //else
             //    xScale = 1;
+
+            particleGroup?.Update();
         }
 
         public void OnSummon()
@@ -417,6 +420,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
             }
 
             int dir = aimPos.X > Projectile.Center.X ? 1 : -1;
+            xScale = Helper.Lerp(xScale, 1f, 0.1f);
 
             switch (Recorder)
             {
@@ -709,12 +713,12 @@ namespace Coralite.Content.Items.AlchorthentSeries
                             }
 
                             Recorder3 = -MathHelper.PiOver2 + (percent + Recorder2 * 1.5f / total) * MathHelper.TwoPi;
-                            Recorder4 = MathF.Max(target.width, target.height) / 2 + 30 + total * 14;
+                            Recorder4 = MathF.Max(target.width, target.height) / 2 + 80 + total * 14;
                         }
 
                         //旋转并减速
                         Projectile.velocity *= 0.8f;
-                        Projectile.rotation += Timer / 25f * 0.4f;
+                        Projectile.rotation += Timer / 25f * 0.3f;
                         GraduallyWithdrawBodyPart();
 
                         if (Timer > 25)
@@ -729,10 +733,10 @@ namespace Coralite.Content.Items.AlchorthentSeries
                     {
                         Vector2 aimPos = target.Center + Recorder3.ToRotationVector2() * Recorder4;
 
-                        Projectile.rotation += 0.4f;
+                        Projectile.rotation += 0.3f;
 
                         float factor = 0.2f;
-                        if (Timer > 30)
+                        if (Timer > 20)
                             factor += (Timer - 30) * 0.01f;
 
                         Projectile.Center = Vector2.SmoothStep(Projectile.Center, aimPos, factor);
@@ -751,60 +755,88 @@ namespace Coralite.Content.Items.AlchorthentSeries
                             Projectile.Center = aimPos;
 
                         Projectile.Center = Vector2.SmoothStep(Projectile.Center, aimPos, 0.75f);
-                        Projectile.rotation = Projectile.rotation.AngleLerp((aimPos - Projectile.Center).ToRotation(), 0.2f);
+                        Recorder3 += 0.005f;
 
-                        const int RotTime = 20;
-                        const int ChannelTime = 30;
+                        const float RotTime = 8;
+                        Projectile.rotation += (1 - Timer / RotTime) * 0.3f;
+
+                        if (Timer > RotTime)
+                        {
+                            Recorder = 3;
+                            Timer = 0;
+                        }
+                    }
+                    break;
+                case 3://锁定位置+旋转自身
+                    {
+                        Vector2 aimPos = target.Center + Recorder3.ToRotationVector2() * Recorder4;
+
+                        if (Vector2.DistanceSquared(Projectile.Center, aimPos) > 8 * 16 * 8 * 16)
+                            Projectile.Center = aimPos;
+
+                        Projectile.Center = Vector2.SmoothStep(Projectile.Center, aimPos, 0.5f);
+                        Projectile.rotation = Projectile.rotation.AngleLerp((target.Center - Projectile.Center).ToRotation() , 0.2f);
+
+                        const int ChannelTime = 45;
                         const int AttackTimeTime = 40;
 
-                        if (Timer < RotTime)
+                        if (Timer < ChannelTime)
                         {
-                            Recorder3 += 0.03f;
-                        }
-                        else if (Timer < RotTime + ChannelTime)
-                        {
-                            Recorder3 += 0.03f;
+                            Recorder3 += 0.0025f;
 
                             if (!VaultUtils.isServer)
                             {
                                 particleGroup ??= new PrimitivePRTGroup();
 
-                                if (Timer % 5 == 0)
+                                float rot = Main.rand.NextFloat(MathHelper.TwoPi);
+                                int direction = Projectile.Center.X > target.Center.X ? 1 : -1;
+                                if (Timer == ChannelTime / 4)
                                 {
-                                    float length = 65 + (1 - Timer / 30f) * 30;
-                                    Vector2 dir = Helper.NextVec2Dir();
-                                    particleGroup.Add(FlowLineThinFollow.Spawn(dir * length, -dir * length / 10, Projectile, 6, 10, Main.rand.NextFloat(-0.15f, 0.15f), GetFlowLineColor()));
+                                    for (int i = 0; i < 6; i++)
+                                    {
+                                        float length = 45 + Main.rand.NextFloat(-10, 10);
+                                        Vector2 dir = (rot + i * MathHelper.TwoPi / 6).ToRotationVector2();
+
+                                        particleGroup.Add(FlowLineThinFollow.Spawn(dir * length, -dir * length * 1.3f / 16, GetMirrorCenter, 6, 16, 0.2f * direction, GetFlowLineColor()));
+                                    }
                                 }
                             }
 
+                            float f = Timer;
+                            f /= ChannelTime;
+                            if (Timer % (ChannelTime / 3)==0)
+                                Recorder4 += 10;
+
                             xScale = Helper.Lerp(xScale, 0.6f, 0.1f);
                         }
-                        else if (Timer == RotTime + ChannelTime)
+                        else if (Timer == ChannelTime)
                         {
                             Projectile.NewProjectileFromThis<CorruptLaser>(Projectile.Center, Vector2.Zero, Projectile.damage, Projectile.knockBack, Projectile.whoAmI, Target, CorrupteState == AttackTypes.Corrupted ? 1 : 0);
+
+                            Recorder4 -= 20;
                         }
-                        else if (Timer < RotTime + ChannelTime + AttackTimeTime)
+                        else if (Timer < ChannelTime + AttackTimeTime)
                         {
-                            Recorder3 += 0.03f;
-                            float f = Timer - RotTime + ChannelTime;
-                            f /= AttackTimeTime;
-                            Recorder4 -= 1.5f * Helper.SqrtEase(1 - f);
+                            Recorder3 += 0.01f;
+                            //float f = Timer - ChannelTime;
+                            //f /= AttackTimeTime;
+                            //Recorder4 -= 2f * Helper.SqrtEase(1 - f);
                         }
                         else
                         {
                             Recorder = 4;
                             Timer = 0;
-                            Projectile.velocity = (Projectile.Center - target.Center).SafeNormalize(Vector2.Zero);
+                            Projectile.velocity = (Projectile.Center - target.Center).SafeNormalize(Vector2.Zero)*4;
                         }
                     }
                     break;
-                case 3://弹开
+                case 4://弹开
                     {
                         xScale = Helper.Lerp(xScale, 1f, 0.1f);
-                        Projectile.velocity *= 0.8f;
-                        Projectile.rotation += (1-Timer / 25f) * 0.4f;
+                        Projectile.velocity *= 0.9f;
+                        Projectile.rotation += (1 - Timer / 25f) * 0.4f;
 
-                        if (Timer>25)
+                        if (Timer > 25)
                         {
                             Recorder2++;
                             AttackTypes a = CorrupteState;
@@ -870,6 +902,9 @@ namespace Coralite.Content.Items.AlchorthentSeries
             float length = 70 + (totalCount - 7) * 15;
             return basePos + ((selfIndex - 7) * MathHelper.TwoPi / restCount - MathHelper.PiOver2).ToRotationVector2() * length;
         }
+
+        public Vector2 GetMirrorCenter()
+            => Projectile.Center + Projectile.rotation.ToRotationVector2() * xScaleDirection * (1 - xScale) * 5;
 
         /// <summary>
         /// 逐渐收回身体部件
@@ -1357,8 +1392,8 @@ namespace Coralite.Content.Items.AlchorthentSeries
         public override void SetDefaults()
         {
             Projectile.penetrate = -1;
-            Projectile.usesIDStaticNPCImmunity = true;
-            Projectile.idStaticNPCHitCooldown = 20;
+            Projectile.usesLocalNPCImmunity = true;
+            Projectile.localNPCHitCooldown = 20;
             Projectile.width = Projectile.height = 30;
             Projectile.friendly = true;
             Projectile.tileCollide = false;
@@ -1403,11 +1438,11 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
             Timer++;
 
-            Projectile.Center = owner.Center;
             if (hasTarget)
             {
-                Length = Helper.Lerp(Length, Vector2.Distance(owner.Center, target.Center), 0.2f);
+                Length = Helper.Lerp(Length, Vector2.Distance(owner.Center, target.Center), 0.25f);
                 Projectile.rotation = (target.Center - Projectile.Center).ToRotation();
+                Projectile.Center = owner.Center + (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero) * 5;
             }
 
             const int lineWidth = 40;
@@ -1454,21 +1489,24 @@ namespace Coralite.Content.Items.AlchorthentSeries
         public void SetEndPoint()
         {
             Vector2 dir = Projectile.rotation.ToRotationVector2();
-            Vector2 endPos;
 
-            int count = (int)Length / 16 + 1;
+            this.endPos = dir * Length;
+                return;
+            //Vector2 endPos;
 
-            for (int k = 0; k < count; k++)
-            {
-                Vector2 posCheck = Projectile.Center + (dir * k * 16);
+            //int count = (int)Length / 16 + 1;
 
-                if (Helper.PointInTile(posCheck) || k == count - 1)
-                {
-                    endPos = posCheck - Projectile.Center;
-                    this.endPos = Vector2.SmoothStep(this.endPos, endPos, 0.4f);
-                    return;
-                }
-            }
+            //for (int k = 0; k < count; k++)
+            //{
+            //    Vector2 posCheck = Projectile.Center + (dir * k * 16);
+
+            //    if (Helper.PointInTile(posCheck) || k == count - 1)
+            //    {
+            //        endPos = posCheck - Projectile.Center;
+            //        this.endPos = Vector2.SmoothStep(this.endPos, endPos, 0.4f);
+            //        return;
+            //    }
+            //}
         }
 
         public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
@@ -1497,6 +1535,9 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
         public override bool PreDraw(ref Color lightColor)
         {
+            if (laser == null)
+                return false;
+
             DrawRhombicPic(Projectile.Center - Main.screenPosition);
             //DrawRhombicPic(Projectile.Center - Main.screenPosition + endPos);
 
@@ -1505,12 +1546,12 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
             effect.Parameters["coreColor"].SetValue(GetLaserCoreColor().ToVector4());
             effect.Parameters["lightColor"].SetValue(GetLaserLightColor().ToVector4());
-            effect.Parameters["uBottomCA"].SetValue(0.6f);
+            effect.Parameters["uBottomCA"].SetValue(0.7f);
             effect.Parameters["uFlowAdd"].SetValue(0.3f);
             effect.Parameters["uTime"].SetValue((float)Main.timeForVisualEffects * 0.05f);
             effect.Parameters["uFlowUEx"].SetValue(endPos.Length() / (CoraliteAssets.Laser.MusicLineSPA.Value.Width * 0.7f));
             effect.Parameters["uBaseUEx"].SetValue(endPos.Length() / (Projectile.GetTexture().Width() / 2));
-            effect.Parameters["uNormalCadj"].SetValue(0.6f);
+            effect.Parameters["uNormalCadj"].SetValue(0.5f);
             effect.Parameters["transformMatrix"].SetValue(VaultUtils.GetTransfromMatrix());
             effect.Parameters["uCoreImage"].SetValue(CoraliteAssets.Laser.MultLinesSPA.Value);
             effect.Parameters["uFlowImage"].SetValue(WarpLinesFlow.Value);
