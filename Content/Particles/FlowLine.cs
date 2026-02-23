@@ -32,7 +32,10 @@ namespace Coralite.Content.Particles
             {
                 Color *= 0.88f;
                 if (updatePosWhenEnd)
+                {
+                    UpdatePositionCache(spawnTime);
                     SetTrailPositions();
+                }
             }
             else
             {

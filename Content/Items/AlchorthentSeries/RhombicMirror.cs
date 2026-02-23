@@ -777,10 +777,10 @@ namespace Coralite.Content.Items.AlchorthentSeries
                         Projectile.Center = Vector2.SmoothStep(Projectile.Center, aimPos, 0.5f);
                         Projectile.rotation = Projectile.rotation.AngleLerp((target.Center - Projectile.Center).ToRotation() , 0.2f);
 
-                        const int ChannelTime = 45;
+                        const int ChannelTime = 50;
                         const int AttackTimeTime = 40;
 
-                        if (Timer < ChannelTime)
+                        if (Timer < ChannelTime)//蓄力特效
                         {
                             Recorder3 += 0.0025f;
 
@@ -797,14 +797,26 @@ namespace Coralite.Content.Items.AlchorthentSeries
                                         float length = 45 + Main.rand.NextFloat(-10, 10);
                                         Vector2 dir = (rot + i * MathHelper.TwoPi / 6).ToRotationVector2();
 
-                                        particleGroup.Add(FlowLineThinFollow.Spawn(dir * length, -dir * length * 1.3f / 16, GetMirrorCenter, 6, 16, 0.2f * direction, GetFlowLineColor()));
+                                        particleGroup.Add(FlowLineThinFollow.Spawn(dir * length, -dir * length * 1.3f / 16, GetMirrorCenter, 10, 16, 0.2f * direction, GetFlowLineColor()));
                                     }
+                                }
+
+                                if (Timer < ChannelTime * 0.4f && (Timer - 1) % (ChannelTime / 7) == 0)
+                                {
+                                    var p = PRTLoader.CreateAndInitializePRT<RhombicMirrorChannelParticle>(Projectile.Center, Vector2.Zero, Color.Transparent, 1);
+                                    p.OwnerProjIndex = Projectile.whoAmI;
+                                    p.shineColor = GetFlowLineColor()*0.5f;
+                                    int time = (Timer - 1) / (ChannelTime / 7);
+                                    p.maxLength = 40 + time * 10;
+                                    p.LaserWidth = 16 - time * 4;
+
+                                    particleGroup.Add(p);
                                 }
                             }
 
                             float f = Timer;
                             f /= ChannelTime;
-                            if (Timer % (ChannelTime / 3)==0)
+                            if (Timer % (ChannelTime / 3) == 0)
                                 Recorder4 += 10;
 
                             xScale = Helper.Lerp(xScale, 0.6f, 0.1f);
@@ -929,6 +941,8 @@ namespace Coralite.Content.Items.AlchorthentSeries
         {
             if (State != (byte)AIStates.Shoot || targetState != AIStates.Shoot)
                 Recorder2 = 0;
+            if (State != (byte)targetState)
+                particleGroup.Clear();
 
             State = (byte)targetState;
 
@@ -956,6 +970,14 @@ namespace Coralite.Content.Items.AlchorthentSeries
                 DrawBodyParts(lightColor, xScaleFactor, dir);
 
             DrawSelf(lightColor, dir);
+
+            if (particleGroup!=null)
+            {
+                Main.spriteBatch.End();
+                Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointWrap, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
+
+                particleGroup.Draw(Main.spriteBatch);
+            }
 
             return false;
         }
@@ -1647,6 +1669,53 @@ namespace Coralite.Content.Items.AlchorthentSeries
                 float f = Helper.X2Ease((Opacity - 15) / 30);
                 LaserLength = Helper.Lerp(90, 60, f);
                 Color = Color.Lerp(new Color(180, 120, 220), Color.Transparent, f);
+            }
+            else
+            {
+                active = false;
+            }
+        }
+    }
+
+    public class RhombicMirrorChannelParticle : RhombicMirrorLaserParticle
+    {
+        public Color shineColor;
+        public float maxLength;
+
+        public override void SetProperty()
+        {
+            base.SetProperty();
+            //LaserWidth = 8;
+            LaserAngleOffset = -1.3f;
+            LaserLength = 10;
+        }
+
+        public override void AI()
+        {
+            if (!OwnerProjIndex.GetProjectileOwner(out Projectile owner))
+            {
+                active = false;
+                return;
+            }
+
+            Player p = Main.player[owner.owner];
+
+            Position = (owner.ModProjectile as RhombicMirrorProj).GetMirrorCenter();
+            Rotation = owner.rotation;
+
+            Opacity++;
+            if (Opacity < 25)
+            {
+                float f = (Opacity / 25);
+                LaserAngleOffset = Helper.Lerp(-2f, 0f, f);
+                LaserLength = Helper.Lerp(0, maxLength, f);
+                Color = Color.Lerp(Color.Transparent, shineColor, Helper.SqrtEase(f));
+            }
+            else if (Opacity < 25 + 10)
+            {
+                float f = ((Opacity - 25) / 10);
+                //LaserLength = Helper.Lerp(maxLength, 0, Helper.X2Ease(f));
+                Color = Color.Lerp(shineColor, Color.Transparent, f);
             }
             else
             {
