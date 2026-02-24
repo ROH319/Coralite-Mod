@@ -200,7 +200,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
     /// 菱花镜召唤物，ai0控制是否强化形态
     /// </summary>
     [VaultLoaden(AssetDirectory.AlchorthentSeriesItems)]
-    public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>,IDrawPrimitive
+    public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>, IDrawPrimitive
     {
         /*
          * 神秘身体部分贴图
@@ -333,14 +333,13 @@ namespace Coralite.Content.Items.AlchorthentSeries
                         if (FindEnemy())
                         {
                             SwitchState(CorrupteState == AttackTypes.BreakCorrupt
-                                ?AIStates.BreakCorruptShoot:AIStates.Shoot);
+                                ? AIStates.BreakCorruptShoot : AIStates.Shoot);
                             break;
                         }
 
                     SpecialIdle1();
                     break;
                 case (byte)AIStates.Shoot:
-                case (byte)AIStates.Corrupt:
                     if (!Target.GetNPCOwner(out NPC target, () => Target = -1))
                     {
                         SwitchState(AIStates.BackToOwner);
@@ -349,8 +348,8 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
                     Shoot(target);
                     break;
-                //case (byte)AIStates.Corrupt:
-
+                case (byte)AIStates.Corrupt:
+                    Corrupt();
                     break;
             }
 
@@ -764,10 +763,12 @@ namespace Coralite.Content.Items.AlchorthentSeries
                         {
                             Recorder = 3;
                             Timer = 0;
+
+                            Helper.PlayPitched("AlchSeries/RhombicMirrorProjCharge", 0.3f, -0.2f, Projectile.Center);
                         }
                     }
                     break;
-                case 3://锁定位置+旋转自身
+                case 3://蓄力攻击
                     {
                         Vector2 aimPos = target.Center + Recorder3.ToRotationVector2() * Recorder4;
 
@@ -775,7 +776,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
                             Projectile.Center = aimPos;
 
                         Projectile.Center = Vector2.SmoothStep(Projectile.Center, aimPos, 0.5f);
-                        Projectile.rotation = Projectile.rotation.AngleLerp((target.Center - Projectile.Center).ToRotation() , 0.2f);
+                        Projectile.rotation = Projectile.rotation.AngleLerp((target.Center - Projectile.Center).ToRotation(), 0.2f);
 
                         const int ChannelTime = 50;
                         const int AttackTimeTime = 40;
@@ -797,7 +798,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
                                         float length = 45 + Main.rand.NextFloat(-10, 10);
                                         Vector2 dir = (rot + i * MathHelper.TwoPi / 6).ToRotationVector2();
 
-                                        particleGroup.Add(FlowLineThinFollow.Spawn(dir * length, -dir * length * 1.3f / 16, GetMirrorCenter, 10, 16, 0.2f * direction, GetFlowLineColor()));
+                                        particleGroup.Add(FlowLineThinFollow.Spawn(dir * length, -dir * length * 1.3f / 16, GetMirrorCenter, 14, 16, 0.2f * direction, GetFlowLineColor()));
                                     }
                                 }
 
@@ -805,7 +806,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
                                 {
                                     var p = PRTLoader.CreateAndInitializePRT<RhombicMirrorChannelParticle>(Projectile.Center, Vector2.Zero, Color.Transparent, 1);
                                     p.OwnerProjIndex = Projectile.whoAmI;
-                                    p.shineColor = GetFlowLineColor()*0.5f;
+                                    p.shineColor = GetFlowLineColor() * 0.5f;
                                     int time = (Timer - 1) / (ChannelTime / 7);
                                     p.maxLength = 40 + time * 10;
                                     p.LaserWidth = 16 - time * 4;
@@ -823,6 +824,8 @@ namespace Coralite.Content.Items.AlchorthentSeries
                         }
                         else if (Timer == ChannelTime)
                         {
+                            Helper.PlayPitched("AlchSeries/RhombicMirrorProjLaser", 0.2f, 0.2f, Projectile.Center);
+
                             Projectile.NewProjectileFromThis<CorruptLaser>(Projectile.Center, Vector2.Zero, Projectile.damage, Projectile.knockBack, Projectile.whoAmI, Target, CorrupteState == AttackTypes.Corrupted ? 1 : 0);
 
                             Recorder4 -= 20;
@@ -838,7 +841,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
                         {
                             Recorder = 4;
                             Timer = 0;
-                            Projectile.velocity = (Projectile.Center - target.Center).SafeNormalize(Vector2.Zero)*4;
+                            Projectile.velocity = (Projectile.Center - target.Center).SafeNormalize(Vector2.Zero) * 4;
                         }
                     }
                     break;
@@ -867,16 +870,89 @@ namespace Coralite.Content.Items.AlchorthentSeries
                     }
                     break;
             }
+        }
 
-            Color GetFlowLineColor()
+        public void Corrupt()
+        {
+            xScale = Helper.Lerp(xScale, 1, 0.2f);
+            Projectile.velocity *= 0.9f;
+
+            const int scaleSmallTime = 25;
+            const int SwitchTime = 80;
+
+            if (Timer < scaleSmallTime)
             {
-                return CorrupteState switch
+                if (Timer == 1 && !VaultUtils.isServer)
                 {
-                    AttackTypes.Corrupted => new Color(178, 220, 204),
-                    AttackTypes.BreakCorrupt => RhombicMirror.ShineCorruptionColor,
-                    _ => new Color(255, 251, 205)
-                };
+                    Helper.PlayPitched("AlchSeries/RhombicMirrorProjCharge", 0.3f, 0.5f, Projectile.Center);
+
+                    particleGroup ??= new PrimitivePRTGroup();
+                    Projectile.scale = Helper.Lerp(Projectile.scale, Scale - 0.1f, 0.15f);
+
+                    float rot = Main.rand.NextFloat(MathHelper.TwoPi);
+                    int direction = Main.rand.NextFromList(-1, 1);
+                    Color c = GetFlowLineColor();
+
+                    for (int i = 0; i < 6; i++)
+                    {
+                        float length = 45 + Main.rand.NextFloat(-10, 10);
+                        Vector2 dir = (rot + i * MathHelper.TwoPi / 6).ToRotationVector2();
+
+                        particleGroup.Add(FlowLineThinFollow.Spawn(dir * length, -dir * length * 1.3f / 16, GetMirrorCenter, 14, 16, 0.2f * direction, c));
+                    }
+                }
             }
+            else if (Timer == scaleSmallTime)
+            {
+                if (!VaultUtils.isServer)
+                {
+                    Helper.PlayPitched("AlchSeries/RhombicMirrorProjSwitch", 0.6f, 0f, Projectile.Center);
+
+                    for (int i = 0; i < 6; i++)
+                    {
+                        float length = 45 + Main.rand.NextFloat(-10, 10);
+                        Vector2 dir = (Projectile.rotation - MathHelper.PiOver2 + i * MathHelper.TwoPi / 6).ToRotationVector2();
+
+                        var p = PRTLoader.CreateAndInitializePRT<MagikeLozengeParticleSPA>(Projectile.Center + dir * 10, dir * 1.5f, RhombicMirror.ShineCorruptionColor * 0.75f, 0.2f);
+                        p.Rotation = p.Velocity.ToRotation() + MathHelper.PiOver2;
+                        particleGroup.Add(p);
+                    }
+
+                    RedJades.RedExplosionParticle2.Spawn(Projectile.Center, 0.5f, GetFlowLineColor() * 0.4f, 15, 6);
+                    RedJades.RedExplosionParticle2.Spawn(Projectile.Center, 0.3f, GetFlowLineColor() * 0.8f, 15, 6);
+                }
+            }
+            else if (Timer < scaleSmallTime + SwitchTime)
+            {
+                const float halfScaleTime = 8;
+                if (Timer - scaleSmallTime < halfScaleTime)
+                {
+                    Projectile.scale = Helper.Lerp(Projectile.scale, Scale + 0.2f, (Timer - scaleSmallTime) / halfScaleTime);
+                }
+                else if (Timer - scaleSmallTime < halfScaleTime * 2)
+                {
+                    Projectile.scale = Helper.Lerp(Projectile.scale, Scale, (Timer - scaleSmallTime - halfScaleTime) / halfScaleTime);
+                }
+
+                Projectile.rotation += (1 - ((float)Timer - scaleSmallTime) / SwitchTime) * 0.05f;
+
+                if (Projectile.frame < 16)
+                    Projectile.UpdateFrameNormally(2, 16 + 2);
+            }
+            else
+            {
+                SwitchState(FindEnemy() ? AIStates.Shoot : AIStates.BackToOwner);
+            }
+        }
+
+        private Color GetFlowLineColor()
+        {
+            return CorrupteState switch
+            {
+                AttackTypes.Corrupted => new Color(178, 220, 204),
+                AttackTypes.BreakCorrupt => RhombicMirror.ShineCorruptionColor,
+                _ => new Color(255, 251, 205)
+            };
         }
 
         /// <summary>
@@ -923,14 +999,18 @@ namespace Coralite.Content.Items.AlchorthentSeries
         /// </summary>
         public void GraduallyWithdrawBodyPart()
         {
-            xScale =Helper.Lerp(xScale,1,0.2f);
+            xScale = Helper.Lerp(xScale, 1, 0.2f);
             bodyPartLength *= 0.95f;
         }
 
         public void GetCorruptEnergy()
         {
-            if (CorrupteState< AttackTypes.Corrupted)
-                CorrupteState ++;
+            //#if DEBUG
+            //            CorrupteState = AttackTypes.Corrupted;
+            //            return;
+            //#endif
+            if (CorrupteState < AttackTypes.Corrupted)
+                CorrupteState++;
         }
 
         /// <summary>
@@ -942,7 +1022,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
             if (State != (byte)AIStates.Shoot || targetState != AIStates.Shoot)
                 Recorder2 = 0;
             if (State != (byte)targetState)
-                particleGroup.Clear();
+                particleGroup?.Clear();
 
             State = (byte)targetState;
 
@@ -971,7 +1051,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
             DrawSelf(lightColor, dir);
 
-            if (particleGroup!=null)
+            if (particleGroup != null)
             {
                 Main.spriteBatch.End();
                 Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointWrap, DepthStencilState.None, RasterizerState.CullNone, null, Main.GameViewMatrix.TransformationMatrix);
@@ -1184,11 +1264,11 @@ namespace Coralite.Content.Items.AlchorthentSeries
             if (Timer < channelTime)
             {
                 if (Timer == 0)
-                    Helper.PlayPitched("AlchSeries/FaintEagleExplosion", 0.02f, -0.2f, Projectile.Center);
+                    Helper.PlayPitched("AlchSeries/FaintEagleExplosion", 0.4f, -0.2f, Projectile.Center);
             }
             else if (Timer == channelTime)
             {
-                Helper.PlayPitched("AlchSeries/CorruptionMirrorChargeComplete", 0.08f, 1, Projectile.Center);
+                Helper.PlayPitched("AlchSeries/CorruptionMirrorChargeComplete", 0.4f, 1, Projectile.Center);
             }
             else if (Timer < channelTime + 16)
             {
@@ -1274,7 +1354,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
         public void HitVisualEffect(NPC target)
         {
-            Helper.PlayPitched("Misc/BloodySlash2", 0.03f, -0.6f, Projectile.Center);
+            Helper.PlayPitched("Misc/BloodySlash2", 1f, -0.6f, Projectile.Center);
 
             if (VisualEffectSystem.HitEffect_SpecialParticles)
             {
@@ -1393,7 +1473,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
     [VaultLoaden(AssetDirectory.AlchorthentSeriesItems)]
     public class CorruptLaser : ModProjectile
     {
-        public override string Texture => AssetDirectory.AlchorthentSeriesItems+Name;
+        public override string Texture => AssetDirectory.AlchorthentSeriesItems + Name;
 
         public static ATex WarpLinesFlow { get; set; }
         public static ATex RhombicParticle { get; set; }
@@ -1425,7 +1505,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
         public override bool ShouldUpdatePosition() => false;
         public override bool? CanDamage()
         {
-            if (State==1)
+            if (State == 1)
                 return null;
 
             return false;
@@ -1434,19 +1514,19 @@ namespace Coralite.Content.Items.AlchorthentSeries
         public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
         {
             float a = 0;
-            return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), Projectile.Center, Projectile.Center+ endPos, 40, ref a);
+            return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), Projectile.Center, Projectile.Center + endPos, 40, ref a);
         }
 
         public override void AI()
         {
             if (!ProjOwner.GetProjectileOwner<RhombicMirrorProj>(out Projectile owner, Projectile.Kill))
                 return;
-           bool hasTarget= Target.GetNPCOwner(out NPC target,
-                () =>
-                {
-                    if (State != 2)
-                        State = 2;
-                });
+            bool hasTarget = Target.GetNPCOwner(out NPC target,
+                 () =>
+                 {
+                     if (State != 2)
+                         State = 2;
+                 });
 
             /*
              * 结束点逐渐过渡到目标中心点
@@ -1455,7 +1535,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
             if (!VaultUtils.isServer && Timer == 0)
             {
                 laser = new LineDrawer.StraightLine(Vector2.Zero, Vector2.Zero, Projectile.GetTexture());
-                laser.drawColor = new Color(120,255,255,0);
+                laser.drawColor = new Color(120, 255, 255, 0);
             }
 
             Timer++;
@@ -1513,7 +1593,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
             Vector2 dir = Projectile.rotation.ToRotationVector2();
 
             this.endPos = dir * Length;
-                return;
+            return;
             //Vector2 endPos;
 
             //int count = (int)Length / 16 + 1;
@@ -1533,7 +1613,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
         public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
         {
-            if (target.whoAmI!= Target)
+            if (target.whoAmI != Target)
             {
                 modifiers.SourceDamage -= 0.5f;
             }
@@ -1544,7 +1624,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
             {
                 0 => new Color(110, 59, 84),
                 1 => new Color(41, 57, 71),
-                _ => new Color(50,30,121),
+                _ => new Color(50, 30, 121),
             } * 0.8f;
 
         public Color GetLaserLightColor()
@@ -1600,7 +1680,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
             float rot = Projectile.rotation;
 
             Texture2D tex = RhombicParticle.Value;
-            float lengthScale =  laser.LineWidth/ tex.Width*1.5f;
+            float lengthScale = laser.LineWidth / tex.Width * 1.5f;
             Color dackC = GetLaserCoreColor() * 0.6f;
             Color lightC = (GetLaserLightColor() * 0.6f) with { A = 0 };
             Rectangle frame = new Rectangle(0, 0, 1, 2);
@@ -1611,7 +1691,7 @@ namespace Coralite.Content.Items.AlchorthentSeries
 
             for (int i = -1; i < 2; i++)
             {
-                tex.QuickCenteredDraw(Main.spriteBatch, frame, pos, dackC, rot+i*MathHelper.PiOver4, lengthScale * 0.8f);
+                tex.QuickCenteredDraw(Main.spriteBatch, frame, pos, dackC, rot + i * MathHelper.PiOver4, lengthScale * 0.8f);
                 tex.QuickCenteredDraw(Main.spriteBatch, frame, pos, lightC, rot + i * MathHelper.PiOver4, lengthScale * 0.8f);
             }
         }

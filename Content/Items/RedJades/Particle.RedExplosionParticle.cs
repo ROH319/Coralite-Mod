@@ -55,6 +55,8 @@ namespace Coralite.Content.Items.RedJades
         public override string Texture => AssetDirectory.Halos + "StrikeSPA";
 
         internal float scaleAdder;
+        public int expandTimer = 8;
+        public int fadeTime = 4;
 
         public override bool ShouldUpdatePosition() => false;
 
@@ -72,7 +74,7 @@ namespace Coralite.Content.Items.RedJades
             //shader.UseColor(Color);
             Scale += scaleAdder;
 
-            if (Opacity > 8)
+            if (Opacity > expandTimer)
             {
                 Color *= 0.84f;
                 //shader.UseOpacity((12f - Opacity) / 4);
@@ -80,7 +82,7 @@ namespace Coralite.Content.Items.RedJades
             }
 
             Opacity++;
-            if (Opacity > 12)
+            if (Opacity > expandTimer+ fadeTime)
                 active = false;
         }
 
@@ -96,13 +98,15 @@ namespace Coralite.Content.Items.RedJades
             return false;
         }
 
-        public static void Spawn(Vector2 center, float maxScale, Color newColor = default)
+        public static void Spawn(Vector2 center, float maxScale, Color newColor = default, int expandTimer=8, int fadeTime =4)
         {
             if (VaultUtils.isServer)
                 return;
 
             RedExplosionParticle2 particle = PRTLoader.NewParticle<RedExplosionParticle2>(center, Vector2.Zero, newColor, 0);
-            particle.scaleAdder = maxScale / 8;
+            particle.scaleAdder = maxScale / expandTimer;
+            particle.expandTimer = expandTimer;
+            particle.fadeTime = fadeTime;
         }
     }
 

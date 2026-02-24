@@ -75,7 +75,7 @@ namespace Coralite.Core.Systems.MagikeSystem.Particles
         public override void AI()
         {
             Frame.Y++;
-            if (Frame.Y > 13)
+            if (Frame.Y > 13-1)
                 active = false;
 
             if (Frame.Y > 6)
@@ -87,6 +87,9 @@ namespace Coralite.Core.Systems.MagikeSystem.Particles
 
         public override bool PreDraw(SpriteBatch spriteBatch)
         {
+            if (Frame.Y > 12)
+                return false;
+
             var mainTex = TexValue;
             Rectangle frame = mainTex.Frame(1, 13, 0, Frame.Y);
             Vector2 origin = frame.Size() / 2;
