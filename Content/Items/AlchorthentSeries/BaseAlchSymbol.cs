@@ -5,13 +5,16 @@ using Terraria;
 
 namespace Coralite.Content.Items.AlchorthentSeries
 {
-    public class TestAlchSymbol : Particle
+    public class BaseAlchSymbol : Particle
     {
         public LineDrawer line;
         public float maxScale = 24;
         public float fadeTime = 20;
         public float ShineTime = 20;
         public float disappearTime = 20;
+        public int ownerProjIndex=-1;
+
+        public virtual float LineWidth { get => 20; }
 
         public override void SetProperty()
         {
@@ -23,16 +26,21 @@ namespace Coralite.Content.Items.AlchorthentSeries
             temp.SetFlowAdd(4);
             temp.SetLineColor(Color.Transparent);
 
-            line = RhombicMirror.NewCopperAlchSymbol();
+            line = GetSymbolLine();
 
             //line.SetScale(16);
-            line.SetLineWidth(20);
+            line.SetLineWidth(LineWidth);
         }
+
+        public virtual LineDrawer GetSymbolLine() => RhombicMirror.NewCopperAlchSymbol();
 
         public override void AI()
         {
             if (shader is not AlchorthentShaderData data)
                 return;
+
+            if (ownerProjIndex.GetProjectileOwner(out Projectile p))
+                Position = p.Center;
 
             data.SetTime((int)Main.timeForVisualEffects * 0.05f);
 

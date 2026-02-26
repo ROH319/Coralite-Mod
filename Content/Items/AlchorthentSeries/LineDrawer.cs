@@ -17,20 +17,16 @@ namespace Coralite.Content.Items.AlchorthentSeries
             this.lines = lines;
         }
 
-        public void SetLineWidth(int width)
+        public void SetLineWidth(float width)
         {
             foreach (var line in lines)
-            {
                 line.lineWidth = width;
-            }
         }
 
         public void SetScale(float scale)
         {
             foreach (var line in lines)
-            {
                 line.lineScale = scale;
-            }
         }
 
         /// <summary>

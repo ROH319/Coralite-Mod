@@ -544,12 +544,20 @@ namespace Coralite.Helpers
                 GoreLoader.AddGoreFromTexture<SimpleModGore>(modproj.Mod, modproj.Texture + "_Gore" + i);
         }
 
-        public static void SpawnGore(this ModProjectile modproj, int count, float speed = 1)
+        public static void SpawnGore(this ModProjectile modproj, int count, float speed = 1, Func<Vector2> getVel = null)
         {
             for (int i = 0; i < count; i++)
+            {
+                Vector2 vel;
+                if (getVel == null)
+                    vel = NextVec2Dir() * speed;
+                else
+                    vel = getVel();
+
                 Gore.NewGoreDirect(modproj.Projectile.GetSource_Death()
                     , Main.rand.NextVector2FromRectangle(modproj.Projectile.Hitbox)
-                    , Main.rand.NextVector2Circular(speed, speed), modproj.Mod.Find<ModGore>(modproj.Name + "_Gore" + i).Type);
+                    , vel, modproj.Mod.Find<ModGore>(modproj.Name + "_Gore" + i).Type);
+            }
         }
 
         /// <summary>
