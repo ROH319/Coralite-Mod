@@ -1848,7 +1848,10 @@ public class CorruptLaser : ModProjectile
     public ref float Timer => ref Projectile.localAI[0];
     public ref float State => ref Projectile.localAI[1];
 
+    public float laserWidth;
+
     public Vector2 endPos;
+    private ContinuousDamageParticle damageParticle;
     //public Vector2 Scale;
 
     private LineDrawer.StraightLine laser;
@@ -1899,6 +1902,12 @@ public class CorruptLaser : ModProjectile
         {
             laser = new LineDrawer.StraightLine(Vector2.Zero, Vector2.Zero, Projectile.GetTexture());
             laser.drawColor = new Color(120, 255, 255, 0);
+            laserWidth = ColorState switch
+            {
+                0 => 30,
+                1 => 25,
+                _ => 40,
+            };
         }
 
         Timer++;
@@ -1910,14 +1919,14 @@ public class CorruptLaser : ModProjectile
             Projectile.Center = owner.Center + (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero) * 5;
         }
 
-        const int lineWidth = 40;
+        //const int lineWidth = 40;
 
         switch (State)
         {
             default://展开
             case 0:
                 {
-                    laser?.SetLineWidth(Helper.Lerp(0, lineWidth, Timer / 6f));
+                    laser?.SetLineWidth(Helper.Lerp(0, laserWidth, Timer / 6f));
 
                     if (Timer > 6)
                     {
@@ -1928,7 +1937,7 @@ public class CorruptLaser : ModProjectile
                 break;
             case 1://持续造成伤害
                 {
-                    laser?.SetLineWidth(lineWidth + 2 * MathF.Sin(Timer * 0.4f));
+                    laser?.SetLineWidth(laserWidth + 2 * MathF.Sin(Timer * 0.4f));
 
                     int time = 30;
                     if (ColorState == 2)//特殊激光持续时间长一点
@@ -1943,7 +1952,7 @@ public class CorruptLaser : ModProjectile
                 break;
             case 2://收尾
                 {
-                    laser?.SetLineWidth(Helper.Lerp(lineWidth, 0, Timer / 8f));
+                    laser?.SetLineWidth(Helper.Lerp(laserWidth, 0, Timer / 8f));
                     if (Timer > 8)
                     {
                         Projectile.Kill();
@@ -1990,9 +1999,28 @@ public class CorruptLaser : ModProjectile
             if (ColorState == 0)//常态激光，一点点穿甲
                 modifiers.ArmorPenetration += 8;
             else if (ColorState == 2)//破腐激光，较多穿甲
+            {
+                modifiers.HideCombatText();
                 modifiers.ArmorPenetration += 20;
+                modifiers.ModifyHitInfo += CustomDamageNumber;
+            }
 
             Projectile.damage = (int)(Projectile.damage * 0.8f);
+        }
+    }
+
+    private void CustomDamageNumber(ref NPC.HitInfo info)
+    {
+        if (!Target.GetNPCOwner(out NPC target))
+            return;
+
+        if (damageParticle == null)
+        {
+            damageParticle = ContinuousDamageParticle.Spawn(target.Center + new Vector2(Main.rand.NextFloat(-target.width / 2, target.width / 2), -20), info.Damage, 35, () => target.Center, () => damageParticle = null, RhombicMirror.ShineCorruptionColor);
+        }
+        else
+        {
+            damageParticle.AddDamage(info.Damage);
         }
     }
 
