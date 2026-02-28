@@ -25,6 +25,11 @@ namespace Coralite.Content.Items.AlchorthentSeries
         public const string HeavyLanding = "AlchSeries/HeavyLanding";
         public static Color ShineFlameColor = new Color(253, 133, 81);
 
+        public override void SetStaticDefaults()
+        {
+            ItemID.Sets.ToolTipDamageMultiplier[Type] = 0.75f;
+        }
+
         public override void SetOtherDefaults()
         {
             Item.noUseGraphic = true;

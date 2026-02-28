@@ -28,30 +28,33 @@ namespace Coralite.Content.Particles
         /// </summary>
         public void Settlement()
         {
-            Opacity = 1;
+            if (Opacity > 1)
+                Opacity = 1;
         }
 
         /// <summary>
         /// 添加
         /// </summary>
         /// <param name="damage"></param>
-        public void AddDamage(int damage)
+        public void AddDamage(int damage, float scaleAdder, float maxScale, Color ShineColor, float factor)
         {
-            if (Opacity>0)
+            if (Opacity > 0)
                 Opacity = waitTime;
 
             this.damage += damage;
             aimRot = Main.rand.NextFloat(-0.3f, 0.3f);
-            if (Scale < 1.5f)
-            {
-                Scale += 0.04f;
-            }
+            Velocity = Main.rand.NextVector2Circular(1, 1);
+
+            Color = Color.Lerp(Color, ShineColor, factor);
+
+            if (Scale < maxScale)
+                Scale += scaleAdder;
         }
 
         public override void AI()
         {
             Opacity--;
-            Rotation = Rotation.AngleLerp(aimRot, 0.02f);
+            Rotation = Rotation.AngleLerp(aimRot, 0.08f);
             if (Opacity > 0)
             {
                 Velocity *= 0.9f;
@@ -61,20 +64,28 @@ namespace Coralite.Content.Particles
             else if (Opacity == 0)//结束，释放掉
             {
                 Release();
+                Velocity = new Vector2(0, -Main.rand.NextFloat(2, 4));
             }
-            else if (Opacity < -30)//缩小
+            else if (Opacity < 0)//缩小
             {
-                Scale *= 0.95f;
+                if (Opacity < -45)
+                    Scale *= 0.85f;
+                Velocity *= 0.9f;
+                offset += Velocity;
             }
-            else
+
+            if (Scale < 0.001f)
                 active = false;
         }
 
         public override bool PreDraw(SpriteBatch spriteBatch)
         {
-            DynamicSpriteFont value = FontAssets.MouseText.Value;
+            DynamicSpriteFont value = FontAssets.CombatText[0].Value;
             Vector2 vector = value.MeasureString(damage.ToString());
-            ChatManager.DrawColorCodedStringWithShadow(Main.spriteBatch, value, damage.ToString(), Position, Color, Rotation, new Vector2(0.5f, 0.5f) * vector, Vector2.One * Scale, -1f, 1.5f);
+
+            Color c = Color.Lerp(Color, Color * 0.7f, 0.5f + 0.5f * MathF.Sin((int)Main.timeForVisualEffects * 0.2f));
+
+            ChatManager.DrawColorCodedStringWithShadow(Main.spriteBatch, value, damage.ToString(), Position - Main.screenPosition, c, (Color * 0.2f) with { A = 180 }, Rotation, new Vector2(0.5f, 0.5f) * vector, Vector2.One * Scale, -1f, 1.5f);
 
             return false;
         }

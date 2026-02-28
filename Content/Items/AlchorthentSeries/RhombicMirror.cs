@@ -24,6 +24,12 @@ public class RhombicMirror : BaseAlchorthentItem
 {
     public static Color ShineCorruptionColor = new Color(180, 120, 220);
     public static Color CopperGreen = new Color(70, 90, 100);
+    public static Color CopperGold = new Color(255, 251, 205);
+
+    public override void SetStaticDefaults()
+    {
+        ItemID.Sets.ToolTipDamageMultiplier[Type] = 0.8f;
+    }
 
     public override void SetOtherDefaults()
     {
@@ -32,7 +38,7 @@ public class RhombicMirror : BaseAlchorthentItem
         Item.useTime = Item.useAnimation = 30;
         Item.shoot = ModContent.ProjectileType<RhombicMirrorProj>();
 
-        Item.SetWeaponValues(24, 4);
+        Item.SetWeaponValues(38, 4);
         Item.SetShopValues(Terraria.Enums.ItemRarityColor.Green2, Item.sellPrice(0, 1));
 
         Item.useTurn = false;
@@ -52,7 +58,7 @@ public class RhombicMirror : BaseAlchorthentItem
 
     public override void MinionAim(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
     {
-        Projectile.NewProjectile(source, player.Center, Vector2.Zero, ModContent.ProjectileType<CorruptLaser>(), damage, knockback, player.whoAmI, 0, 0, 2);
+        //Projectile.NewProjectile(source, player.Center, Vector2.Zero, ModContent.ProjectileType<CorruptLaser>(), damage, knockback, player.whoAmI, 0, 0, 2);
     }
 
     public override void SpecialAttack(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback)
@@ -169,16 +175,25 @@ public class RhombicMirrorHeldProj : BaseHeldProj
         Projectile.Center = Owner.Center + new Vector2(Owner.direction * 16.5f, -4 + Owner.gfxOffY);
         Owner.itemTime = Owner.itemAnimation = 2;
 
-        if (Timer == 0)//生成光效
+        if (Timer < 15 && Timer % 5 == 0)//生成光效
         {
+            float i = Timer / 5;
             var p = PRTLoader.NewParticle<RhombicMirrorSummonParticle>(Projectile.Center, Vector2.Zero);
             p.OwnerProjIndex = Projectile.whoAmI;
+            p.targetAngle = -0.4f + i * 0.15f;
+            p.maxLength = 90 - i * 22;
         }
 
-        if (Timer > 45)
+        if (Timer % 4 == 0)
         {
-            Projectile.Kill();
+            float r = -MathHelper.PiOver2 + (Owner.direction > 0 ? -1 : 1) * 0.9f;
+            Dust.NewDustPerfect(Projectile.Center, ModContent.DustType<PixelPoint>(), (r + Main.rand.NextFloat(-0.4f, 0.4f)).ToRotationVector2() * Main.rand.NextFloat(1, 6), 0, RhombicMirror.ShineCorruptionColor, Main.rand.NextFloat(1, 1.5f));
         }
+
+        Lighting.AddLight(Projectile.Center, RhombicMirror.ShineCorruptionColor.ToVector3() / 2);
+
+        if (Timer > 45)
+            Projectile.Kill();
 
         Timer++;
     }
@@ -231,6 +246,9 @@ public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>, IDraw
     public byte frameX = 1;
 
     public PrimitivePRTGroup particleGroup;
+    public PRTGroup shadowGroup;
+
+    public float pathRecorder;
 
     /// <summary>
     /// 攻击状态
@@ -313,6 +331,7 @@ public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>, IDraw
                 OnSummon();
                 break;
             case (byte)AIStates.BackToOwner:
+                SpawnFrameShadow();
                 BackToOwner();
                 break;
             case (byte)AIStates.Idle:
@@ -320,7 +339,8 @@ public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>, IDraw
                 if (Timer > 20)
                     if (FindEnemy())
                     {
-                        SwitchState(AIStates.Shoot);
+                        SwitchState(CorrupteState == AttackTypes.BreakCorrupt
+                            ? AIStates.BreakCorruptShoot : AIStates.Shoot);
                         break;
                     }
 
@@ -381,6 +401,7 @@ public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>, IDraw
         }
 
         particleGroup?.Update();
+        shadowGroup?.Update();
     }
 
     public void OnSummon()
@@ -400,6 +421,8 @@ public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>, IDraw
         Projectile.rotation = startRot * (1 - Helper.BezierEase(factor));
         Projectile.scale = Helper.Lerp(startScale, Scale, factor);
         frameX = 1;
+
+        Lighting.AddLight(Projectile.Center, RhombicMirror.CopperGold.ToVector3() * (1 - factor));
 
         if (Timer > 20 && Projectile.frame < 3)
             Projectile.UpdateFrameNormally(6, 4);
@@ -476,7 +499,14 @@ public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>, IDraw
 
                     bodyPartExtraRotation = MathF.Sin(Recorder2 * 0.2f) * 0.4f;
                     bodyPartRotation = bodyPartRotation.AngleLerp(Projectile.velocity.ToRotation(), 0.25f);
-                    Projectile.ChaseGradually(aimPos, speed, 29, 30);
+
+                    int n = 19;
+                    if (Recorder2>30)
+                    {
+                        n = (int)Math.Clamp(19-(Recorder2 - 30) / 5, 10, 19);
+                    }
+
+                    Projectile.ChaseGradually(aimPos, speed, n, n+1);
                     if (Recorder2 > resetTime - 30)
                     {
                         bodyPartLength *= 0.97f;
@@ -497,16 +527,6 @@ public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>, IDraw
 
                     if (distance < speed + 5)
                         SwitchState(AIStates.Idle);
-
-                    //bodyPartRotation = MathHelper.PiOver2;
-                    //Projectile.rotation = 0;
-                    //bodyPartLength = 28;
-                    //Projectile.velocity = Vector2.Zero;
-
-                    //if (Projectile.frame < 17)
-                    //{
-                    //    Projectile.UpdateFrameNormally(4, 22);
-                    //}
                 }
                 break;
         }
@@ -596,7 +616,7 @@ public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>, IDraw
 
                     int dir = aimPos.X > Projectile.Center.X ? 1 : -1;
 
-                    Projectile.ChaseGradually(aimPos, speed, 29, 30);
+                    Projectile.ChaseGradually(aimPos, speed, 19, 20);
                     if (Recorder2 % 10 == 0)//每隔一段时间纠正速度方向
                         Projectile.velocity = Projectile.velocity.ToRotation().AngleLerp((aimPos - Projectile.Center).ToRotation(), 0.4f).ToRotationVector2() * Projectile.velocity.Length();
 
@@ -776,19 +796,7 @@ public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>, IDraw
             case 0:
                 {
                     //仅在初次开始攻击的时候改变速度，并记录旋转和距离
-                    if (Timer < 2)//因为计时器在此之前增加的
-                    {
-                        Helper.GetMyGroupIndexAndFillBlackList(Projectile, out int index, out int total);
-                        float percent = index / (float)total;
-
-                        if (Recorder2 == 0)
-                        {
-                            Projectile.velocity = (percent + (Owner.direction > 0 ? 0 : MathHelper.Pi)).ToRotationVector2() * 4;
-                        }
-
-                        Recorder3 = -MathHelper.PiOver2 + (percent + Recorder2 * 1.5f / total) * MathHelper.TwoPi;
-                        Recorder4 = MathF.Max(target.width, target.height) / 2 + 70 + MathF.Min(total, 15) * 8;
-                    }
+                    InitShootValues(target);
 
                     //旋转并减速
                     Projectile.velocity *= 0.8f;
@@ -814,7 +822,9 @@ public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>, IDraw
                         factor += (Timer - 30) * 0.01f;
 
                     Projectile.Center = Vector2.SmoothStep(Projectile.Center, aimPos, factor);
-                    if (Vector2.DistanceSquared(Projectile.Center, aimPos) < 16)
+                    SpawnFrameShadow();
+
+                    if (Vector2.DistanceSquared(Projectile.Center, aimPos) < 24)
                     {
                         Recorder = 2;
                         Timer = 0;
@@ -861,6 +871,8 @@ public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>, IDraw
 
                         if (!VaultUtils.isServer)
                         {
+                            Lighting.AddLight(Projectile.Center, GetFlowLineColor().ToVector3() * (float)Timer / ChannelTime);
+
                             particleGroup ??= new PrimitivePRTGroup();
 
                             if (Timer == ChannelTime / 4)
@@ -888,12 +900,14 @@ public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>, IDraw
                     }
                     else if (Timer == ChannelTime)
                     {
+                        Lighting.AddLight(Projectile.Center, GetFlowLineColor().ToVector3());
+
                         Helper.PlayPitched("AlchSeries/RhombicMirrorProjLaser", 0.2f, 0.2f, Projectile.Center);
 
                         int colorState = 0;
                         int damage = Projectile.damage;
 
-                        if (CorrupteState == AttackTypes.Corrupted|| CorrupteState == AttackTypes.BreakCorrupt)
+                        if (CorrupteState == AttackTypes.Corrupted || CorrupteState == AttackTypes.BreakCorrupt)
                         {
                             colorState = 1;
                             damage = (int)(Projectile.damage * 0.8f);
@@ -905,10 +919,9 @@ public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>, IDraw
                     }
                     else if (Timer < ChannelTime + AttackTimeTime)
                     {
+                        Lighting.AddLight(Projectile.Center, GetFlowLineColor().ToVector3());
+
                         Recorder3 += 0.01f;
-                        //float f = Timer - ChannelTime;
-                        //f /= AttackTimeTime;
-                        //Recorder4 -= 2f * Helper.SqrtEase(1 - f);
                     }
                     else
                     {
@@ -923,6 +936,8 @@ public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>, IDraw
                     xScale = Helper.Lerp(xScale, 1f, 0.1f);
                     Projectile.velocity *= 0.9f;
                     Projectile.rotation += (1 - Timer / 25f) * 0.4f;
+
+                    Lighting.AddLight(Projectile.Center, GetFlowLineColor().ToVector3() * (1 - Timer / 25f));
 
                     if (Timer > 25)
                     {
@@ -945,47 +960,45 @@ public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>, IDraw
         }
     }
 
+    private void InitShootValues(NPC target)
+    {
+        if (Timer < 2)//因为计时器在此之前增加的
+        {
+            Helper.GetMyGroupIndexAndFillBlackList(Projectile, out int index, out int total);
+            float percent = index / (float)total;
+
+            if (Recorder2 == 0)
+            {
+                Projectile.velocity = (percent + (Owner.direction > 0 ? 0 : MathHelper.Pi)).ToRotationVector2() * 4;
+            }
+
+            Recorder3 = -MathHelper.PiOver2 + (percent + Recorder2 * 1.5f / total) * MathHelper.TwoPi;
+            Recorder4 = MathF.Max(target.width, target.height) / 2 + 70 + MathF.Min(total, 15) * 8;
+        }
+    }
+
     public void Corrupt()
     {
         xScale = Helper.Lerp(xScale, 1, 0.2f);
         Projectile.velocity *= 0.9f;
 
         const int scaleSmallTime = 25;
-        const int SwitchTime = 80;
+        const int SwitchTime = 60;
 
         if (Timer < scaleSmallTime)
         {
-            if (Timer == 1 && !VaultUtils.isServer)
-            {
-                ChannelSound();
-                particleGroup ??= new PrimitivePRTGroup();
-                Projectile.scale = Helper.Lerp(Projectile.scale, Scale - 0.1f, 0.15f);
-
-                SpawnChannelFlowLine(Main.rand.NextFromList(-1, 1));
-            }
+            Projectile.scale = Helper.Lerp(Projectile.scale, Scale - 0.2f, 0.15f);
+            Lighting.AddLight(Projectile.Center, GetFlowLineColor().ToVector3() * (float)Timer / scaleSmallTime);
         }
         else if (Timer == scaleSmallTime)
         {
-            if (!VaultUtils.isServer)
-            {
-                Helper.PlayPitched("AlchSeries/RhombicMirrorProjSwitch", 0.4f, 0f, Projectile.Center);
-
-                for (int i = 0; i < 6; i++)
-                {
-                    Vector2 dir = (Projectile.rotation - MathHelper.PiOver2 + i * MathHelper.TwoPi / 6).ToRotationVector2();
-
-                    var p = PRTLoader.CreateAndInitializePRT<MagikeLozengeParticleSPA>(Projectile.Center + dir * 10, dir * 1.5f, RhombicMirror.ShineCorruptionColor * 0.75f, 0.2f);
-                    p.Rotation = p.Velocity.ToRotation() + MathHelper.PiOver2;
-                    particleGroup.Add(p);
-                }
-
-                RedJades.RedExplosionParticle2.Spawn(Projectile.Center, 0.5f, GetFlowLineColor() * 0.4f, 15, 6);
-                RedJades.RedExplosionParticle2.Spawn(Projectile.Center, 0.3f, GetFlowLineColor() * 0.8f, 15, 6);
-            }
+            Lighting.AddLight(Projectile.Center, GetFlowLineColor().ToVector3());
+            Helper.PlayPitched("AlchSeries/RhombicMirrorProjSwitch", 0.4f, 0f, Projectile.Center);
         }
         else if (Timer < scaleSmallTime + SwitchTime)
         {
             SpawnCorruptDusts();
+            Lighting.AddLight(Projectile.Center, GetFlowLineColor().ToVector3() * (1-(float)(Timer - scaleSmallTime) / SwitchTime));
 
             const float halfScaleTime = 8;
             if (Timer - scaleSmallTime < halfScaleTime)
@@ -1000,15 +1013,6 @@ public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>, IDraw
         }
         else
             SwitchState(FindEnemy() ? AIStates.Shoot : AIStates.BackToOwner);
-    }
-
-    private void SpawnCorruptDusts()
-    {
-        if (Timer % 3 == 0 && !VaultUtils.isServer)
-        {
-            Vector2 dir = Helper.NextVec2Dir();
-            PRTLoader.NewParticle<CorruptParticle>(Projectile.Center + dir * 20, dir * Main.rand.NextFloat(0.3f, 1f), Color.White * Main.rand.NextFloat(0.5f, 0.75f), Main.rand.NextFloat(0.75f, 1f));
-        }
     }
 
     public void BreakCorruptShoot(NPC target)
@@ -1032,17 +1036,7 @@ public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>, IDraw
             case 0:
                 {
                     //仅在初次开始攻击的时候改变速度，并记录旋转和距离
-                    if (Timer < 2)//因为计时器在此之前增加的
-                    {
-                        Helper.GetMyGroupIndexAndFillBlackList(Projectile, out int index, out int total);
-                        float percent = index / (float)total;
-
-                        if (Recorder2 == 0)
-                            Projectile.velocity = (percent + (Owner.direction > 0 ? 0 : MathHelper.Pi)).ToRotationVector2() * 4;
-
-                        Recorder3 = -MathHelper.PiOver2 + (percent + Recorder2 * 1.5f / total) * MathHelper.TwoPi;
-                        Recorder4 = MathF.Max(target.width, target.height) / 2 + 70 + MathF.Min(total, 15) * 8;
-                    }
+                    InitShootValues(target);
 
                     //旋转并减速
                     Projectile.velocity *= 0.8f;
@@ -1067,15 +1061,10 @@ public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>, IDraw
                     if (Timer > 20)
                         factor += (Timer - 30) * 0.01f;
 
-                    if (Timer % 8 == 0)
-                    {
-                        Vector2 dir2 = (aimPos-Projectile.Center).SafeNormalize(Vector2.Zero);
-                        FlowLineThin.Spawn(Projectile.Center + Helper.NextVec2Dir(10, 16)
-                            , dir2 * Main.rand.NextFloat(2.5f, 4), 7, 15, Main.rand.NextFloat(-0.15f, 0.15f), GetFlowLineColor() * 0.75f);
-                    }
-
                     Projectile.Center = Vector2.SmoothStep(Projectile.Center, aimPos, factor);
-                    if (Vector2.DistanceSquared(Projectile.Center, aimPos) < 16)
+                    SpawnFrameShadow();
+
+                    if (Vector2.DistanceSquared(Projectile.Center, aimPos) < 24)
                     {
                         Recorder = 2;
                         Timer = 0;
@@ -1125,6 +1114,8 @@ public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>, IDraw
 
                         if (!VaultUtils.isServer)
                         {
+                            Lighting.AddLight(Projectile.Center, GetFlowLineColor().ToVector3() * (float)Timer / ChannelTime);
+
                             particleGroup ??= new PrimitivePRTGroup();
 
                             if (Timer == ChannelTime / 4)
@@ -1152,15 +1143,18 @@ public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>, IDraw
                     }
                     else if (Timer == ChannelTime)
                     {
-                        Helper.PlayPitched("AlchSeries/RhombicMirrorProjLaser", 0.2f, 0.2f, Projectile.Center);
-                        Helper.PlayPitched("AlchSeries/RhombicMirrorProjSPAttack", 0.3f, 0f, Projectile.Center);
+                        Lighting.AddLight(Projectile.Center, GetFlowLineColor().ToVector3());
 
-                        Projectile.NewProjectileFromThis<CorruptLaser>(Projectile.Center, Vector2.Zero, (int)(Projectile.damage * 1.5f), Projectile.knockBack, Projectile.whoAmI, Target, 2);
+                        Helper.PlayPitched("AlchSeries/RhombicMirrorProjLaser", 0.3f, 0.2f, Projectile.Center);
+                        Helper.PlayPitched("AlchSeries/RhombicMirrorProjSPAttack", 0.4f, 0f, Projectile.Center);
+
+                        Projectile.NewProjectileFromThis<CorruptLaser>(Projectile.Center, Vector2.Zero, (int)(Projectile.damage * 2f), Projectile.knockBack, Projectile.whoAmI, Target, 2);
 
                         Recorder4 += 40;
                     }
                     else if (Timer < ChannelTime + AttackTimeTime)
                     {
+                        Lighting.AddLight(Projectile.Center, GetFlowLineColor().ToVector3());
                         Recorder3 += 0.01f;
                     }
                     else
@@ -1182,6 +1176,24 @@ public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>, IDraw
                         Projectile.UpdateFrameNormally(3, totalFrameY);
 
                     SpawnCorruptDusts();
+                    Lighting.AddLight(Projectile.Center, GetFlowLineColor().ToVector3() * (1 - Timer / 70f));
+
+                    if (Timer == 40 && !VaultUtils.isServer)
+                    {
+                        Helper.PlayPitched("AlchSeries/RhombicMirrorProjSwitch", 0.4f, 0f, Projectile.Center);
+
+                        for (int i = 0; i < 6; i++)
+                        {
+                            Vector2 dir = (Projectile.rotation - MathHelper.PiOver2 + i * MathHelper.TwoPi / 6).ToRotationVector2();
+
+                            var p = PRTLoader.CreateAndInitializePRT<MagikeLozengeParticleSPA>(Projectile.Center + dir * 10, dir * 1.5f, RhombicMirror.ShineCorruptionColor * 0.75f, 0.2f);
+                            p.Rotation = p.Velocity.ToRotation() + MathHelper.PiOver2;
+                            particleGroup.Add(p);
+                        }
+
+                        RedJades.RedExplosionParticle2.Spawn(Projectile.Center, 0.5f, GetFlowLineColor() * 0.4f, 15, 6);
+                        RedJades.RedExplosionParticle2.Spawn(Projectile.Center, 0.3f, GetFlowLineColor() * 0.8f, 15, 6);
+                    }
 
                     if (Timer > 70)
                     {
@@ -1195,6 +1207,33 @@ public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>, IDraw
         }
     }
 
+    /// <summary>
+    /// 生成铜锈碎片粒子和其他帧图粒子
+    /// </summary>
+    private void SpawnCorruptDusts()
+    {
+        if (VaultUtils.isServer)
+            return;
+
+        if (Timer % 3 == 0)
+        {
+            Vector2 dir = Helper.NextVec2Dir();
+            PRTLoader.NewParticle<CorruptParticle>(Projectile.Center + dir * 20, dir * Main.rand.NextFloat(0.3f, 1f), Color.White * Main.rand.NextFloat(0.5f, 0.75f), Main.rand.NextFloat(0.75f, 1f));
+        }
+
+        if (Timer % 8 == 0)
+        {
+            int type = Main.rand.NextFromList(PRTLoader.GetParticleID<RhombicMirrorParticle>(), PRTLoader.GetParticleID<CorruptSymbolParticle>());
+
+            Vector2 dir = Helper.NextVec2Dir();
+            PRTLoader.NewParticle(type, Projectile.Center + dir * 20, Vector2.Zero, Color.White, Main.rand.NextFloat(0.6f, 0.8f));
+        }
+    }
+
+    /// <summary>
+    /// 生成蓄力时的流动线条，默认6条线向中心汇聚
+    /// </summary>
+    /// <param name="direction"></param>
     private void SpawnChannelFlowLine(int direction)
     {
         float rot = Main.rand.NextFloat(MathHelper.TwoPi);
@@ -1229,8 +1268,6 @@ public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>, IDraw
         Projectile.rotation = 0;
         Projectile.Center = teleportPos;
         Recorder = Recorder2 = Recorder3 = 0;
-
-        //PRTLoader.NewParticle<AlchSymbolFire>(Projectile.Center, Vector2.Zero, new Color(203, 66, 66));
     }
 
     public override Vector2 GetIdlePos(int selfIndex, int totalCount)
@@ -1240,18 +1277,15 @@ public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>, IDraw
             return basePos;
 
         if (selfIndex <= 3)//第2~7个呈六边形环绕
-        {
             return basePos + ((selfIndex - 1) * MathHelper.TwoPi / 3 - MathHelper.PiOver2).ToRotationVector2() * 42;
-        }
 
         if (selfIndex <= 6)//第2~7个呈六边形环绕
-        {
             return basePos + ((selfIndex - 4) * MathHelper.TwoPi / 3 - MathHelper.PiOver2 + MathHelper.Pi / 3).ToRotationVector2() * 42;
-        }
 
         //其余的圆圈形环绕
         int restCount = totalCount - 6;
         float length = 70 + (totalCount - 7) * 15;
+
         return basePos + ((selfIndex - 7) * MathHelper.TwoPi / restCount - MathHelper.PiOver2).ToRotationVector2() * length;
     }
 
@@ -1315,6 +1349,25 @@ public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>, IDraw
         Helper.PlayPitched("AlchSeries/RhombicMirrorProjCharge", 0.2f, 0f, Projectile.Center);
     }
 
+    /// <summary>
+    /// 生成残影
+    /// </summary>
+    public void SpawnFrameShadow()
+    {
+        if (VaultUtils.isServer)
+            return;
+
+        pathRecorder += (Projectile.position - Projectile.oldPosition).Length();
+
+        if (pathRecorder > 64)
+        {
+            pathRecorder -= 64;
+            shadowGroup ??= new();
+
+            shadowGroup.Add(DrawShadowParticle.SpawnDirectly(Projectile.Center, Projectile.rotation, GetFlowLineColor() * 0.5f, Projectile.GetTexture(), new Rectangle(2, totalFrameY - 1, 6, totalFrameY), Projectile.scale * 0.8f, 0.8f));
+        }
+    }
+
     #endregion
 
     #region Draw
@@ -1326,6 +1379,8 @@ public class RhombicMirrorProj : BaseAlchorthentMinion<RhombicMirrorBuff>, IDraw
         dir *= xScaleFactor;
         //仅在刚生成的时候使用的透明度
         lightColor *= alpha;
+
+        shadowGroup?.Draw(Main.spriteBatch);
 
         if (canDrawBodyPart)
             DrawBodyParts(lightColor, xScaleFactor, dir);
@@ -1559,7 +1614,7 @@ public class CorruptionMirror : ModProjectile
 
                     Recorder++;
 
-                    float speed = 8 + Recorder * 0.05f;
+                    float speed = 9 + Recorder * 0.05f;
                     int n = 19;
                     if (Recorder > 25)
                         n = (int)Math.Clamp(n - (Recorder - 25) / 5, 10, 19);
@@ -1605,14 +1660,14 @@ public class CorruptionMirror : ModProjectile
         {
             Helper.PlayPitched("AlchSeries/CorruptionMirrorChargeComplete", 0.3f, 1, Projectile.Center);
         }
-        else if (Timer < channelTime + 16)
+        else if (Timer < channelTime + 20)
         {
-            float f = (Timer - channelTime) / 16;
+            float f = (Timer - channelTime) / 20;
             exOffset = new Vector2(0, -45 + 35 * Helper.HeavyEase(f));
         }
         else
         {
-            float f = (Timer - channelTime - 16) / 6;
+            float f = (Timer - channelTime - 16) / 8;
             Owner.itemRotation = (-MathHelper.PiOver2).AngleLerp((Main.MouseWorld - Projectile.Center).ToRotation(), f) + (Owner.direction > 0 ? 0 : MathHelper.Pi);
 
             if (Projectile.IsOwnedByLocalPlayer())
@@ -1621,14 +1676,13 @@ public class CorruptionMirror : ModProjectile
         }
 
         Projectile.Center = Owner.Center + new Vector2(0, Owner.gfxOffY) + exOffset;
-
-        Projectile.rotation = Helper.Lerp(MathHelper.TwoPi, 0, Helper.BezierEase(Timer / 60));
+        Projectile.rotation = Helper.Lerp(MathHelper.TwoPi, 0, Helper.BezierEase(Timer / channelTime));
 
         Timer++;
         if (Projectile.frame < 19)
             Projectile.UpdateFrameNormally(2, 20);
 
-        if (Timer > channelTime + 16 + 6)//完成蓄力，丢出去
+        if (Timer > channelTime + 20 + 8)//完成蓄力，丢出去
         {
             State = 1;
             Timer = 0;
@@ -1639,7 +1693,7 @@ public class CorruptionMirror : ModProjectile
 
             if (Projectile.IsOwnedByLocalPlayer())
             {
-                Projectile.velocity = (Main.MouseWorld - Projectile.Center).SafeNormalize(Vector2.Zero) * 8;
+                Projectile.velocity = (Main.MouseWorld - Projectile.Center).SafeNormalize(Vector2.Zero) * 9;
                 Projectile.extraUpdates = 1;
             }
         }
@@ -1697,7 +1751,7 @@ public class CorruptionMirror : ModProjectile
 
     public void HitVisualEffect(NPC target)
     {
-        Helper.PlayPitched("Misc/BloodySlash2", 0.3f, -0.6f, Projectile.Center);
+        Helper.PlayPitched("Misc/BloodySlash2", 0.2f, -0.6f, Projectile.Center);
 
         if (VisualEffectSystem.HitEffect_SpecialParticles)
         {
@@ -1860,7 +1914,7 @@ public class CorruptLaser : ModProjectile
     {
         Projectile.penetrate = -1;
         Projectile.usesLocalNPCImmunity = true;
-        Projectile.localNPCHitCooldown = 20;
+        Projectile.localNPCHitCooldown = 15;
         Projectile.width = Projectile.height = 30;
         Projectile.friendly = true;
         Projectile.tileCollide = false;
@@ -1894,19 +1948,16 @@ public class CorruptLaser : ModProjectile
                      State = 2;
              });
 
-        /*
-         * 结束点逐渐过渡到目标中心点
-         * 
-         */
+         //结束点逐渐过渡到目标中心点
         if (!VaultUtils.isServer && Timer == 0)
         {
             laser = new LineDrawer.StraightLine(Vector2.Zero, Vector2.Zero, Projectile.GetTexture());
             laser.drawColor = new Color(120, 255, 255, 0);
             laserWidth = ColorState switch
             {
-                0 => 30,
-                1 => 25,
-                _ => 40,
+                0 => 34,
+                1 => 28,
+                _ => 44,
             };
         }
 
@@ -1918,8 +1969,6 @@ public class CorruptLaser : ModProjectile
             Projectile.rotation = (target.Center - Projectile.Center).ToRotation();
             Projectile.Center = owner.Center + (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero) * 5;
         }
-
-        //const int lineWidth = 40;
 
         switch (State)
         {
@@ -1954,9 +2003,7 @@ public class CorruptLaser : ModProjectile
                 {
                     laser?.SetLineWidth(Helper.Lerp(laserWidth, 0, Timer / 8f));
                     if (Timer > 8)
-                    {
                         Projectile.Kill();
-                    }
                 }
                 break;
         }
@@ -1996,32 +2043,53 @@ public class CorruptLaser : ModProjectile
         }
         else
         {
+            modifiers.HideCombatText();
+
             if (ColorState == 0)//常态激光，一点点穿甲
-                modifiers.ArmorPenetration += 8;
+            {
+                modifiers.ArmorPenetration += 10;
+                Projectile.damage = (int)(Projectile.damage * 0.85f);
+            }
             else if (ColorState == 2)//破腐激光，较多穿甲
             {
-                modifiers.HideCombatText();
-                modifiers.ArmorPenetration += 20;
-                modifiers.ModifyHitInfo += CustomDamageNumber;
+                modifiers.ArmorPenetration += 25;
+                Projectile.damage = (int)(Projectile.damage * 0.95f);
             }
-
-            Projectile.damage = (int)(Projectile.damage * 0.8f);
+            else
+                Projectile.damage = (int)(Projectile.damage * 0.85f);
         }
     }
 
-    private void CustomDamageNumber(ref NPC.HitInfo info)
+    public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
     {
-        if (!Target.GetNPCOwner(out NPC target))
-            return;
+        if (target.whoAmI == Target)
+        {
+            if (ColorState == 2)
+                CustomDamageNumberSP(target, damageDone);
+            else
+                CustomDamageNumber(target, damageDone);
+        }
+    }
 
+    private void CustomDamageNumber(NPC target, int damageDone)
+    {
         if (damageParticle == null)
-        {
-            damageParticle = ContinuousDamageParticle.Spawn(target.Center + new Vector2(Main.rand.NextFloat(-target.width / 2, target.width / 2), -20), info.Damage, 35, () => target.Center, () => damageParticle = null, RhombicMirror.ShineCorruptionColor);
-        }
+            damageParticle = ContinuousDamageParticle.Spawn(target.Center + new Vector2(Main.rand.NextFloat(-target.width / 2, target.width / 2), -20), damageDone, 30, () => target.Center, () => damageParticle = null, new Color(246,154,77));
         else
-        {
-            damageParticle.AddDamage(info.Damage);
-        }
+            damageParticle.AddDamage(damageDone, 0.1f, 1.3f, CombatText.DamagedFriendlyCrit, 0.2f);
+    }
+
+    private void CustomDamageNumberSP(NPC target, int damageDone)
+    {
+        if (damageParticle == null)
+            damageParticle = ContinuousDamageParticle.Spawn(target.Center + new Vector2(Main.rand.NextFloat(-target.width / 2, target.width / 2), -20), damageDone, 30, () => target.Center, () => damageParticle = null, RhombicMirror.ShineCorruptionColor);
+        else
+            damageParticle.AddDamage(damageDone, 0.1f, 1.6f, new Color(240, 160, 255), 0.2f);
+    }
+
+    public override void OnKill(int timeLeft)
+    {
+        damageParticle?.Settlement();
     }
 
     public Color GetLaserCoreColor()
@@ -2125,6 +2193,8 @@ public class CorruptLaser : ModProjectile
 
 public class RhombicMirrorSummonParticle : RhombicMirrorLaserParticle
 {
+    public float targetAngle;
+    public float maxLength;
     public override void SetProperty()
     {
         base.SetProperty();
@@ -2146,19 +2216,21 @@ public class RhombicMirrorSummonParticle : RhombicMirrorLaserParticle
         Position = owner.Center;
         Rotation = -MathHelper.PiOver2 + (p.direction > 0 ? -1 : 1) * 0.9f;
 
+        Color c = new Color(180, 120, 220) * 0.6f;
+
         Opacity++;
         if (Opacity < 15)
         {
             float f = Helper.HeavyEase(Opacity / 15);
-            LaserAngleOffset = Helper.Lerp(0.4f, -0.4f, f);
-            LaserLength = Helper.Lerp(30, 90, f);
-            Color = Color.Lerp(Color.Transparent, new Color(180, 120, 220), f);
+            LaserAngleOffset = Helper.Lerp(0.4f, targetAngle, f);
+            LaserLength = Helper.Lerp(30, maxLength, f);
+            Color = Color.Lerp(Color.Transparent,c , f);
         }
         else if (Opacity < 45)
         {
             float f = Helper.X2Ease((Opacity - 15) / 30);
-            LaserLength = Helper.Lerp(90, 60, f);
-            Color = Color.Lerp(new Color(180, 120, 220), Color.Transparent, f);
+            LaserLength = Helper.Lerp(maxLength, maxLength - 30, f);
+            Color = Color.Lerp(c, Color.Transparent, f);
         }
         else
         {
@@ -2236,6 +2308,9 @@ public class CorruptionMirrorRotParticle() : BaseFrameParticle(1, 8, 1, randRot:
     }
 }
 
+/// <summary>
+/// 铜锈粒子
+/// </summary>
 public class CorruptParticle() : BaseFrameParticle(3, 5, 2, randRot: true)
 {
     public override string Texture => AssetDirectory.AlchorthentSeriesItems + Name;
@@ -2244,9 +2319,29 @@ public class CorruptParticle() : BaseFrameParticle(3, 5, 2, randRot: true)
         => Lighting.GetColor(Position.ToTileCoordinates(), Color.White) * (Color.A / 255f);
 }
 
+/// <summary>
+/// 腐败炼金术符号粒子
+/// </summary>
+public class CorruptSymbolParticle() : BaseFrameParticle(1, 13, 1, randRot: false)
+{
+    public override string Texture => AssetDirectory.AlchorthentSeriesItems + Name;
+}
+
+/// <summary>
+/// 圆圈加十字的腐化粒子
+/// </summary>
+public class RhombicMirrorParticle() : BaseFrameParticle(1, 15, 1, randRot: true)
+{
+    public override string Texture => AssetDirectory.AlchorthentSeriesItems + Name;
+}
+
 public class AlchSymbolCopper : BaseAlchSymbol
 {
     public override LineDrawer GetSymbolLine() => RhombicMirror.NewCopperAlchSymbol();
+
+    public override bool FadeLineOffset => false;
+    public override bool FadeScale => false;
+    public override bool FadeColor => true;
 
     public override void SetProperty()
     {
